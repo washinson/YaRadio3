@@ -39,7 +39,7 @@ class Manager(context: Context) {
 
     fun typeAndTag(tag: Tag?): String {
         if(tag == null) return "";
-        return "${tag.type.name}/${tag.tag}"
+        return "${tag.type.id}/${tag.tag}"
     }
 
     fun historyFeedback(track: Track, duration: Double, auth: Auth, feedback: String): String? {
@@ -59,10 +59,10 @@ class Manager(context: Context) {
         val jsonTrack = JSONObject()
         jsonTrack.put("album", Integer.valueOf(track.albumId))
         jsonTrack.put("context", "radio")
-        jsonTrack.put("contextItem", track.tag.type.name + ":" + track.tag.tag)
+        jsonTrack.put("contextItem", track.tag.type.id + ":" + track.tag.tag)
         jsonTrack.put("duration", track.durationMs / 1000.0)
         jsonTrack.put("feedback", feedback)
-        jsonTrack.put("from", "radio-web-${track.tag.type.name}-${track.tag.tag}-direct")
+        jsonTrack.put("from", "radio-web-${track.tag.type.id}-${track.tag.tag}-direct")
         jsonTrack.put("playId", Utils.getPlayId(track, okHttpClient))
         jsonTrack.put("played", duration)
         jsonTrack.put("position", duration)
@@ -180,7 +180,7 @@ class Manager(context: Context) {
 
     fun setDefaultPostDataTrack(postData: PostConfig, track: Track, auth: Auth) {
         postData.put("timestamp", Date().time.toString())
-        postData.put("from", "radio-web-${track.tag.type.name}-${track.tag.tag}-direct")
+        postData.put("from", "radio-web-${track.tag.type.id}-${track.tag.tag}-direct")
         postData.put("sign", auth.sign)
         postData.put("external-domain", "radio.yandex.ru")
         postData.put("overembed", "no")

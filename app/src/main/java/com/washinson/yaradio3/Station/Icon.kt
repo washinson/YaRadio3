@@ -2,11 +2,16 @@ package com.washinson.yaradio3.Station
 
 import org.json.JSONObject
 
-class Icon(jsonObject: JSONObject) {
-    val backgroundColor: String = ""
-    val imageUrl: String = ""
+class Icon(icon: JSONObject) {
+    val backgroundColor: String
+    val imageUrl: String
 
     init {
-        TODO();
+        backgroundColor = icon.getString("backgroundColor")
+        imageUrl = icon.getString("imageUrl")
+    }
+
+    fun getIcon(xSize: Int, ySize: Int): String {
+        return imageUrl.replace("%%", xSize.toString() + "x" + ySize.toString());
     }
 }

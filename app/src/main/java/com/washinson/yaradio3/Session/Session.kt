@@ -2,6 +2,8 @@ package com.washinson.yaradio3.Session
 
 import android.content.Context
 import com.washinson.yaradio3.Station.Tag
+import com.washinson.yaradio3.Station.Type
+import org.json.JSONObject
 
 class Session(context: Context) {
     val auth: Auth
@@ -23,9 +25,21 @@ class Session(context: Context) {
         TODO()
     }
 
-    fun getTypes() {
+    fun getTypes(): ArrayList<Type> {
         val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null)
-        var a = 10;
+        val mainBody = JSONObject(response)
+        val types = mainBody.getJSONObject("types")
+        val stations = mainBody.getJSONObject("stations")
+
+
+        val typesResult = ArrayList<Type>()
+        val typesArray =  types.toJSONArray(types.names())
+        for(i in 0 until typesArray.length()) {
+            val currentType = typesArray.getJSONObject(i)
+            typesResult.add(Type(currentType, stations))
+        }
+
+        return typesResult
     }
 
     fun setTagToPlay(tag: Tag) {
