@@ -1,7 +1,13 @@
 package com.washinson.yaradio3.Station
 
-class Restriction {
-    val type: String
-    val name: String
-    val possibleValues: Array<Pair<String, String>>
+import org.json.JSONObject
+
+class Restriction(jsonObject: JSONObject) {
+    val type: String = ""
+    val name: String = ""
+    val possibleValues: Array<Pair<String, String>>? = null
+
+    init {
+        TODO()
+    }
 }

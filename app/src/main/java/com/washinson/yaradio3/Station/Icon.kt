@@ -1,6 +1,12 @@
 package com.washinson.yaradio3.Station
 
-class Icon {
-    val backgroundColor: String
-    val imageUrl: String
+import org.json.JSONObject
+
+class Icon(jsonObject: JSONObject) {
+    val backgroundColor: String = ""
+    val imageUrl: String = ""
+
+    init {
+        TODO();
+    }
 }

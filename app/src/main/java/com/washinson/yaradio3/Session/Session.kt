@@ -24,7 +24,8 @@ class Session(context: Context) {
     }
 
     fun getTypes() {
-
+        val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null)
+        var a = 10;
     }
 
     fun setTagToPlay(tag: Tag) {
@@ -37,9 +38,9 @@ class Session(context: Context) {
     fun nextTrack(finished: Boolean, duration: Double) {
         if(track != null) {
             if (finished) {
-                manager.sayAboutTrack(track!!, duration / 1000.0, auth, manager.trackFinished)
+                manager.sayAboutTrack(track!!, duration, auth, manager.trackFinished)
             } else {
-                manager.sayAboutTrack(track!!, duration / 1000.0, auth, manager.skip)
+                manager.sayAboutTrack(track!!, duration, auth, manager.skip)
             }
         }
         yandexCommunicator.next()
@@ -51,15 +52,16 @@ class Session(context: Context) {
         return startTrack()
     }
 
-    fun like() {
-
+    fun like(track: Track, duration: Double) {
+        manager.sayAboutTrack(track, duration, auth, manager.like)
     }
 
-    fun unlike() {
-
+    fun unlike(track: Track, duration: Double) {
+        manager.sayAboutTrack(track, duration, auth, manager.unlike)
     }
 
-    fun dislike() {
-
+    fun dislike(track: Track, duration: Double) {
+        manager.sayAboutTrack(track, duration, auth, manager.dislike)
+        yandexCommunicator.queue.clear()
     }
 }
