@@ -1,17 +1,20 @@
 package com.washinson.yaradio3
 
+import android.net.Uri
 import android.os.Bundle
+import android.text.TextUtils.replace
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.FrameLayout
 import android.widget.Toast
 import com.washinson.yaradio3.Session.Session
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TagsFragment.OnFragmentInteractionListener {
 
     var session: Session? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +29,11 @@ class MainActivity : AppCompatActivity() {
 
         thread {
             //session = Session(this)
+            //supportFragmentManager.beginTransaction()
+            //    .replace(R.id.tags_frame, TagsFragment.newInstance()).commit()
         }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.tags_frame, LoadingFragment.newInstance()).commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
