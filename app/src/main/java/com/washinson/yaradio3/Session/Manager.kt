@@ -18,7 +18,9 @@ import android.util.Log
 import okhttp3.*
 import org.json.JSONArray
 import android.R.attr.track
+import android.accounts.NetworkErrorException
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.io.IOException
 import java.lang.Exception
 
 
@@ -214,7 +216,12 @@ class Manager(context: Context) {
 
     fun doRequest(request: Request): String? {
         var res: String?;
-        val response = okHttpClient.newCall(request).execute()
+        var response: okhttp3.Response
+        try {
+           response = okHttpClient.newCall(request).execute()
+        } catch (exception: IOException) {
+            throw NetworkErrorException()
+        }
         try {
             if (response.body == null) {
                 Log.d(TAG, "response body: null");

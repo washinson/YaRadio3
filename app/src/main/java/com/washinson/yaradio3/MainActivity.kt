@@ -1,5 +1,6 @@
 package com.washinson.yaradio3
 
+import android.accounts.NetworkErrorException
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,11 +32,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+        //val fab: FloatingActionButton = findViewById(R.id.fab)
+        //fab.setOnClickListener { view ->
+        //    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        //        .setAction("Action", null).show()
+        //}
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
@@ -47,9 +48,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navView.setNavigationItemSelectedListener(this)
 
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
+        loadSession()
+    }
+
+    fun loadSession() {
         thread {
-            session = Session(this)
-            loadTypes()
+            try {
+                session = Session(this)
+                loadTypes()
+            } catch (error: NetworkErrorException) {
+                error.printStackTrace()
+                Snackbar.make(findViewById(android.R.id.content), "No internet", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+            }
         }
     }
 
