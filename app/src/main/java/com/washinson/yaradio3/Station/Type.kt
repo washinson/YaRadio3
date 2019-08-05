@@ -17,7 +17,7 @@ class Type(typeStation: JSONObject, stations: JSONObject) {
 
         if(typeStation.has("name"))
             name = typeStation.getString("name")
-        else name = "TODO" //todo
+        else name = "Личные станции" // TODO: make string value
 
         tags = ArrayList<Tag>()
         if (typeStation.has("children")) {

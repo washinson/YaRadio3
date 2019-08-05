@@ -11,10 +11,15 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.Station.Type
+import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    TypeFragment.OnFragmentInteractionListener {
 
-
+    var session: Session? = null
+    var types: ArrayList<Type>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -37,6 +42,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navView.setNavigationItemSelectedListener(this)
 
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
+        thread {
+            session = Session(this)
+            loadTypes()
+        }
+    }
+
+    fun loadTypes() {
+        types = session!!.getTypes()
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        runOnUiThread {
+            for(i in 0 until types!!.size)
+                navView.menu.add(Menu.NONE, i, Menu.NONE, types!![i].name)
+        }
+        loadType(types!![1])
     }
 
     override fun onBackPressed() {
@@ -64,11 +83,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun loadType(type: Type) {
+        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commit()
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.type_users -> {}
-        }
+        if (types != null)
+            loadType(types!![item.itemId])
+
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
         return true

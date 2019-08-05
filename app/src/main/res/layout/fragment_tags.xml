@@ -3,7 +3,7 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             tools:context=".TagsFragment">
+             tools:context=".TypeFragment">
     <ExpandableListView android:layout_width="match_parent" android:layout_height="match_parent"
                         android:id="@+id/tags_expandable_list">
     </ExpandableListView>

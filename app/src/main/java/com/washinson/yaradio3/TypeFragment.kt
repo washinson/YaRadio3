@@ -1,16 +1,14 @@
 package com.washinson.yaradio3
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.ybq.android.spinkit.SpinKitView
 import com.washinson.yaradio3.Station.Type
 
-class TagsFragment(val type: Type) : Fragment() {
+class TypeFragment(val type: Type) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreateView(
@@ -57,6 +55,6 @@ class TagsFragment(val type: Type) : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(type: Type) = TagsFragment(type)
+        fun newInstance(type: Type) = TypeFragment(type)
     }
 }
