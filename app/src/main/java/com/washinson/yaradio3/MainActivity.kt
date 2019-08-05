@@ -1,6 +1,7 @@
 package com.washinson.yaradio3
 
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
@@ -12,11 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener {
+    override fun start(tag: Tag) {
+        Log.d("test", tag.type.id + " " + tag.tag)
+    }
 
     var session: Session? = null
     var types: ArrayList<Type>? = null
