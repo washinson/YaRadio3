@@ -9,13 +9,17 @@ import com.washinson.yaradio3.Session.Session
 import kotlin.concurrent.thread
 import android.content.ComponentName
 import android.content.Context
+import android.media.session.MediaSession
 import android.os.IBinder
-
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
 
 
 class PlayerActivity : AppCompatActivity() {
     var session: Session? = null
-    var serviceBinder: PlayerService.PlayerServiceBinder? = null
+    var playerService: PlayerService? = null
+    var mediaController: MediaControllerCompat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +34,8 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     fun connectService() {
-        val intent = Intent(this, PlayerService::class.java)
-        startService(intent)
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE)
+        bindService(Intent(this, PlayerService::class.java),
+            mConnection, Context.BIND_AUTO_CREATE)
     }
 
     fun initInterface() {
@@ -50,14 +53,29 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    fun updateInterface() {
+
+    }
+
     private val mConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            serviceBinder = service as PlayerService.PlayerServiceBinder
+            playerService = (service as PlayerService.PlayerServiceBinder).getService()
+            mediaController = MediaControllerCompat(this@PlayerActivity, playerService!!.mediaSession.sessionToken)
+            mediaController!!.registerCallback(object : MediaControllerCompat.Callback() {
+                override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+                    updateInterface()
+                }
+
+                override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                    updateInterface()
+                }
+            })
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
-            serviceBinder = null
+            playerService = null
+            mediaController = null
         }
     }
 

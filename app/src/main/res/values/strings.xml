@@ -23,4 +23,9 @@
     <string name="please_login">Please, login</string>
     <string name="not_supported">Not supported this time</string>
     <string name="logout_text">Logout</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="next">Next</string>
+    <string name="dislike_track">Dislike</string>
+    <string name="like_track">Like</string>
 </resources>
