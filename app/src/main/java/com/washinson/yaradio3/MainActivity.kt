@@ -25,11 +25,7 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener {
     override fun start(tag: Tag) {
-        thread {
-            session?.setTagToPlay(tag)
-            val trackUrl = session?.startTrack()
-            val a = 0;
-        }
+
     }
 
     var session: Session? = null
@@ -55,7 +51,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         navView.setNavigationItemSelectedListener(this)
 
-        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
         loadSession()
     }
 
@@ -75,9 +70,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun loadSession() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.menu.clear()
+        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
         thread {
             try {
-                session = Session(this)
+                session = Session.getInstance(0, this)
                 loadTypes()
                 updateNavButtons()
             } catch (error: NetworkErrorException) {
@@ -122,7 +118,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         loadType(types!![1])
     }
-
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {

@@ -7,7 +7,7 @@ import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
 
-class Session(context: Context) {
+class Session private constructor(context: Context) {
     val auth: Auth
     val manager: Manager
     val yandexCommunicator: YandexCommunicator
@@ -21,6 +21,18 @@ class Session(context: Context) {
         manager = Manager(context)
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
+    }
+
+    companion object {
+        private val sessions: HashMap<Int, Session> = hashMapOf()
+        fun getInstance(id: Int, context: Context): Session {
+            if (sessions.contains(id)) {
+                return sessions[id]!!
+            } else {
+                sessions[id] = Session(context)
+                return sessions[id]!!
+            }
+        }
     }
 
     fun login(cookies: String?) {

@@ -30,7 +30,7 @@ class LoginActivity : AppCompatActivity() {
 
         val browser = findViewById<WebView>(R.id.login_webview)
         browser.settings.javaScriptEnabled = true
-        browser.loadUrl("https://passport.yandex.ru/auth?origin=radio&&retpath=https://music.yandex.ru/settings/?from-passport")
+        browser.loadUrl("https://passport.yandex.ru/auth?origin=radio")
         browser.setWebViewClient(MyWebViewClient())
     }
 
