@@ -1,6 +1,8 @@
 package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -13,6 +15,8 @@ import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import android.view.Menu
+import android.widget.TextView
+import android.widget.Toast
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
@@ -21,7 +25,11 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener {
     override fun start(tag: Tag) {
-        Log.d("test", tag.type.id + " " + tag.tag)
+        thread {
+            session?.setTagToPlay(tag)
+            val trackUrl = session?.startTrack()
+            val a = 0;
+        }
     }
 
     var session: Session? = null
@@ -51,17 +59,58 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         loadSession()
     }
 
+    fun login() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivityForResult(intent, 0)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            val cookies = data?.getStringExtra("cookies")
+            session?.login(cookies)
+            loadSession()
+        }
+    }
+
     fun loadSession() {
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        navView.menu.clear()
         thread {
             try {
                 session = Session(this)
                 loadTypes()
+                updateNavButtons()
             } catch (error: NetworkErrorException) {
                 error.printStackTrace()
-                Snackbar.make(findViewById(android.R.id.content), "No internet", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_internet), Snackbar.LENGTH_LONG).show()
             }
         }
+    }
+
+    fun updateNavButtons() {
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        val navHeaderView = navView.getHeaderView(0)
+        runOnUiThread {
+            if (session!!.isUserLoggedIn()) {
+                navHeaderView.findViewById<TextView>(R.id.user_login_button).setOnClickListener {
+                    logout()
+                }
+                navHeaderView.findViewById<TextView>(R.id.user_login_text).text = session?.getUserLogin()
+                navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.logout_text)
+            } else {
+                navHeaderView.setOnClickListener {
+                    login()
+                }
+                navHeaderView.findViewById<TextView>(R.id.user_login_text).text = getString(R.string.user_guest)
+                navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.login_text)
+            }
+        }
+    }
+
+    fun logout() {
+        Toast.makeText(this, "Ha-ha, you closed here!!! (${getString(R.string.not_supported)})", Toast.LENGTH_SHORT).show()
+        //TODO: logout
+        //session?.logout()
     }
 
     fun loadTypes() {
@@ -100,7 +149,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun loadType(type: Type) {
-        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commit()
+        if (type.id == "user" && session != null && !session!!.isUserLoggedIn()) {
+            Toast.makeText(this, getString(R.string.please_login), Toast.LENGTH_SHORT).show()
+            login()
+        } else {
+            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commit()
+        }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

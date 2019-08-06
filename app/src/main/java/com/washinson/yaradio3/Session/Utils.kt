@@ -13,12 +13,15 @@ import java.util.zip.GZIPInputStream
 class Utils {
     companion object {
         fun getPlayId(track: Track, okHttpClient: OkHttpClient): String {
-            var httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
-            if(httpUrl == null) return "";
-            val cookies = okHttpClient.cookieJar.loadForRequest(httpUrl);
-            TODO("checkIT");
-            //String id = Browser.getCookieParam("device_id").replaceAll("\"", "");
-            //return id + ":" + track.getId() + ":" + String.valueOf(Math.random()).substring(2);
+            val cookies = okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!);
+            var deviceId = ""
+            for (cookie in cookies) {
+                if (cookie.name == "device_id") {
+                    deviceId = cookie.value
+                }
+            }
+            deviceId = deviceId.replace("\"", "")
+            return deviceId + ":" + track.id + ":" + Math.random().toString().substring(2);
         }
 
         fun decodeGZIP(bytes: ByteArray): String {

@@ -3,6 +3,8 @@ package com.washinson.yaradio3.Session
 import android.content.Context
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
+import okhttp3.Cookie
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
 
 class Session(context: Context) {
@@ -21,8 +23,46 @@ class Session(context: Context) {
         yandexCommunicator = YandexCommunicator(manager,auth)
     }
 
-    fun login() {
-        TODO()
+    fun login(cookies: String?) {
+        if (cookies == null)
+            return
+        val t = cookies.split("; ")
+        val cookieArrayList = ArrayList<Cookie>()
+        for (pair in t) {
+            val res = pair.split("=".toRegex(), 2).toTypedArray()
+            val cookie = Cookie.Builder().domain("https://radio.yandex.ru".toHttpUrlOrNull()!!.topPrivateDomain()!!)
+                .name(res[0]).value(res[1]).expiresAt(java.lang.Long.MAX_VALUE).build()
+
+            cookieArrayList.add(cookie)
+        }
+        manager.okHttpClient.cookieJar.saveFromResponse("https://radio.yandex.ru".toHttpUrlOrNull()!!, cookieArrayList)
+    }
+
+    fun logout() {
+        TODO("Session doesn't support logout")
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        val t = manager.okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
+        var result = false
+        for (cookie in t) {
+            if (cookie.name == "yandex_login") {
+                result = true
+            }
+        }
+        return result
+    }
+
+    fun getUserLogin(): String? {
+        val t = manager.okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
+        var result: String? = null
+        for (cookie in t) {
+            if (cookie.name == "yandex_login") {
+                result = cookie.value
+                break
+            }
+        }
+        return result
     }
 
     fun getTypes(): ArrayList<Type> {
@@ -63,7 +103,7 @@ class Session(context: Context) {
     fun startTrack(): String {
         if(track == null)
             return ""
-        return startTrack()
+        return yandexCommunicator.startTrack()
     }
 
     fun like(track: Track, duration: Double) {

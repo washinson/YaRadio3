@@ -17,4 +17,10 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="user_guest">Guest</string>
+    <string name="login_text">Login</string>
+    <string name="no_internet">No internet</string>
+    <string name="please_login">Please, login</string>
+    <string name="not_supported">Not supported this time</string>
+    <string name="logout_text">Logout</string>
 </resources>
