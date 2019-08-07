@@ -1,5 +1,6 @@
 package com.washinson.yaradio3.Session
 
+import android.accounts.NetworkErrorException
 import android.content.Context
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
@@ -30,8 +31,12 @@ class Session private constructor(context: Context) {
             if (sessions.contains(id)) {
                 return sessions[id]!!
             } else {
-                thread { sessions[id] = Session(context) }.join()
-                return sessions[id]!!
+                thread {
+                    try {
+                        sessions[id] = Session(context)
+                    } catch (e: NetworkErrorException) {}
+                }.join()
+                return sessions[id] ?: throw NetworkErrorException()
             }
         }
     }
