@@ -96,11 +96,23 @@ class PlayerService : Service(), CoroutineScope {
         simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
         simpleExoPlayer.addListener(eventListener)
 
-        registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(mediaSessionCallback.likeIntentFilter))
-        registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(mediaSessionCallback.dislikeIntentFilter))
+        registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(MediaSessionCallback.likeIntentFilter))
+        registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
 
         mediaSessionCallback.onPlay()
         startTag()
+
+        launch {
+            while (true) {
+                if (simpleExoPlayer.playWhenReady) {
+                    mediaSession.setPlaybackState(
+                        stateBuilder.setState(
+                            mediaSession.controller.playbackState.state,
+                            simpleExoPlayer.currentPosition, 1F).build())
+                }
+                delay(1000)
+            }
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
@@ -123,6 +135,7 @@ class PlayerService : Service(), CoroutineScope {
                     .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
                     .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
                     .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource.toBitmap())
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.durationMs)
                     .build()
                 mediaSession.setMetadata(metadata)
             }
@@ -132,17 +145,20 @@ class PlayerService : Service(), CoroutineScope {
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, track.tag.name)
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
+            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.durationMs)
             .build()
         mediaSession.setMetadata(metadata)
     }
 
     fun prepareTrack(downloadPath: String) {
         onTrackLoaded()
-        val dataSourceFactory = DefaultHttpDataSourceFactory(Session.getInstance(0, this).manager.browser)
-        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(android.net.Uri.parse(downloadPath))
+        launch(Dispatchers.Main) {
+            val dataSourceFactory = DefaultHttpDataSourceFactory(Session.getInstance(0, this@PlayerService).manager.browser)
+            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(android.net.Uri.parse(downloadPath))
 
-        simpleExoPlayer.prepare(mediaSource)
+            simpleExoPlayer.prepare(mediaSource)
+        }
     }
 
     fun startTag() {
@@ -161,6 +177,7 @@ class PlayerService : Service(), CoroutineScope {
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, getString(R.string.loading))
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getString(R.string.loading))
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, getString(R.string.loading))
+            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100)
             .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, null)
             .build())
         launch(Dispatchers.IO) {
@@ -173,10 +190,12 @@ class PlayerService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("wtf", "OnDestruction")
         mediaSession.release()
         simpleExoPlayer.release()
         unregisterReceiver(mediaSessionCallback.likeReceiver)
         unregisterReceiver(mediaSessionCallback.dislikeReceiver)
+        stopForeground(true)
         job.cancel()
     }
 

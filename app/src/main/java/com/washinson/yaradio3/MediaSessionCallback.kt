@@ -11,9 +11,16 @@ import android.os.Build
 import android.support.v4.media.session.PlaybackStateCompat
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Callback() {
+    companion object {
+        val likeIntentFilter = "com.washinson.yaradio3.like_broadcast"
+        val dislikeIntentFilter = "com.washinson.yaradio3.dislike_broadcast"
+    }
+
     lateinit var mFocusRequest: AudioFocusRequest
 
     override fun onPause() {
@@ -25,7 +32,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         service.mediaSession.setPlaybackState(
             service.stateBuilder.setState(
                 PlaybackStateCompat.STATE_PAUSED,
-                PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
+                service.simpleExoPlayer.currentPosition, 1F).build())
 
         val track = Session.getInstance(0, service).track ?: return
         refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_PAUSED, service.mediaSession, service, track)
@@ -62,7 +69,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         service.mediaSession.setPlaybackState(
             service.stateBuilder.setState(
                 PlaybackStateCompat.STATE_PLAYING,
-                PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
+                service.simpleExoPlayer.currentPosition, 1F).build())
 
         service.simpleExoPlayer.playWhenReady = true
     }
@@ -78,6 +85,18 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         } else {
             service.audioManager!!.abandonAudioFocusRequest(mFocusRequest)
         }
+
+        service.simpleExoPlayer.playWhenReady = false
+        service.simpleExoPlayer.stop(true)
+        service.simpleExoPlayer.release()
+
+        service.mediaSession.setPlaybackState(
+            service.stateBuilder.setState(
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
+
+        refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_STOPPED, service.mediaSession, service, Session.getInstance(0, service).track!!)
+
         service.stopSelf()
     }
 
@@ -113,29 +132,36 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         }
     }
 
-    val likeIntentFilter = "com.washinson.yaradio3.like_broadcast"
     val likeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val session = Session.getInstance(0, service)
-            val track = session.track ?: return
-            if (session.track?.liked == false) {
-                session.like(track, service.simpleExoPlayer.currentPosition / 1000.0)
-            } else {
-                session.unlike(track, service.simpleExoPlayer.currentPosition / 1000.0)
-            }
+            val position = service.simpleExoPlayer.currentPosition / 1000.0
+            service.launch(Dispatchers.IO) {
+                val session = Session.getInstance(0, service)
+                val track = session.track ?: return@launch
+                if (session.track?.liked == false) {
+                    session.like(track, position)
+                    track.liked = true
+                } else {
+                    session.unlike(track, position)
+                    track.liked = false
+                }
 
-            service.mediaSession.setMetadata(service.mediaSession.controller.metadata)
+                service.mediaSession.setMetadata(service.mediaSession.controller.metadata)
+            }
         }
     }
 
-    val dislikeIntentFilter = "com.washinson.yaradio3.dislike_broadcast"
+
     val dislikeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val session = Session.getInstance(0, service)
-            val track = session.track ?: return
-            session.dislike(track, service.simpleExoPlayer.currentPosition / 1000.0)
+            val position = service.simpleExoPlayer.currentPosition / 1000.0
+            service.launch(Dispatchers.IO) {
+                val session = Session.getInstance(0, service)
+                val track = session.track ?: return@launch
+                session.dislike(track, position)
 
-            onSkipToNext()
+                onSkipToNext()
+            }
         }
     }
 }

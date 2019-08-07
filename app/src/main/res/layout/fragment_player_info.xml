@@ -11,37 +11,38 @@
     <ImageView
             android:layout_width="match_parent"
             android:layout_height="0dp" tools:src="@tools:sample/backgrounds/scenic[0]"
-            android:id="@+id/imageView2"
+            android:id="@+id/track_cover"
             android:scaleType="fitCenter" android:layout_weight="15"/>
     <TextView
             android:gravity="center"
             android:text="TextView"
             android:layout_width="match_parent"
-            android:layout_height="0dp" android:id="@+id/textView"
+            android:layout_height="0dp" android:id="@+id/track_label"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" android:layout_weight="2"/>
     <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:id="@+id/progressBar" android:visibility="visible" android:progress="50" android:layout_weight="1"/>
+            android:id="@+id/track_progress_bar" android:visibility="visible" android:progress="50" android:layout_weight="1"/>
     <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <com.github.ybq.android.spinkit.SpinKitView
-                    android:id="@+id/spin_kit"
-                    style="@style/SpinKitView.Large.Wave"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:SpinKit_Color="#ffffff"/>
+            android:layout_weight="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+        <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.Large.Wave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                app:SpinKit_Color="#ffffff"/>
         <ImageButton
                 android:background="?android:selectableItemBackground"
                 android:layout_gravity="end|center"
                 app:srcCompat="@drawable/ic_settings"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
-                android:id="@+id/imageButton2"/>
-        </FrameLayout>
+                android:id="@+id/track_settings"/>
+    </FrameLayout>
     <View
             android:layout_width="match_parent"
             android:layout_height="0dp" android:id="@+id/view5" android:layout_weight="1"/>
@@ -53,12 +54,12 @@
                 android:background="?android:selectableItemBackground"
                 app:srcCompat="@drawable/ic_dislike"
                 android:layout_width="0dp"
-                android:layout_height="match_parent" android:id="@+id/imageButton6" android:layout_weight="3"/>
+                android:layout_height="match_parent" android:id="@+id/track_dislike" android:layout_weight="3"/>
         <ImageButton
                 android:background="?android:selectableItemBackground"
                 app:srcCompat="@drawable/ic_like"
                 android:layout_width="0dp"
-                android:layout_height="match_parent" android:id="@+id/imageButton5" android:layout_weight="3"/>
+                android:layout_height="match_parent" android:id="@+id/track_like" android:layout_weight="3"/>
         <View
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" android:id="@+id/view6" android:layout_weight="1"/>
@@ -66,12 +67,12 @@
                 android:background="?android:selectableItemBackground"
                 android:src="@drawable/exo_controls_play"
                 android:layout_width="0dp"
-                android:layout_height="match_parent" android:id="@+id/imageButton3" android:layout_weight="3"/>
+                android:layout_height="match_parent" android:id="@+id/track_pause" android:layout_weight="3"/>
         <ImageButton
                 android:background="?android:selectableItemBackground"
                 android:src="@drawable/exo_controls_next"
                 android:layout_width="0dp"
-                android:layout_height="match_parent" android:id="@+id/imageButton4" android:layout_weight="3"/>
+                android:layout_height="match_parent" android:id="@+id/track_next" android:layout_weight="3"/>
     </LinearLayout>
     <View
             android:layout_width="match_parent"

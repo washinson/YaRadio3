@@ -13,7 +13,7 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
     val artist: String
     val cover: String
     val durationMs: Long
-    val liked: Boolean
+    var liked: Boolean
     var qualityInfo: YandexCommunicator.QualityInfo? = null
 
     init {
