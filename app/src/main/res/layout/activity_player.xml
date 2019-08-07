@@ -78,7 +78,7 @@
         <ImageButton
                 android:id="@+id/track_dislike"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="50dp"
                 android:layout_weight="3"
                 android:background="?android:selectableItemBackground"
                 android:scaleType="fitCenter"
@@ -87,7 +87,7 @@
         <ImageButton
                 android:id="@+id/track_like"
                 android:layout_width="0dp"
-                android:layout_height="70dp"
+                android:layout_height="60dp"
                 android:layout_weight="3"
                 android:background="?android:selectableItemBackground"
                 android:scaleType="fitCenter"
