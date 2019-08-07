@@ -20,7 +20,6 @@
             tools:ignore="GoogleAppIndexingWarning">
         <service
                 android:name=".PlayerService"
-                android:enabled="false"
                 android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

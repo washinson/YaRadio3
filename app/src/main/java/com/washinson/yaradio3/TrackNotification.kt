@@ -53,7 +53,6 @@ class TrackNotification {
                     playerService.stopForeground(true)
                 }
             }
-            mediaSession.setMetadata(mediaSession.controller.metadata)
         }
         private fun getNotification(playbackState: Int, mediaSession: MediaSessionCompat, context: Context, track: Track): Notification? {
             val builder = NotificationCompat.Builder(context,

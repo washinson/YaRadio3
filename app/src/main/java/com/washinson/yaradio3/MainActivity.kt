@@ -20,12 +20,22 @@ import android.widget.Toast
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    TypeFragment.OnFragmentInteractionListener {
-    override fun start(tag: Tag) {
+    TypeFragment.OnFragmentInteractionListener, CoroutineScope {
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
 
+    override fun start(tag: Tag) {
+        launch(Dispatchers.IO) {
+            session!!.setTagToPlay(tag)
+            launch (Dispatchers.Main) {
+                startActivity(Intent(this@MainActivity, PlayerActivity::class.java))
+            }
+        }
     }
 
     var session: Session? = null
@@ -54,6 +64,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         loadSession()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
     fun login() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivityForResult(intent, 0)
@@ -71,9 +86,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.menu.clear()
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
-        thread {
+        launch(Dispatchers.IO) {
             try {
-                session = Session.getInstance(0, this)
+                session = Session.getInstance(0, this@MainActivity)
                 loadTypes()
                 updateNavButtons()
             } catch (error: NetworkErrorException) {
@@ -86,7 +101,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun updateNavButtons() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         val navHeaderView = navView.getHeaderView(0)
-        runOnUiThread {
+        launch (Dispatchers.Main) {
             if (session!!.isUserLoggedIn()) {
                 navHeaderView.findViewById<TextView>(R.id.user_login_button).setOnClickListener {
                     logout()
@@ -112,7 +127,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun loadTypes() {
         types = session!!.getTypes()
         val navView: NavigationView = findViewById(R.id.nav_view)
-        runOnUiThread {
+        launch (Dispatchers.Main) {
             for(i in 0 until types!!.size)
                 navView.menu.add(Menu.NONE, i, Menu.NONE, types!![i].name)
         }

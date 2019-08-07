@@ -6,6 +6,7 @@ import com.washinson.yaradio3.Station.Type
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
+import kotlin.concurrent.thread
 
 class Session private constructor(context: Context) {
     val auth: Auth
@@ -29,7 +30,7 @@ class Session private constructor(context: Context) {
             if (sessions.contains(id)) {
                 return sessions[id]!!
             } else {
-                sessions[id] = Session(context)
+                thread { sessions[id] = Session(context) }.join()
                 return sessions[id]!!
             }
         }

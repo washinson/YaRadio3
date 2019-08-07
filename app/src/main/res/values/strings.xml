@@ -28,4 +28,5 @@
     <string name="next">Next</string>
     <string name="dislike_track">Dislike</string>
     <string name="like_track">Like</string>
+    <string name="loading">Loading</string>
 </resources>

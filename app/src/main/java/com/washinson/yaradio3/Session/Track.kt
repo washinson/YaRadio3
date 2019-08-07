@@ -1,5 +1,6 @@
 package com.washinson.yaradio3.Session
 
+import android.text.TextUtils.replace
 import com.washinson.yaradio3.Station.Tag
 import org.json.JSONObject
 
@@ -28,7 +29,7 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
         else {
             if(track.getJSONArray("albums").getJSONObject(0).has("cover")){
                 cover = track.getJSONArray("albums")
-                    .getJSONObject(0).getJSONObject("cover").getString("uri");
+                    .getJSONObject(0).getJSONObject("cover").getString("uri")
             } else {
                 cover = "https://music.yandex.ru/blocks/common/default.%%.png";
             }
@@ -38,7 +39,7 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
         val artists = track.getJSONArray("artists")
         val artistNameBuilder = StringBuilder().append("");
         for (i in 0 until artists.length()) {
-            artistNameBuilder.append(artists.getJSONObject(i).getString("name"));
+            artistNameBuilder.append(artists.getJSONObject(i).getString("name"))
             if (i != artists.length() - 1) {
                 artistNameBuilder.append(", ");
             }
@@ -47,5 +48,9 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
         artist = artistNameBuilder.toString();
 
         liked = jsonObject.getBoolean("liked");
+    }
+
+    fun getCoverSize(sizeX: Int, sizeY: Int): String {
+        return cover.replace("%%", sizeX.toString() + "x" + sizeY.toString())
     }
 }

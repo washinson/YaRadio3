@@ -11,28 +11,41 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.app.PendingIntent
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.media.AudioManager
+import android.support.v4.media.session.MediaControllerCompat
+import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import androidx.media.session.MediaButtonReceiver
+import com.bumptech.glide.Glide
+import com.bumptech.glide.manager.LifecycleListener
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.STATE_ENDED
-import com.google.android.exoplayer2.Player.STATE_READY
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.washinson.yaradio3.Session.Manager
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
-import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelection
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.BandwidthMeter
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import kotlinx.coroutines.*
+import java.lang.Exception
 
 
-class PlayerService : Service() {
+class PlayerService : Service(), CoroutineScope {
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
+
     var audioManager: AudioManager? = null
     val metadataBuilder = MediaMetadataCompat.Builder()
     val stateBuilder:PlaybackStateCompat.Builder =
@@ -44,14 +57,13 @@ class PlayerService : Service() {
             or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
             or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS )
     val mediaSessionCallback = MediaSessionCallback(this)
-    var mediaSession: MediaSessionCompat = MediaSessionCompat(this, "YaRadio3")
+    lateinit var mediaSession: MediaSessionCompat
 
-    var videoTrackSelectionFactory: TrackSelection.Factory = AdaptiveTrackSelection.Factory()
-    var trackSelector: TrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
-    val simpleExoPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+    lateinit var simpleExoPlayer: SimpleExoPlayer
 
     override fun onCreate() {
-        super.onCreate();
+        super.onCreate()
+        mediaSession = MediaSessionCompat(this, "YaRadio3")
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                 or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
         mediaSession.setCallback(mediaSessionCallback)
@@ -64,58 +76,104 @@ class PlayerService : Service() {
         mediaSession.setMediaButtonReceiver(
             PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0))
 
+        mediaSession.controller.registerCallback(object : MediaControllerCompat.Callback() {
+            override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+                refreshNotificationAndForegroundStatus(
+                    mediaSession.controller.playbackState.state, mediaSession,
+                    this@PlayerService, Session.getInstance(0, this@PlayerService).track ?: return)
+            }
+
+            override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                refreshNotificationAndForegroundStatus(
+                    mediaSession.controller.playbackState.state, mediaSession,
+                    this@PlayerService, Session.getInstance(0, this@PlayerService).track ?: return)
+            }
+        })
+
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        val videoTrackSelectionFactory: TrackSelection.Factory = AdaptiveTrackSelection.Factory()
+        val trackSelector: TrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+        simpleExoPlayer.addListener(eventListener)
+
+        mediaSessionCallback.onPlay()
         startTag()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent) {
+        super.onTaskRemoved(rootIntent)
+        mediaSessionCallback.onStop()
     }
 
     fun onTrackLoaded() {
         val session = Session.getInstance(0, this)
-        val track = session.track
-        if (track == null)
-            return
+        val track = session.track ?: return
+        Glide.with(this).load(track.getCoverSize(600, 600)).into(object : CustomTarget<Drawable>() {
+            override fun onLoadCleared(placeholder: Drawable?) {
+
+            }
+
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                val metadata = metadataBuilder
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
+                    .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, track.tag.name)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
+                    .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource.toBitmap())
+                    .build()
+                mediaSession.setMetadata(metadata)
+            }
+        })
         val metadata = metadataBuilder
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, track.tag.name)
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.album)
-            //.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmap)
             .build()
         mediaSession.setMetadata(metadata)
-        refreshNotificationAndForegroundStatus(mediaSession.controller.playbackState.state, mediaSession, this, track);
     }
 
-    fun startTrack(downloadPath: String) {
+    fun prepareTrack(downloadPath: String) {
         onTrackLoaded()
         val dataSourceFactory = DefaultHttpDataSourceFactory(Session.getInstance(0, this).manager.browser)
         val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
             .createMediaSource(android.net.Uri.parse(downloadPath))
 
-        simpleExoPlayer.prepare(mediaSource);
-        simpleExoPlayer.playWhenReady = true;
+        simpleExoPlayer.prepare(mediaSource)
     }
 
     fun startTag() {
-        if (simpleExoPlayer.playWhenReady)
-            simpleExoPlayer.stop()
-        thread {
-            val session = Session.getInstance(0, this)
-            startTrack(session.startTrack())
+        mediaSessionCallback.onPause()
+        launch(Dispatchers.IO) {
+            val session = Session.getInstance(0, this@PlayerService)
+            prepareTrack(session.startTrack())
+            mediaSessionCallback.onPlay()
         }
     }
 
     fun nextTrack(finished: Boolean, duration: Double) {
-        thread {
-            val session = Session.getInstance(0, this)
+        mediaSessionCallback.onPause()
+        mediaSession.setMetadata(metadataBuilder
+            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, getString(R.string.loading))
+            .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, getString(R.string.loading))
+            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getString(R.string.loading))
+            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, getString(R.string.loading))
+            .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, null)
+            .build())
+        launch(Dispatchers.IO) {
+            val session = Session.getInstance(0, this@PlayerService)
             session.nextTrack(finished, duration)
-            startTrack(session.startTrack())
+            prepareTrack(session.startTrack())
+            mediaSessionCallback.onPlay()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaSession?.release()
+        mediaSession.release()
         simpleExoPlayer.release()
+        job.cancel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

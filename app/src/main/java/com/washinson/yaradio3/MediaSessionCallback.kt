@@ -17,7 +17,9 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     lateinit var mFocusRequest: AudioFocusRequest
 
     override fun onPause() {
-        service.unregisterReceiver(becomingNoisyReceiver)
+        try{
+            service.unregisterReceiver(becomingNoisyReceiver)
+        } catch (e: IllegalArgumentException) {}
         service.simpleExoPlayer.playWhenReady = false
 
         service.mediaSession.setPlaybackState(
@@ -30,13 +32,11 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     }
 
     override fun onSkipToNext() {
-        if (service.simpleExoPlayer.playWhenReady)
-            service.simpleExoPlayer.stop()
         service.nextTrack(false, service.simpleExoPlayer.currentPosition / 1000.0)
     }
 
+    @Suppress("DEPRECATION")
     override fun onPlay() {
-        service.startService(Intent(service, PlayerService::class.java))
         val audioFocusResult: Int
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             audioFocusResult = service.audioManager!!.requestAudioFocus(
@@ -57,21 +57,28 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         // Аудиофокус надо получить строго до вызова setActive!
         service.mediaSession.isActive = true
 
-        service.registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+        service.registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
 
-        val track = Session.getInstance(0, service).track ?: return
-        TrackNotification.refreshNotificationAndForegroundStatus(
-            service.mediaSession.controller.playbackState.state, service.mediaSession, service, track);
+        service.mediaSession.setPlaybackState(
+            service.stateBuilder.setState(
+                PlaybackStateCompat.STATE_PLAYING,
+                PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
+
+        service.simpleExoPlayer.playWhenReady = true
     }
 
+    @Suppress("DEPRECATION")
     override fun onStop() {
-        service.unregisterReceiver(becomingNoisyReceiver);
+        try{
+            service.unregisterReceiver(becomingNoisyReceiver)
+        } catch (e: IllegalArgumentException) {}
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             service.audioManager!!.abandonAudioFocus(audioFocusChangeListener);
         } else {
             service.audioManager!!.abandonAudioFocusRequest(mFocusRequest)
         }
-        service.stopSelf();
+        service.stopSelf()
     }
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -98,7 +105,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         }
     }
 
-    val becomingNoisyReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val becomingNoisyReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
                 service.mediaSessionCallback.onPause()
