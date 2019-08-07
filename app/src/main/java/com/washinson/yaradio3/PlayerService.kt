@@ -11,6 +11,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.app.PendingIntent
 import android.content.Context
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -35,8 +36,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelection
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -96,6 +95,9 @@ class PlayerService : Service(), CoroutineScope {
         val trackSelector: TrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
         simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
         simpleExoPlayer.addListener(eventListener)
+
+        registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(mediaSessionCallback.likeIntentFilter))
+        registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(mediaSessionCallback.dislikeIntentFilter))
 
         mediaSessionCallback.onPlay()
         startTag()
@@ -173,6 +175,8 @@ class PlayerService : Service(), CoroutineScope {
         super.onDestroy()
         mediaSession.release()
         simpleExoPlayer.release()
+        unregisterReceiver(mediaSessionCallback.likeReceiver)
+        unregisterReceiver(mediaSessionCallback.dislikeReceiver)
         job.cancel()
     }
 

@@ -112,4 +112,30 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             }
         }
     }
+
+    val likeIntentFilter = "com.washinson.yaradio3.like_broadcast"
+    val likeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val session = Session.getInstance(0, service)
+            val track = session.track ?: return
+            if (session.track?.liked == false) {
+                session.like(track, service.simpleExoPlayer.currentPosition / 1000.0)
+            } else {
+                session.unlike(track, service.simpleExoPlayer.currentPosition / 1000.0)
+            }
+
+            service.mediaSession.setMetadata(service.mediaSession.controller.metadata)
+        }
+    }
+
+    val dislikeIntentFilter = "com.washinson.yaradio3.dislike_broadcast"
+    val dislikeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val session = Session.getInstance(0, service)
+            val track = session.track ?: return
+            session.dislike(track, service.simpleExoPlayer.currentPosition / 1000.0)
+
+            onSkipToNext()
+        }
+    }
 }
