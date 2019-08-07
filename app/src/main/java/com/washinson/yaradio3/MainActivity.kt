@@ -30,12 +30,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override val coroutineContext = Dispatchers.Main.immediate+job
 
     override fun start(tag: Tag) {
-        launch(Dispatchers.IO) {
+        startActivity(Intent(this@MainActivity, PlayerActivity::class.java))
+        /*launch(Dispatchers.IO) {
             session!!.setTagToPlay(tag)
             launch (Dispatchers.Main) {
                 startActivity(Intent(this@MainActivity, PlayerActivity::class.java))
             }
-        }
+        }*/
     }
 
     var session: Session? = null

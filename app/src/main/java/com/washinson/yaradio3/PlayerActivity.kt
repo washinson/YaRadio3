@@ -17,9 +17,18 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
 import com.github.ybq.android.spinkit.SpinKitView
+import androidx.viewpager.widget.ViewPager
+import java.util.*
+
 
 class PlayerActivity : AppCompatActivity() {
     var session: Session? = null
@@ -35,9 +44,23 @@ class PlayerActivity : AppCompatActivity() {
     lateinit var trackLabel: TextView
     lateinit var spinKitView: SpinKitView
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+
+        val adapter = PlayerAdapter(supportFragmentManager)
+
+        val viewPager: ViewPager = findViewById(R.id.view_pager_player)
+        viewPager.adapter = adapter
+        viewPager.currentItem = 1
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val window1 = window
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = ContextCompat.getColor(this ,R.color.colorPrimary);
+        };
 
         thread {
             session = Session.getInstance(0, this)
@@ -48,13 +71,15 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     fun connectService() {
+        /*
         startService(Intent(this, PlayerService::class.java))
         bindService(Intent(this, PlayerService::class.java),
             mConnection, Context.BIND_AUTO_CREATE)
+            */
     }
 
     fun initInterface() {
-        Log.d("test", "Update Interface")
+        /*Log.d("test", "Update Interface")
         nextButton = findViewById(R.id.track_next)
         pauseButton = findViewById(R.id.track_pause)
         likeButton = findViewById(R.id.track_like)
@@ -80,12 +105,12 @@ class PlayerActivity : AppCompatActivity() {
         }
         dislikeButton.setOnClickListener {
 
-        }
+        }*/
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(mConnection)
+        //unbindService(mConnection)
     }
 
     @Suppress("DEPRECATION")
@@ -142,4 +167,13 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    inner class PlayerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+        override fun getItem(position: Int): Fragment {
+            when(position) {
+                else -> { return PlayerInfoFragment()}
+            }
+        }
+
+        override fun getCount() = 3
+    }
 }
