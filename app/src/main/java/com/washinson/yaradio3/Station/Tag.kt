@@ -40,6 +40,6 @@ class Tag(id: JSONObject, stations: JSONObject, val type: Type) {
     }
 
     fun setSettings(language: String, moodEnergy: String, diversity: String) {
-        Session.getInstance(0, null).updateInfo(moodEnergy, diversity, language)
+        Session.getInstance(0, null).updateInfo(language, moodEnergy, diversity)
     }
 }

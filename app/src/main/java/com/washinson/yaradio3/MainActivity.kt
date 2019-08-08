@@ -2,8 +2,10 @@ package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -20,6 +22,8 @@ import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener, CoroutineScope {
@@ -105,6 +109,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 navHeaderView.findViewById<TextView>(R.id.user_login_text).text = session?.getUserLogin()
                 navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.logout_text)
+
+
+                /*launch(Dispatchers.IO) {
+                    val filename = "myfile"
+                    val fileContents = session?.manager?.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: return@launch
+
+                    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + "/filename.txt")
+                    file.createNewFile()
+                    val fileOutputStream = FileOutputStream(file)
+
+                    fileOutputStream.write(fileContents.toByteArray())
+                }*/
+
             } else {
                 navHeaderView.setOnClickListener {
                     login()

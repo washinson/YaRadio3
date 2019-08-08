@@ -7,6 +7,7 @@ import com.washinson.yaradio3.Station.Type
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
+import java.io.File
 import kotlin.concurrent.thread
 
 class Session private constructor(context: Context) {
@@ -42,7 +43,10 @@ class Session private constructor(context: Context) {
     }
 
     fun updateInfo(language: String, moodEnergy: String, diversity: String) {
+        yandexCommunicator.nextTrack = null
+        yandexCommunicator.queue.clear()
         manager.updateInfo(moodEnergy, diversity, language, track?.tag ?: return, auth)
+        yandexCommunicator.updateTracksIfNeed()
     }
 
     fun login(cookies: String?) {
@@ -93,7 +97,6 @@ class Session private constructor(context: Context) {
         val types = mainBody.getJSONObject("types")
         val stations = mainBody.getJSONObject("stations")
 
-
         val typesResult = ArrayList<Type>()
         val typesArray =  types.toJSONArray(types.names()) ?: return typesResult
 
@@ -131,10 +134,8 @@ class Session private constructor(context: Context) {
 
     fun getNextTracks(): ArrayList<Track> {
         val array = ArrayList<Track>()
-        if(yandexCommunicator.nextTrack == null)
-            return array
-
-        array.add(yandexCommunicator.nextTrack!!)
+        if (yandexCommunicator.nextTrack != null)
+            array.add(yandexCommunicator.nextTrack!!)
         array.addAll(yandexCommunicator.queue)
 
         return array
@@ -158,11 +159,13 @@ class Session private constructor(context: Context) {
         track.disliked = false
         manager.sayAboutTrack(track, duration, auth, manager.undislike)
         yandexCommunicator.queue.clear()
+        yandexCommunicator.updateTracksIfNeed()
     }
 
     fun dislike(track: Track, duration: Double) {
         track.disliked = true
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
+        yandexCommunicator.updateTracksIfNeed()
     }
 }
