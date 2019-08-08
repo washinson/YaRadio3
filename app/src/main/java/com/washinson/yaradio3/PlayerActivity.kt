@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -31,7 +32,6 @@ class PlayerActivity : AppCompatActivity() {
 
     val playerInfoFragment = PlayerInfoFragment()
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
@@ -43,11 +43,10 @@ class PlayerActivity : AppCompatActivity() {
         viewPager.currentItem = 1
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val window1 = window
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this ,R.color.colorPrimary);
-        };
+            window.statusBarColor = ContextCompat.getColor(this ,R.color.colorPrimary)
+        }
 
         GlobalScope.launch {
             session = Session.getInstance(0, this@PlayerActivity)
@@ -70,8 +69,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerService = null
-        mediaController = null
         unbindService(mConnection)
     }
 
@@ -86,8 +83,9 @@ class PlayerActivity : AppCompatActivity() {
             mediaController = playerService!!.mediaSession.controller
             mediaController!!.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-                    if (state?.state == PlaybackStateCompat.STATE_STOPPED)
+                    if (state?.state == PlaybackStateCompat.STATE_STOPPED) {
                         finish()
+                    }
                     playerInfoFragment.updateOnPlaybackState(state ?: return)
                 }
 

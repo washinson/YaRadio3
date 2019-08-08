@@ -3,6 +3,8 @@ package com.washinson.yaradio3
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.ColorFilter
+import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
@@ -79,11 +81,11 @@ class PlayerInfoFragment : Fragment() {
         }
         isInterfaceInited = true
 
-        val state = curActivity.playerService?.mediaSession?.controller?.playbackState
-        if (state != null) updateOnPlaybackState(state)
-
         val metadata = curActivity.playerService?.mediaSession?.controller?.metadata
         if (metadata != null) updateOnMedatada(metadata)
+
+        val state = curActivity.playerService?.mediaSession?.controller?.playbackState
+        if (state != null) updateOnPlaybackState(state)
     }
 
     @Suppress("DEPRECATION")
@@ -134,6 +136,7 @@ class PlayerInfoFragment : Fragment() {
         else
             spinKitView.visibility = View.GONE
 
+        progressBar.progress = 0
         progressBar.max = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
     }
 }

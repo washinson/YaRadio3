@@ -79,13 +79,13 @@ class PlayerService : Service(), CoroutineScope {
             override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
                 refreshNotificationAndForegroundStatus(
                     mediaSession.controller.playbackState.state, mediaSession,
-                    this@PlayerService, Session.getInstance(0, this@PlayerService).track ?: return)
+                    this@PlayerService, Session.getInstance(0, this@PlayerService).track)
             }
 
             override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
                 refreshNotificationAndForegroundStatus(
                     mediaSession.controller.playbackState.state, mediaSession,
-                    this@PlayerService, Session.getInstance(0, this@PlayerService).track ?: return)
+                    this@PlayerService, Session.getInstance(0, this@PlayerService).track)
             }
         })
 
@@ -100,6 +100,7 @@ class PlayerService : Service(), CoroutineScope {
         registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
 
         mediaSessionCallback.onPlay()
+        setLoadingContent()
         startTag()
 
         launch(Dispatchers.IO) {
@@ -174,8 +175,7 @@ class PlayerService : Service(), CoroutineScope {
         }
     }
 
-    fun nextTrack(finished: Boolean, duration: Double) {
-        mediaSessionCallback.onPause()
+    fun setLoadingContent() {
         mediaSession.setMetadata(metadataBuilder
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, getString(R.string.loading))
             .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, getString(R.string.loading))
@@ -184,6 +184,11 @@ class PlayerService : Service(), CoroutineScope {
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100)
             .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, null)
             .build())
+    }
+
+    fun nextTrack(finished: Boolean, duration: Double) {
+        mediaSessionCallback.onPause()
+        setLoadingContent()
         launch(Dispatchers.IO) {
             val session = Session.getInstance(0, this@PlayerService)
             session.nextTrack(finished, duration)
@@ -202,8 +207,7 @@ class PlayerService : Service(), CoroutineScope {
         simpleExoPlayer.release()
         unregisterReceiver(mediaSessionCallback.likeReceiver)
         unregisterReceiver(mediaSessionCallback.dislikeReceiver)
-        stopForeground(true)
-        job.cancel()
+        Log.d("wtf", "destroy -- end")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

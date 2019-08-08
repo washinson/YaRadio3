@@ -10,20 +10,21 @@
 
     <ImageView
             android:layout_width="match_parent"
-            android:layout_height="0dp" tools:src="@tools:sample/backgrounds/scenic[0]"
+            android:layout_height="0dp"
             android:id="@+id/track_cover"
             android:scaleType="fitCenter" android:layout_weight="15"/>
     <TextView
             android:gravity="center"
-            android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="0dp" android:id="@+id/track_label"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" android:layout_weight="2"/>
     <ProgressBar
             style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+            android:theme="@style/CustomProgress"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:id="@+id/track_progress_bar" android:visibility="visible" android:progress="50" android:layout_weight="1"/>
+            android:id="@+id/track_progress_bar" android:visibility="visible" android:progress="0"
+            android:layout_weight="1"/>
     <FrameLayout
             android:layout_weight="2"
             android:layout_width="match_parent"

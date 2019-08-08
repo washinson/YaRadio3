@@ -17,14 +17,16 @@ import com.google.android.exoplayer2.offline.DownloadService.startForeground
 import com.google.android.exoplayer2.util.NotificationUtil.createNotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationChannel
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.os.Build
+import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
 
 class TrackNotification {
     companion object {
         val NOTIFICATION_ID = 1
         val channelID = "1"
-        fun refreshNotificationAndForegroundStatus(playbackState: Int, mediaSession: MediaSessionCompat, playerService: PlayerService, track: Track) {
+        fun refreshNotificationAndForegroundStatus(playbackState: Int, mediaSession: MediaSessionCompat, playerService: PlayerService, track: Track?) {
             when (playbackState) {
                 PlaybackStateCompat.STATE_PLAYING -> {
                     val notification = getNotification(playbackState, mediaSession, playerService, track) ?: return
@@ -50,14 +52,13 @@ class TrackNotification {
                 }
                 else -> {
                     // Все, можно прятать уведомление
-                    playerService.stopForeground(true)
+                    //playerService.stopForeground(true)
+                    //Log.d("wtf", "notification_created")
                 }
             }
         }
-        private fun getNotification(playbackState: Int, mediaSession: MediaSessionCompat, context: Context, track: Track): Notification? {
-            val builder = NotificationCompat.Builder(context,
-                channelID
-            )
+        private fun getNotification(playbackState: Int, mediaSession: MediaSessionCompat, context: Context, track: Track?): Notification? {
+            val builder = NotificationCompat.Builder(context, channelID)
 
             val controller = mediaSession.controller
             val mediaMetadata = controller.metadata ?: return null
@@ -120,7 +121,7 @@ class TrackNotification {
 
             builder.addAction(
                 NotificationCompat.Action(
-                    if (!track.liked) R.drawable.ic_like else R.drawable.ic_liked, context.getString(R.string.like_track),
+                    if (track?.liked == true) R.drawable.ic_liked else R.drawable.ic_like, context.getString(R.string.like_track),
                     PendingIntent.getBroadcast(context, 0, Intent(MediaSessionCallback.likeIntentFilter), 0)
                 )
             )

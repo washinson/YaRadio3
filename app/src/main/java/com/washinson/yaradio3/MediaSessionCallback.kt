@@ -6,9 +6,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.os.Build
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import kotlinx.coroutines.Dispatchers
@@ -51,8 +53,22 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN)
         } else {
+            val audioAttributes = AudioAttributes.Builder()
+                // Собираемся воспроизводить звуковой контент
+                // (а не звук уведомления или звонок будильника)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                // ...и именно музыку (а не трек фильма или речь)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
             mFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                // Если получить фокус не удалось, ничего не делаем
+                // Если true - нам выдадут фокус как только это будет возможно
+                // (например, закончится телефонный разговор)
+                .setAcceptsDelayedFocusGain(false)
+                // Вместо уменьшения громкости собираемся вставать на паузу
+                .setWillPauseWhenDucked(true)
+                .setAudioAttributes(audioAttributes)
                 .build()
             audioFocusResult = service.audioManager!!
                 .requestAudioFocus(mFocusRequest)
@@ -76,6 +92,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     @Suppress("DEPRECATION")
     override fun onStop() {
+        Log.d("wtf", "onstop")
         try{
             service.unregisterReceiver(becomingNoisyReceiver)
         } catch (e: IllegalArgumentException) {}
@@ -94,9 +111,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.stateBuilder.setState(
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
-
-        refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_STOPPED, service.mediaSession, service, Session.getInstance(0, service).track!!)
-
+        Log.d("wtf", "onstop -- end")
         service.stopSelf()
     }
 

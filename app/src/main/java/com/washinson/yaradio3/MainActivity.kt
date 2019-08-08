@@ -22,6 +22,7 @@ import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+import java.lang.Exception
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
