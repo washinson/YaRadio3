@@ -40,6 +40,11 @@ class PlayerNextFragment : Fragment() {
         listHistoryView.adapter = adapter
     }
 
+    override fun onResume() {
+        super.onResume()
+        adapter.onMetadataUpdate()
+    }
+
     inner class MyAdapter(val context: Context) : BaseAdapter() {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         var tracks = ArrayList<Track>()

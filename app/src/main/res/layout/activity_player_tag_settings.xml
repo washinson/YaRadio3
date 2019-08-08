@@ -86,10 +86,12 @@
             android:layout_height="match_parent">
 
         <Button
+                android:textColor="#fff"
                 android:layout_gravity="bottom|center"
-                android:id="@+id/update_info"
+                android:id="@+id/update_tag"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/update"/>
+                android:text="@string/update"
+                android:background="@drawable/custom_click"/>
     </FrameLayout>
 </LinearLayout>
