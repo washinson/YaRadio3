@@ -3,21 +3,29 @@ package com.washinson.yaradio3.Player
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.Session.Session
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.washinson.yaradio3.Station.Settings
+import kotlinx.coroutines.*
 
-class PlayerTagSettings : AppCompatActivity() {
+class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
 
     lateinit var moodGroup: RadioGroup
     lateinit var languageGroup: RadioGroup
     lateinit var diversityGroup: RadioGroup
+    lateinit var updateButton: Button
+
+    var settings: Settings? = null
+    var session: Session? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,32 +41,52 @@ class PlayerTagSettings : AppCompatActivity() {
         languageGroup = findViewById(R.id.language)
         diversityGroup = findViewById(R.id.diversity)
 
-        GlobalScope.launch {
-            val session = Session.getInstance(0, this@PlayerTagSettings)
-            val settings = session.tag?.getSettings() ?: return@launch
+        updateButton = findViewById(R.id.update_tag)
+
+        updateButton.setOnClickListener {
+            launch(Dispatchers.IO) {
+                if (settings == null || session == null)
+                    return@launch
+                val newMood =
+                    settings!!.moodEnergies.possibleValues[moodGroup.checkedRadioButtonId].first
+                val newLanguage =
+                    settings!!.languages.possibleValues[languageGroup.checkedRadioButtonId].first
+                val newDiversity =
+                    settings!!.diversities.possibleValues[diversityGroup.checkedRadioButtonId].first
+                session!!.tag?.setSettings(newLanguage, newMood, newDiversity)
+
+                launch(Dispatchers.Main) {
+                    Toast.makeText(this@PlayerTagSettings, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        launch(Dispatchers.IO) {
+            session = Session.getInstance(0, this@PlayerTagSettings)
+            settings = session!!.tag?.getSettings() ?: return@launch
             launch(Dispatchers.Main) {
                 var q = 0
-                for (i in settings.moodEnergies.possibleValues) {
+                for (i in settings!!.moodEnergies.possibleValues) {
                     val radioButton = RadioButton(this@PlayerTagSettings)
                     radioButton.text = i.second
                     radioButton.id = q++
-                    radioButton.isChecked = i.first == settings.moodEnergy
+                    radioButton.isChecked = i.first == settings!!.moodEnergy
                     moodGroup.addView(radioButton)
                 }
                 q = 0
-                for (i in settings.languages.possibleValues) {
+                for (i in settings!!.languages.possibleValues) {
                     val radioButton = RadioButton(this@PlayerTagSettings)
                     radioButton.text = i.second
                     radioButton.id = q++
-                    radioButton.isChecked = i.first == settings.language
+                    radioButton.isChecked = i.first == settings!!.language
                     languageGroup.addView(radioButton)
                 }
                 q = 0
-                for (i in settings.diversities.possibleValues) {
+                for (i in settings!!.diversities.possibleValues) {
                     val radioButton = RadioButton(this@PlayerTagSettings)
                     radioButton.text = i.second
                     radioButton.id = q++
-                    radioButton.isChecked = i.first == settings.diversity
+                    radioButton.isChecked = i.first == settings!!.diversity
                     diversityGroup.addView(radioButton)
                 }
             }
