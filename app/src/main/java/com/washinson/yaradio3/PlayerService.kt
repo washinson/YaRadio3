@@ -102,13 +102,15 @@ class PlayerService : Service(), CoroutineScope {
         mediaSessionCallback.onPlay()
         startTag()
 
-        launch {
+        launch(Dispatchers.IO) {
             while (true) {
-                if (simpleExoPlayer.playWhenReady) {
-                    mediaSession.setPlaybackState(
-                        stateBuilder.setState(
-                            mediaSession.controller.playbackState.state,
-                            simpleExoPlayer.currentPosition, 1F).build())
+                launch(Dispatchers.Main) {
+                    if (simpleExoPlayer.playWhenReady) {
+                        mediaSession.setPlaybackState(
+                            stateBuilder.setState(
+                                mediaSession.controller.playbackState.state,
+                                simpleExoPlayer.currentPosition, 1F).build())
+                    }
                 }
                 delay(1000)
             }
@@ -152,21 +154,23 @@ class PlayerService : Service(), CoroutineScope {
 
     fun prepareTrack(downloadPath: String) {
         onTrackLoaded()
-        launch(Dispatchers.Main) {
-            val dataSourceFactory = DefaultHttpDataSourceFactory(Session.getInstance(0, this@PlayerService).manager.browser)
-            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(android.net.Uri.parse(downloadPath))
+        val dataSourceFactory = DefaultHttpDataSourceFactory(Session.getInstance(0, this@PlayerService).manager.browser)
+        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(android.net.Uri.parse(downloadPath))
 
-            simpleExoPlayer.prepare(mediaSource)
-        }
+        simpleExoPlayer.prepare(mediaSource)
     }
 
     fun startTag() {
         mediaSessionCallback.onPause()
         launch(Dispatchers.IO) {
             val session = Session.getInstance(0, this@PlayerService)
-            prepareTrack(session.startTrack())
-            mediaSessionCallback.onPlay()
+            val url = session.startTrack()
+
+            launch(Dispatchers.Main) {
+                prepareTrack(url)
+                mediaSessionCallback.onPlay()
+            }
         }
     }
 
@@ -183,8 +187,11 @@ class PlayerService : Service(), CoroutineScope {
         launch(Dispatchers.IO) {
             val session = Session.getInstance(0, this@PlayerService)
             session.nextTrack(finished, duration)
-            prepareTrack(session.startTrack())
-            mediaSessionCallback.onPlay()
+            val url = session.startTrack()
+            launch(Dispatchers.Main) {
+                prepareTrack(url)
+                mediaSessionCallback.onPlay()
+            }
         }
     }
 
