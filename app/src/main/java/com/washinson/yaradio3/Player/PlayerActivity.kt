@@ -1,4 +1,4 @@
-package com.washinson.yaradio3
+package com.washinson.yaradio3.Player
 
 import android.content.Intent
 import android.content.ServiceConnection
@@ -12,14 +12,13 @@ import android.os.IBinder
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.washinson.yaradio3.R
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -31,6 +30,8 @@ class PlayerActivity : AppCompatActivity() {
 
 
     val playerInfoFragment = PlayerInfoFragment()
+    val playerHistoryFragment = PlayerHistoryFragment()
+    val playerNextFragment = PlayerNextFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +46,7 @@ class PlayerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this ,R.color.colorPrimary)
+            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimary)
         }
 
         GlobalScope.launch {
@@ -91,8 +92,11 @@ class PlayerActivity : AppCompatActivity() {
 
                 override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
                     playerInfoFragment.updateOnMedatada(metadata ?: return)
+                    playerHistoryFragment.adapter.onMetadataUpdate()
+                    playerNextFragment.adapter.onMetadataUpdate()
                 }
             })
+            playerInfoFragment.onServiceConnected(playerService ?: return)
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -104,8 +108,9 @@ class PlayerActivity : AppCompatActivity() {
     inner class PlayerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment {
             return when (position) {
+                0 -> playerHistoryFragment
                 1 -> playerInfoFragment
-                else -> PlayerInfoFragment()
+                else -> playerNextFragment
             }
         }
 

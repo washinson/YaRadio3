@@ -1,19 +1,16 @@
-package com.washinson.yaradio3
+package com.washinson.yaradio3.Player
 
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import com.washinson.yaradio3.Session.Session
-import kotlin.concurrent.thread
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.app.PendingIntent
 import android.content.Context
 import android.content.IntentFilter
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.support.v4.media.session.MediaControllerCompat
@@ -21,10 +18,7 @@ import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media.session.MediaButtonReceiver
 import com.bumptech.glide.Glide
-import com.bumptech.glide.manager.LifecycleListener
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
@@ -36,9 +30,9 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelection
-import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import com.washinson.yaradio3.Player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import com.washinson.yaradio3.R
 import kotlinx.coroutines.*
-import java.lang.Exception
 
 
 class PlayerService : Service(), CoroutineScope {
@@ -93,7 +87,7 @@ class PlayerService : Service(), CoroutineScope {
 
         val videoTrackSelectionFactory: TrackSelection.Factory = AdaptiveTrackSelection.Factory()
         val trackSelector: TrackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
         simpleExoPlayer.addListener(eventListener)
 
         registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(MediaSessionCallback.likeIntentFilter))
@@ -202,12 +196,10 @@ class PlayerService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("wtf", "OnDestruction")
         mediaSession.release()
         simpleExoPlayer.release()
         unregisterReceiver(mediaSessionCallback.likeReceiver)
         unregisterReceiver(mediaSessionCallback.dislikeReceiver)
-        Log.d("wtf", "destroy -- end")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

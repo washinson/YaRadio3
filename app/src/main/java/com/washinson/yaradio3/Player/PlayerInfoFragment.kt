@@ -1,10 +1,8 @@
-package com.washinson.yaradio3
+package com.washinson.yaradio3.Player
 
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.ColorFilter
-import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
@@ -18,6 +16,9 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.ybq.android.spinkit.SpinKitView
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Player.STATE_BUFFERING
+import com.washinson.yaradio3.R
 
 
 /**
@@ -88,6 +89,14 @@ class PlayerInfoFragment : Fragment() {
         if (state != null) updateOnPlaybackState(state)
     }
 
+    fun onServiceConnected(playerService: PlayerService) {
+        playerService.simpleExoPlayer.addListener(object : Player.EventListener {
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                setProgressIfBuffering()
+            }
+        })
+    }
+
     @Suppress("DEPRECATION")
     fun updateOnPlaybackState(state: PlaybackStateCompat) {
         if (!isInterfaceInited)
@@ -107,17 +116,6 @@ class PlayerInfoFragment : Fragment() {
             else
                 pauseButton.setImageDrawable(resources.getDrawable(R.drawable.exo_controls_play))
         }
-    }
-
-    @Suppress("DEPRECATION")
-    @SuppressLint("SetTextI18n")
-    fun updateOnMedatada(metadata: MediaMetadataCompat) {
-        if (!isInterfaceInited)
-            return
-        val curActivity = (activity ?: return) as PlayerActivity
-        trackLabel.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) + " - " + metadata.getString(
-            MediaMetadataCompat.METADATA_KEY_TITLE)
-        trackCover.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART))
 
         if(curActivity.session?.track?.liked == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -130,13 +128,33 @@ class PlayerInfoFragment : Fragment() {
             else
                 likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like))
         }
+    }
 
-        if (metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART) == null)
+    @SuppressLint("SetTextI18n")
+    fun updateOnMedatada(metadata: MediaMetadataCompat) {
+        if (!isInterfaceInited)
+            return
+        trackLabel.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) + " - " + metadata.getString(
+            MediaMetadataCompat.METADATA_KEY_TITLE)
+        trackCover.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART))
+
+        setProgressIfBuffering()
+
+        progressBar.progress = 0
+        progressBar.max = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
+    }
+
+    fun setProgressIfBuffering() {
+        val activity = (activity ?: return) as PlayerActivity
+        val service = activity.playerService ?: return
+        val metadata = service.mediaSession.controller.metadata ?: return
+        val simpleExoPlayer = service.simpleExoPlayer
+
+        if (metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART) == null
+            || simpleExoPlayer.playbackState == STATE_BUFFERING)
             spinKitView.visibility = View.VISIBLE
         else
             spinKitView.visibility = View.GONE
 
-        progressBar.progress = 0
-        progressBar.max = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
     }
 }

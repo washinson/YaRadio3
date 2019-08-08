@@ -1,4 +1,4 @@
-package com.washinson.yaradio3
+package com.washinson.yaradio3.Player
 
 import android.support.v4.media.session.MediaSessionCompat
 import android.media.AudioManager
@@ -12,7 +12,7 @@ import android.os.Build
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import com.washinson.yaradio3.Player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -92,13 +92,12 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     @Suppress("DEPRECATION")
     override fun onStop() {
-        Log.d("wtf", "onstop")
         try{
             service.unregisterReceiver(becomingNoisyReceiver)
         } catch (e: IllegalArgumentException) {}
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            service.audioManager!!.abandonAudioFocus(audioFocusChangeListener);
+            service.audioManager!!.abandonAudioFocus(audioFocusChangeListener)
         } else {
             service.audioManager!!.abandonAudioFocusRequest(mFocusRequest)
         }
@@ -111,7 +110,6 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.stateBuilder.setState(
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
-        Log.d("wtf", "onstop -- end")
         service.stopSelf()
     }
 
@@ -153,15 +151,16 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.launch(Dispatchers.IO) {
                 val session = Session.getInstance(0, service)
                 val track = session.track ?: return@launch
-                if (session.track?.liked == false) {
-                    session.like(track, position)
-                    track.liked = true
-                } else {
+                if (session.track!!.liked) {
                     session.unlike(track, position)
-                    track.liked = false
+                } else {
+                    session.like(track, position)
                 }
 
-                service.mediaSession.setMetadata(service.mediaSession.controller.metadata)
+                service.mediaSession.setPlaybackState(
+                    service.stateBuilder.setState(
+                        service.mediaSession.controller.playbackState.state,
+                        service.simpleExoPlayer.currentPosition, 1F).build())
             }
         }
     }

@@ -27,18 +27,22 @@ class Session private constructor(context: Context) {
 
     companion object {
         private val sessions: HashMap<Int, Session> = hashMapOf()
-        fun getInstance(id: Int, context: Context): Session {
+        fun getInstance(id: Int, context: Context?): Session {
             if (sessions.contains(id)) {
                 return sessions[id]!!
             } else {
                 thread {
                     try {
-                        sessions[id] = Session(context)
+                        sessions[id] = Session(context ?: return@thread)
                     } catch (e: NetworkErrorException) {}
                 }.join()
                 return sessions[id] ?: throw NetworkErrorException()
             }
         }
+    }
+
+    fun updateInfo(language: String, moodEnergy: String, diversity: String) {
+        manager.updateInfo(moodEnergy, diversity, language, track?.tag ?: return, auth)
     }
 
     fun login(cookies: String?) {
@@ -84,14 +88,15 @@ class Session private constructor(context: Context) {
     }
 
     fun getTypes(): ArrayList<Type> {
-        val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null)
+        val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
         val mainBody = JSONObject(response)
         val types = mainBody.getJSONObject("types")
         val stations = mainBody.getJSONObject("stations")
 
 
         val typesResult = ArrayList<Type>()
-        val typesArray =  types.toJSONArray(types.names())
+        val typesArray =  types.toJSONArray(types.names()) ?: return typesResult
+
         for(i in 0 until typesArray.length()) {
             val currentType = typesArray.getJSONObject(i)
             typesResult.add(Type(currentType, stations))
@@ -124,15 +129,39 @@ class Session private constructor(context: Context) {
         return yandexCommunicator.startTrack()
     }
 
+    fun getNextTracks(): ArrayList<Track> {
+        val array = ArrayList<Track>()
+        if(yandexCommunicator.nextTrack == null)
+            return array
+
+        array.add(yandexCommunicator.nextTrack!!)
+        array.addAll(yandexCommunicator.queue)
+
+        return array
+    }
+
+    fun getTrackHistory(): ArrayList<Track> {
+        return yandexCommunicator.trackHistory
+    }
+
     fun like(track: Track, duration: Double) {
+        track.liked = true
         manager.sayAboutTrack(track, duration, auth, manager.like)
     }
 
     fun unlike(track: Track, duration: Double) {
+        track.liked = false
         manager.sayAboutTrack(track, duration, auth, manager.unlike)
     }
 
+    fun undislike(track: Track, duration: Double) {
+        track.disliked = false
+        manager.sayAboutTrack(track, duration, auth, manager.undislike)
+        yandexCommunicator.queue.clear()
+    }
+
     fun dislike(track: Track, duration: Double) {
+        track.disliked = true
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
     }

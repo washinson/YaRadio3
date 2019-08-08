@@ -1,4 +1,4 @@
-package com.washinson.yaradio3
+package com.washinson.yaradio3.Player
 
 import android.app.Notification
 import androidx.core.content.ContextCompat
@@ -11,16 +11,11 @@ import android.content.Context
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.washinson.yaradio3.Session.Track
-import androidx.core.app.ServiceCompat.stopForeground
 import androidx.core.app.NotificationManagerCompat
-import com.google.android.exoplayer2.offline.DownloadService.startForeground
-import com.google.android.exoplayer2.util.NotificationUtil.createNotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationChannel
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.os.Build
-import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
+import com.washinson.yaradio3.R
 
 class TrackNotification {
     companion object {
@@ -29,7 +24,12 @@ class TrackNotification {
         fun refreshNotificationAndForegroundStatus(playbackState: Int, mediaSession: MediaSessionCompat, playerService: PlayerService, track: Track?) {
             when (playbackState) {
                 PlaybackStateCompat.STATE_PLAYING -> {
-                    val notification = getNotification(playbackState, mediaSession, playerService, track) ?: return
+                    val notification = getNotification(
+                        playbackState,
+                        mediaSession,
+                        playerService,
+                        track
+                    ) ?: return
                     val mNotificationManager =
                         playerService.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
 
@@ -46,19 +46,25 @@ class TrackNotification {
                 PlaybackStateCompat.STATE_PAUSED -> {
                     // На паузе мы перестаем быть foreground, однако оставляем уведомление,
                     // чтобы пользователь мог play нажать
-                    val notification = getNotification(playbackState, mediaSession, playerService, track) ?: return
+                    val notification = getNotification(
+                        playbackState,
+                        mediaSession,
+                        playerService,
+                        track
+                    ) ?: return
                     NotificationManagerCompat.from(playerService).notify(NOTIFICATION_ID, notification)
                     playerService.stopForeground(false)
                 }
                 else -> {
                     // Все, можно прятать уведомление
-                    //playerService.stopForeground(true)
-                    //Log.d("wtf", "notification_created")
+                    playerService.stopForeground(true)
                 }
             }
         }
         private fun getNotification(playbackState: Int, mediaSession: MediaSessionCompat, context: Context, track: Track?): Notification? {
-            val builder = NotificationCompat.Builder(context, channelID)
+            val builder = NotificationCompat.Builder(context,
+                channelID
+            )
 
             val controller = mediaSession.controller
             val mediaMetadata = controller.metadata ?: return null
@@ -121,7 +127,9 @@ class TrackNotification {
 
             builder.addAction(
                 NotificationCompat.Action(
-                    if (track?.liked == true) R.drawable.ic_liked else R.drawable.ic_like, context.getString(R.string.like_track),
+                    if (track?.liked == true) R.drawable.ic_liked else R.drawable.ic_like, context.getString(
+                        R.string.like_track
+                    ),
                     PendingIntent.getBroadcast(context, 0, Intent(MediaSessionCallback.likeIntentFilter), 0)
                 )
             )

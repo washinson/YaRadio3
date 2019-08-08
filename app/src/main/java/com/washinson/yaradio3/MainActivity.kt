@@ -4,8 +4,6 @@ import android.accounts.NetworkErrorException
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -17,13 +15,11 @@ import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
+import com.washinson.yaradio3.Player.PlayerActivity
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Main
-import java.lang.Exception
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener, CoroutineScope {

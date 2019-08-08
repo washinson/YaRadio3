@@ -23,7 +23,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
 import java.lang.Exception
 
-
+@Suppress("SpellCheckingInspection")
 class Manager(context: Context) {
     val TAG = "Manager"
 
@@ -34,19 +34,20 @@ class Manager(context: Context) {
     val trackFinished = "trackFinished"
     val skip = "skip"
     val radioStarted = "radioStarted"
+    val undislike = "undislike"
 
     val cookieJar: PersistentCookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
-    var okHttpClient: OkHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build();
-    var browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0";
+    var okHttpClient: OkHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build()
+    var browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0"
 
     fun typeAndTag(tag: Tag?): String {
-        if(tag == null) return "";
+        if(tag == null) return ""
         return "${tag.type.id}/${tag.tag}"
     }
 
     fun historyFeedback(track: Track, duration: Double, auth: Auth, feedback: String): String? {
         val path = "https://radio.yandex.ru/api/v2.1/handlers/track/none/history/feedback/retry"
-        val postBody = JSONObject();
+        val postBody = JSONObject()
         setDefaulHistoryFeedbackBody(track, postBody, auth, duration, feedback)
         return post(path,
             postBody.toString().toRequestBody("application/json".toMediaTypeOrNull()), null, "application/json", track.tag)
@@ -90,12 +91,12 @@ class Manager(context: Context) {
         }
         Log.d(TAG, "getTracks: ${url}")
         Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
-        val response = get(url, null, tag)
+        val response = get(url, null, tag) ?: throw NetworkErrorException()
         val tracks = JSONObject(response)
         val array = tracks.getJSONArray("tracks")
         val trackList = ArrayDeque<Track>()
         for (i in 0 until array.length()) {
-            val trackObject = array.getJSONObject(i);
+            val trackObject = array.getJSONObject(i)
             if (trackObject.getString("type") == "track") {
                 trackList.add(Track(trackObject, tag))
             }
@@ -103,76 +104,76 @@ class Manager(context: Context) {
         return trackList
     }
 
-    fun updateInfo(moodEnergy: String, diversity: String, language: String, track: Track, auth: Auth): String? {
-        Log.d(TAG, "Update station : $moodEnergy $diversity $language");
-        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}");
-        val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(track.tag)}/settings";
+    fun updateInfo(moodEnergy: String, diversity: String, language: String, tag: Tag, auth: Auth): String? {
+        Log.d(TAG, "Update station : $moodEnergy $diversity $language")
+        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
+        val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(tag)}/settings"
         val postData = PostConfig()
 
-        postData.put("language", language);
-        postData.put("moodEnergy", moodEnergy);
-        postData.put("diversity", diversity);
-        postData.put("sign", auth.sign);
-        postData.put("external-domain", "radio.yandex.ru");
-        postData.put("overembed", "no");
+        postData.put("language", language)
+        postData.put("moodEnergy", moodEnergy)
+        postData.put("diversity", diversity)
+        postData.put("sign", auth.sign)
+        postData.put("external-domain", "radio.yandex.ru")
+        postData.put("overembed", "no")
 
-        return post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull()), null, "application/x-www-form-urlencoded", track.tag)
+        return post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull()), null, "application/x-www-form-urlencoded", tag)
     }
 
     fun sayAboutTrack(track: Track, duration: Double, auth: Auth, feedback: String): String? {
-        Log.d(TAG, "$feedback : Track duration: $duration");
-        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}");
+        Log.d(TAG, "$feedback : Track duration: $duration")
+        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
         val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(track.tag)}/feedback/$feedback/${track.id}:${track.albumId}"
 
         val postData = PostConfig()
         setDefaultPostDataTrack(postData, track, auth)
-        postData.put("totalPlayed", duration.toString());
+        postData.put("totalPlayed", duration.toString())
 
         val out = post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull())
             , null, "application/x-www-form-urlencoded", track.tag)
 
         if(feedback == trackFinished || feedback == trackStarted || feedback == skip){
-            historyFeedback(track, duration, auth, feedback);
+            historyFeedback(track, duration, auth, feedback)
         }
 
         return out
     }
 
     fun getGetRequest(url: String, tag: Tag?): Request {
-        val builder = Request.Builder();
+        val builder = Request.Builder()
         builder.url(url)
 
         setDefaultHeaders(builder)
 
-        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag));
-        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag));
+        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
+        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
         val httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
         if (httpUrl != null)
             builder.addHeader("Cookie", getCookiesString(okHttpClient.cookieJar.loadForRequest(httpUrl)))
 
-        return builder.build();
+        return builder.build()
     }
 
     fun getPostRequest(url: String, contentType: String, tag: Tag, requestBody: RequestBody): Request {
-        val builder = Request.Builder();
+        val builder = Request.Builder()
         builder.url(url).post(requestBody)
 
         setDefaultHeaders(builder)
 
-        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag));
-        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag));
-        builder.addHeader("Origin", "https://radio.yandex.ru");
-        builder.addHeader("Content-Type", contentType);
+        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
+        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+        builder.addHeader("Origin", "https://radio.yandex.ru")
+        builder.addHeader("Content-Type", contentType)
         val httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
         if (httpUrl != null)
             builder.addHeader("Cookie", getCookiesString(okHttpClient.cookieJar.loadForRequest(httpUrl)))
 
-        return builder.build();
+        return builder.build()
     }
 
     fun get(url: String, request1: Request?, tag: Tag?): String? {
         val request = request1 ?: getGetRequest(url, tag)
-        return doRequest(request);
+        return doRequest(request)
     }
 
     fun post(url: String, requestBody: RequestBody, request1: Request?, contentType: String, tag: Tag): String? {
@@ -195,28 +196,28 @@ class Manager(context: Context) {
         val builder = StringBuilder()
         var i = 0
         for (cookie in cookies) {
-            builder.append(cookie.name).append("=").append(cookie.value);
-            if(i++ != cookies.size - 1) builder.append("; ");
+            builder.append(cookie.name).append("=").append(cookie.value)
+            if(i++ != cookies.size - 1) builder.append("; ")
         }
         return builder.toString()
     }
 
     fun setDefaultHeaders(request: Request.Builder) {
-        request.addHeader("Accept", "application/json; q=1.0, text/*; q=0.8, */*; q=0.1");
-        request.addHeader("Accept-Encoding", "gzip, deflate, sdch, br");
-        request.addHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
-        //connection.addHeader("Cache-Control", "max-age=0");
+        request.addHeader("Accept", "application/json; q=1.0, text/*; q=0.8, */*; q=0.1")
+        request.addHeader("Accept-Encoding", "gzip, deflate, sdch, br")
+        request.addHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
+        //connection.addHeader("Cache-Control", "max-age=0")
         request.cacheControl(CacheControl.parse(
-            Headers.Builder().add("Cache-Control", "max-age=0").build()));
-        request.addHeader("Connection", "keep-alive");
-        request.addHeader("Host", "radio.yandex.ru");
-        request.addHeader("User-Agent", browser);
-        request.addHeader("X-Requested-With", "XMLHttpRequest");
+            Headers.Builder().add("Cache-Control", "max-age=0").build()))
+        request.addHeader("Connection", "keep-alive")
+        request.addHeader("Host", "radio.yandex.ru")
+        request.addHeader("User-Agent", browser)
+        request.addHeader("X-Requested-With", "XMLHttpRequest")
     }
 
     fun doRequest(request: Request): String? {
-        var res: String?;
-        var response: okhttp3.Response
+        var res: String?
+        val response: Response
         try {
            response = okHttpClient.newCall(request).execute()
         } catch (exception: IOException) {
@@ -224,23 +225,23 @@ class Manager(context: Context) {
         }
         try {
             if (response.body == null) {
-                Log.d(TAG, "response body: null");
-                return null;
+                Log.d(TAG, "response body: null")
+                return null
             }
 
             val q = response.body!!.bytes()
             val contentEncoding = response.header("Content-Encoding")
             if (contentEncoding != null && contentEncoding == "gzip")
-                res = Utils.decodeGZIP(q);
+                res = Utils.decodeGZIP(q)
             else
-                res = String(q);
+                res = String(q)
             response.close()
         } catch (e: Exception) {
             response.close()
             e.printStackTrace()
             okHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build()
-            Log.d(TAG,"Connection Problem");
-            res = doRequest(request);
+            Log.d(TAG,"Connection Problem")
+            res = doRequest(request)
         }
 
         return res

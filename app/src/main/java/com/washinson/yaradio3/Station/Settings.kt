@@ -1,15 +1,28 @@
 package com.washinson.yaradio3.Station
 
-class Settings() {
-    val language: String = ""
-    val moodEnergy: String = ""
-    val direvsity: String = ""
+import org.json.JSONObject
 
-    val languages: Restriction? = null
-    val moodEnergies: Restriction? = null
-    val direvsities: Restriction? = null
+class Settings(settings: JSONObject) {
+    val language: String
+    val moodEnergy: String
+    val diversity: String
+
+    val languages: Restriction
+    val moodEnergies: Restriction
+    val diversities: Restriction
 
     init {
-        TODO()
+        val settings2 = settings.getJSONObject("settings2")
+        language = settings2.getString("language")
+        moodEnergy = settings2.getString("moodEnergy")
+        diversity = settings2.getString("diversity")
+
+        val restrictions2 = settings
+            .getJSONObject("station")
+            .getJSONObject("restrictions2")
+
+        languages = Restriction(restrictions2.getJSONObject("language"))
+        moodEnergies = Restriction(restrictions2.getJSONObject("moodEnergy"))
+        diversities = Restriction(restrictions2.getJSONObject("diversity"))
     }
 }

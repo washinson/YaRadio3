@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        android:background="@color/colorPrimaryDark"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="70dp">
+
+    <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/track_cover"
+            android:layout_weight="6"
+            android:contentDescription="@string/track_cover"/>
+    <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    <TextView
+            android:gravity="start|center"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/track_label" android:layout_weight="20"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+    <ImageButton
+            android:background="?android:selectableItemBackground"
+            app:srcCompat="@drawable/ic_dislike"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" android:id="@+id/track_dislike" android:layout_weight="4"
+            android:contentDescription="@string/track_dislike"/>
+    <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    <ImageButton
+            android:background="?android:selectableItemBackground"
+            app:srcCompat="@drawable/ic_like"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" android:id="@+id/track_like" android:layout_weight="4"
+            android:contentDescription="@string/track_like"/>
+</LinearLayout>

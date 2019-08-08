@@ -25,31 +25,30 @@ class TypeFragment(val type: Type) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val listView = view.findViewById<ExpandableListView>(R.id.tags_expandable_list)
 
         var map: MutableMap<String, String>
         val groupDataList = ArrayList<Map<String, String>>()
-        val сhildDataList = ArrayList<ArrayList<Map<String, String>>>()
+        val childDataList = ArrayList<ArrayList<Map<String, String>>>()
 
         for (tag in type.tags) {
             map = HashMap()
             map["groupName"] = tag.name
             groupDataList.add(map)
 
-            val сhildDataItemList = ArrayList<Map<String, String>>()
+            val childDataItemList = ArrayList<Map<String, String>>()
 
             map = HashMap()
             map["monthName"] = tag.name
-            сhildDataItemList.add(map)
+            childDataItemList.add(map)
             if(tag.children != null) {
                 for (i in 0 until tag.children!!.size) {
                     map = HashMap()
                     map["monthName"] = tag.children!![i].name
-                    сhildDataItemList.add(map)
+                    childDataItemList.add(map)
                 }
             }
 
-            сhildDataList.add(сhildDataItemList)
+            childDataList.add(childDataItemList)
         }
 
         val groupFrom = arrayOf("groupName")
@@ -61,14 +60,14 @@ class TypeFragment(val type: Type) : Fragment() {
         val adapter = SimpleExpandableListAdapter(
             context, groupDataList,
             android.R.layout.simple_expandable_list_item_1, groupFrom,
-            groupTo, сhildDataList, android.R.layout.simple_list_item_1,
+            groupTo, childDataList, android.R.layout.simple_list_item_1,
             childFrom, childTo
         )
 
         val expandableListView = view.findViewById(R.id.tags_expandable_list) as ExpandableListView
         expandableListView.setAdapter(adapter)
         expandableListView.setOnChildClickListener {
-                expandableListView, view, i1, i2, l ->
+                _, _, i1, i2, _ ->
             if (i2 == 0) listener?.start(type.tags[i1])
             else listener?.start(type.tags[i1].children!![i2 - 1])
             true
@@ -80,7 +79,7 @@ class TypeFragment(val type: Type) : Fragment() {
         if (context is OnFragmentInteractionListener) {
             listener = context
         } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+            throw RuntimeException("$context must implement OnFragmentInteractionListener")
         }
     }
 

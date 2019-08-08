@@ -12,12 +12,11 @@ import android.R.attr.track
 import android.R.attr.src
 import android.R.attr.path
 import android.R.attr.host
+import android.accounts.NetworkErrorException
 import java.math.BigInteger
 import java.security.MessageDigest
 import com.washinson.yaradio3.Session.YandexCommunicator.DownloadInfo
-
-
-
+import kotlin.collections.ArrayList
 
 class YandexCommunicator(val manager: Manager, val auth: Auth) {
     val TAG = "YandexCommunicator"
@@ -26,8 +25,11 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
     var nextTrack: Track? = null
     var tag: Tag? = null
     val queue = ArrayDeque<Track>()
+    val trackHistory = ArrayList<Track>()
 
     fun next() {
+        if(track != null)
+            trackHistory.add(track!!)
         track = null
         while (track == null) {
             updateTracksIfNeed()
@@ -51,15 +53,15 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
     }
 
     fun startTrack(): String {
-        manager.sayAboutTrack(track!!,0.0, auth, manager.trackStarted);
+        manager.sayAboutTrack(track!!,0.0, auth, manager.trackStarted)
 
-        Log.i(TAG,"----");
-        Log.i(TAG,"Current track: ${track.toString()}");
-        Log.i(TAG,"----");
+        Log.i(TAG,"----")
+        Log.i(TAG,"Current track: ${track.toString()}")
+        Log.i(TAG,"----")
 
         val path = "https://api.music.yandex.net/tracks/${track!!.id}/download-info"
 
-        val jsonObject = manager.get(path, null, track!!.tag);
+        val jsonObject = manager.get(path, null, track!!.tag) ?: throw NetworkErrorException()
         val qualityInfo = QualityInfo(JSONObject(jsonObject))
 
         track!!.qualityInfo = qualityInfo
@@ -70,15 +72,15 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         val src = qualityInfo.byQuality(quality) + "&format=json"
 
         val builder = okhttp3.Request.Builder().get().url(src)
-        builder.addHeader("Host", "storage.mds.yandex.net");
-        manager.setDefaultHeaders(builder);
+        builder.addHeader("Host", "storage.mds.yandex.net")
+        manager.setDefaultHeaders(builder)
 
-        val result = manager.get(src, builder.build(), track!!.tag)
+        val result = manager.get(src, builder.build(), track!!.tag) ?: throw NetworkErrorException()
         val downloadInformation = JSONObject(result)
         val info = DownloadInfo(downloadInformation)
         val downloadPath = info.getSrc()
 
-        Log.d(TAG, "track: $downloadPath");
+        Log.d(TAG, "track: $downloadPath")
         return downloadPath
     }
 
@@ -90,7 +92,7 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
             for (i in 0 until jsonArray.length()) {
                 val temp = jsonArray.getJSONObject(i)
 
-                qualities[temp.getString("codec") + "_" + temp.getString("bitrateInKbps")] = temp;
+                qualities[temp.getString("codec") + "_" + temp.getString("bitrateInKbps")] = temp
             }
         }
 
@@ -109,10 +111,10 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         val SALT = "XGRlBW9FXlekgbPrRHuSiA"
 
         init {
-            s = jsonObject.getString("s");
-            ts = jsonObject.getString("ts");
-            path = jsonObject.getString("path");
-            host = jsonObject.getString("host");
+            s = jsonObject.getString("s")
+            ts = jsonObject.getString("ts")
+            path = jsonObject.getString("path")
+            host = jsonObject.getString("host")
         }
 
         fun getSrc(): String {

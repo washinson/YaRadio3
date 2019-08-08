@@ -1,6 +1,11 @@
 package com.washinson.yaradio3.Station
 
+import android.accounts.NetworkErrorException
+import com.washinson.yaradio3.Session.Session
 import org.json.JSONObject
+import org.json.JSONArray
+
+
 
 class Tag(id: JSONObject, stations: JSONObject, val type: Type) {
     var children: ArrayList<Tag>? = null
@@ -26,11 +31,15 @@ class Tag(id: JSONObject, stations: JSONObject, val type: Type) {
         }
     }
 
-    fun getSettings(): Settings {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun getSettings(): Settings? {
+        val response = Session.getInstance(0, null).manager.get(
+            "https://radio.yandex.ru/api/v2.1/handlers/radio/${type.id}/$tag/settings"
+            , null, null) ?: throw NetworkErrorException()
+
+        return Settings(JSONObject(response))
     }
 
-    fun setSettings(lang: String, moodEnergy: String, diversity: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun setSettings(language: String, moodEnergy: String, diversity: String) {
+        Session.getInstance(0, null).updateInfo(moodEnergy, diversity, language)
     }
 }
