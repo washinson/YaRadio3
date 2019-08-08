@@ -32,4 +32,8 @@
     <string name="track_cover">Track cover</string>
     <string name="track_dislike">Track dislike</string>
     <string name="track_like">Track like</string>
+    <string name="language">Language</string>
+    <string name="diversity">Diversity</string>
+    <string name="mood_energy">Mood</string>
+    <string name="update">Update</string>
 </resources>

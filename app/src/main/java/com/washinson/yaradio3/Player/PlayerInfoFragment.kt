@@ -80,6 +80,11 @@ class PlayerInfoFragment : Fragment() {
         dislikeButton.setOnClickListener {
             curActivity.sendBroadcast(Intent(MediaSessionCallback.dislikeIntentFilter))
         }
+
+        settingsButton.setOnClickListener {
+            startActivity(Intent(context, PlayerTagSettings::class.java))
+        }
+
         isInterfaceInited = true
 
         val metadata = curActivity.playerService?.mediaSession?.controller?.metadata

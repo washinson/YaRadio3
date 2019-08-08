@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools" package="com.washinson.yaradio3">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.washinson.yaradio3">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -8,7 +9,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
             android:allowBackup="true"
@@ -18,23 +19,28 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".Player.PlayerTagSettings">
+        </activity>
+
         <service
                 android:name=".Player.PlayerService"
-                android:exported="false" tools:ignore="InnerclassSeparator">
+                android:exported="false"
+                tools:ignore="InnerclassSeparator">
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </service>
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
 
         <activity
                 android:name=".Player.PlayerActivity"
-                android:theme="@style/AppTheme.NoActionBar" tools:ignore="InnerclassSeparator">
+                android:theme="@style/AppTheme.NoActionBar"
+                tools:ignore="InnerclassSeparator">
         </activity>
         <activity
                 android:name=".LoginActivity"
