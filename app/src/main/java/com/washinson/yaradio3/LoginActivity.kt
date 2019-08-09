@@ -17,8 +17,7 @@ import android.content.ComponentName
 import android.os.IBinder
 import android.content.ServiceConnection
 import android.content.Intent
-
-
+import android.os.Build
 
 
 class LoginActivity : AppCompatActivity() {
@@ -34,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
         browser.setWebViewClient(MyWebViewClient())
     }
 
+    @Suppress("DEPRECATION")
     internal inner class MyWebViewClient : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
@@ -43,6 +43,11 @@ class LoginActivity : AppCompatActivity() {
                 intent.putExtra("cookies", CookieManager.getInstance().getCookie("https://radio.yandex.ru"));
                 setResult(RESULT_OK, intent)
                 view!!.destroy();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    CookieManager.getInstance().removeAllCookies(null)
+                } else CookieManager.getInstance().removeAllCookie()
+
                 this@LoginActivity.finish()
             }
         }

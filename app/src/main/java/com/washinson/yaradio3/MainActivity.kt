@@ -8,6 +8,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.os.PersistableBundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -91,7 +92,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun loadSession() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.menu.clear()
-        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commitAllowingStateLoss()
         launch(Dispatchers.IO) {
             try {
                 session = Session.getInstance(0, this@MainActivity)
@@ -138,9 +139,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun logout() {
-        Toast.makeText(this, "Ha-ha, you closed here!!! (${getString(R.string.not_supported)})", Toast.LENGTH_SHORT).show()
-        //TODO: logout
-        //session?.logout()
+        launch(Dispatchers.IO) {
+            session?.logout()
+            launch(Dispatchers.Main) {
+                loadSession()
+            }
+        }
     }
 
     fun loadTypes() {

@@ -14,13 +14,13 @@ import android.content.DialogInterface
 import android.R
 import android.app.AlertDialog
 import com.washinson.yaradio3.MainActivity
-
+import java.net.CookieManager
 
 
 class Session private constructor(context: Context) {
-    val auth: Auth
-    val manager: Manager
-    val yandexCommunicator: YandexCommunicator
+    lateinit var auth: Auth
+    lateinit var manager: Manager
+    lateinit var yandexCommunicator: YandexCommunicator
     val track: Track?
         get() = yandexCommunicator.track
     var tag: Tag?
@@ -28,6 +28,10 @@ class Session private constructor(context: Context) {
         private set(tag) {yandexCommunicator.tag = tag}
 
     init {
+        updateSession(context)
+    }
+
+    fun updateSession(context: Context) {
         manager = Manager(context)
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
@@ -56,8 +60,8 @@ class Session private constructor(context: Context) {
         yandexCommunicator.updateTracksIfNeed()
     }
 
-    fun isTagAvalible(tag: Tag) = manager.isTagAvailable(tag)
-    fun isTagAvalible(type: String, tag: String) = manager.isTagAvailable(type, tag)
+    fun isTagAvailable(tag: Tag) = manager.isTagAvailable(tag)
+    fun isTagAvailable(type: String, tag: String) = manager.isTagAvailable(type, tag)
 
     fun login(cookies: String?) {
         if (cookies == null)
@@ -75,7 +79,24 @@ class Session private constructor(context: Context) {
     }
 
     fun logout() {
-        TODO("Session doesn't support logout")
+        val cookies = manager.okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
+        val cookies2 = ArrayList<Cookie>()
+        for (i in cookies) {
+            val builder = Cookie.Builder()
+                .domain(i.domain)
+                .expiresAt(System.currentTimeMillis())
+                .name(i.name)
+                .value(i.value)
+                .path(i.path)
+            if(i.hostOnly) builder.hostOnlyDomain(i.domain)
+            else builder.domain(i.domain)
+            if(i.httpOnly) builder.httpOnly()
+            if(i.secure) builder.secure()
+            cookies2.add(builder.build())
+        }
+        manager.okHttpClient.cookieJar.saveFromResponse("https://radio.yandex.ru".toHttpUrlOrNull()!!, cookies2)
+        auth = Auth(manager)
+        yandexCommunicator = YandexCommunicator(manager,auth)
     }
 
     fun isUserLoggedIn(): Boolean {
@@ -102,7 +123,7 @@ class Session private constructor(context: Context) {
     }
 
     private fun tryGenStation(type: String, tag: String, parent: Type): Tag? {
-        if(!isTagAvalible(type, tag))
+        if(!isTagAvailable(type, tag))
             return null
         val response = manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null)
         val jsonStation = JSONObject("{\"$type:$tag\":$response}")

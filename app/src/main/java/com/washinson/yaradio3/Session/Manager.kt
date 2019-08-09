@@ -36,7 +36,9 @@ class Manager(context: Context) {
     val radioStarted = "radioStarted"
     val undislike = "undislike"
 
-    val cookieJar: PersistentCookieJar = PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(context))
+    val sharedPreferences = context.getSharedPreferences("CookiePersistence", Context.MODE_PRIVATE)
+    val sharedPrefsCookiePersistor = SharedPrefsCookiePersistor(sharedPreferences)
+    val cookieJar: PersistentCookieJar = PersistentCookieJar(SetCookieCache(), sharedPrefsCookiePersistor)
     var okHttpClient: OkHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build()
     var browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0"
 
