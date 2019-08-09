@@ -10,6 +10,9 @@ import android.widget.ExpandableListView
 import com.washinson.yaradio3.Station.Type
 import android.widget.SimpleExpandableListAdapter
 import com.washinson.yaradio3.Station.Tag
+import android.widget.ArrayAdapter
+import android.widget.ListView
+
 
 class TypeFragment(val type: Type) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
@@ -20,12 +23,20 @@ class TypeFragment(val type: Type) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return  inflater.inflate(R.layout.fragment_tags, container, false)
+        if (!isTypeTagsHaveNotChilds(type))
+            return  inflater.inflate(R.layout.fragment_tags_expandable, container, false)
+        else
+            return  inflater.inflate(R.layout.fragment_tags_simple, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    fun isTypeTagsHaveNotChilds(type: Type): Boolean {
+        for (i in type.tags) {
+            if (i.children != null && i.children!!.size > 0) return false
+        }
+        return true
+    }
 
+    fun genExpandableView(view: View) {
         var map: MutableMap<String, String>
         val groupDataList = ArrayList<Map<String, String>>()
         val childDataList = ArrayList<ArrayList<Map<String, String>>>()
@@ -72,6 +83,30 @@ class TypeFragment(val type: Type) : Fragment() {
             else listener?.start(type.tags[i1].children!![i2 - 1])
             true
         }
+    }
+
+    fun genSimpleView(view: View) {
+        val tags = ArrayList<String>()
+        for (i in type.tags) {
+            tags.add(i.name)
+        }
+
+        val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, tags)
+
+        val listView = view.findViewById<ListView>(R.id.tags_simple_list)
+        listView.adapter = adapter
+        listView.setOnItemClickListener { _, _, i, _ ->
+            listener?.start(type.tags[i])
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if (!isTypeTagsHaveNotChilds(type))
+            genExpandableView(view)
+        else
+            genSimpleView(view)
     }
 
     override fun onAttach(context: Context) {
