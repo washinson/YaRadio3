@@ -2,7 +2,9 @@ package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -19,11 +21,14 @@ import android.widget.TextView
 import android.widget.Toast
 import com.washinson.yaradio3.Player.PlayerActivity
 import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.Session.SettingsFragment
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
+import java.io.PrintWriter
+import java.io.StringWriter
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TypeFragment.OnFragmentInteractionListener, CoroutineScope {
@@ -139,7 +144,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun loadTypes() {
-        types = session!!.getTypes()
+        try {
+            types = session!!.getTypes()
+        } catch(e: Exception) {
+            // todo: rem it
+            launch(Dispatchers.Main) {
+                val sw = StringWriter()
+                val pw = PrintWriter(sw)
+                e.printStackTrace(pw)
+                e.printStackTrace()
+                val sStackTrace = sw.toString() // stack trace as a string
+
+                val builder = AlertDialog.Builder(this@MainActivity)
+                builder.setTitle("Важное сообщение!")
+                    .setMessage(sStackTrace)
+                    .setIcon(android.R.drawable.ic_delete)
+                    .setCancelable(false)
+                    .setNegativeButton("ОК",
+                        DialogInterface.OnClickListener { dialog, id -> dialog.cancel() })
+                val alert = builder.create()
+                alert.show()
+            }
+        }
         val navView: NavigationView = findViewById(R.id.nav_view)
         launch (Dispatchers.Main) {
             for(i in 0 until types!!.size)
@@ -167,7 +193,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                //supportFragmentManager.beginTransaction().replace(R.id.tags_frame, SettingsFragment()).commit()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

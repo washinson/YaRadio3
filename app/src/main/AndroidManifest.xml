@@ -19,7 +19,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Player.PlayerTagSettings">
+        <activity android:name=".Player.PlayerTagSettingsActivity">
         </activity>
 
         <service

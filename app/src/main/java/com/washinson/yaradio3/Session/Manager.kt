@@ -104,6 +104,18 @@ class Manager(context: Context) {
         return trackList
     }
 
+    fun isTagAvailable(tag: Tag): Boolean {
+        val response =
+            get("https://radio.yandex.ru/api/v2.1/handlers/radio/${tag.type.id}/${tag.tag}/available", null, tag) ?: throw NetworkErrorException()
+        return JSONObject(response).getBoolean("available")
+    }
+
+    fun isTagAvailable(type: String, tag: String): Boolean {
+        val response =
+            get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/available", null, null) ?: throw NetworkErrorException()
+        return JSONObject(response).getBoolean("available")
+    }
+
     fun updateInfo(moodEnergy: String, diversity: String, language: String, tag: Tag, auth: Auth): String? {
         Log.d(TAG, "Update station : $moodEnergy $diversity $language")
         Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")

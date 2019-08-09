@@ -9,6 +9,13 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
 import java.io.File
 import kotlin.concurrent.thread
+import android.R.string.cancel
+import android.content.DialogInterface
+import android.R
+import android.app.AlertDialog
+import com.washinson.yaradio3.MainActivity
+
+
 
 class Session private constructor(context: Context) {
     val auth: Auth
@@ -48,6 +55,9 @@ class Session private constructor(context: Context) {
         manager.updateInfo(moodEnergy, diversity, language, track?.tag ?: return, auth)
         yandexCommunicator.updateTracksIfNeed()
     }
+
+    fun isTagAvalible(tag: Tag) = manager.isTagAvailable(tag)
+    fun isTagAvalible(type: String, tag: String) = manager.isTagAvailable(type, tag)
 
     fun login(cookies: String?) {
         if (cookies == null)
@@ -91,6 +101,16 @@ class Session private constructor(context: Context) {
         return result
     }
 
+    private fun tryGenStation(type: String, tag: String, parent: Type): Tag? {
+        if(!isTagAvalible(type, tag))
+            return null
+        val response = manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null)
+        val jsonStation = JSONObject("{\"$type:$tag\":$response}")
+        val jsonTag = JSONObject("{\"type\": \"$type\", \"tag\": \"$tag\"}")
+
+        return Tag(jsonTag, jsonStation, parent)
+    }
+
     fun getTypes(): ArrayList<Type> {
         val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
         val mainBody = JSONObject(response)
@@ -102,7 +122,17 @@ class Session private constructor(context: Context) {
 
         for(i in 0 until typesArray.length()) {
             val currentType = typesArray.getJSONObject(i)
-            typesResult.add(Type(currentType, stations))
+            val type = Type(currentType, stations)
+
+            // Hack for my friend
+            /*if (type.id == "user" && type.tags.size == 0 && isUserLoggedIn()) {
+                var t = tryGenStation(type.id, getUserLogin()!!, type)
+                if (t != null) type.tags.add(t)
+                t = tryGenStation(type.id, "onyourwave", type)
+                if (t != null) type.tags.add(t)
+            }*/
+
+            typesResult.add(type)
         }
 
         return typesResult

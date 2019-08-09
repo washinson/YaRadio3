@@ -3,26 +3,26 @@ package com.washinson.yaradio3.Player
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Settings
 import kotlinx.coroutines.*
 
-class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
+class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
 
     lateinit var moodGroup: RadioGroup
     lateinit var languageGroup: RadioGroup
     lateinit var diversityGroup: RadioGroup
-    lateinit var updateButton: Button
+    lateinit var fab: FloatingActionButton
 
     var settings: Settings? = null
     var session: Session? = null
@@ -41,9 +41,9 @@ class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
         languageGroup = findViewById(R.id.language)
         diversityGroup = findViewById(R.id.diversity)
 
-        updateButton = findViewById(R.id.update_tag)
+        fab = findViewById(R.id.floatingActionButton2)
 
-        updateButton.setOnClickListener {
+        fab.setOnClickListener {
             launch(Dispatchers.IO) {
                 if (settings == null || session == null)
                     return@launch
@@ -56,18 +56,18 @@ class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
                 session!!.tag?.setSettings(newLanguage, newMood, newDiversity)
 
                 launch(Dispatchers.Main) {
-                    Toast.makeText(this@PlayerTagSettings, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.updated), Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         launch(Dispatchers.IO) {
-            session = Session.getInstance(0, this@PlayerTagSettings)
+            session = Session.getInstance(0, this@PlayerTagSettingsActivity)
             settings = session!!.tag?.getSettings() ?: return@launch
             launch(Dispatchers.Main) {
                 var q = 0
                 for (i in settings!!.moodEnergies.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettings)
+                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
                     radioButton.text = i.second
                     radioButton.id = q++
                     radioButton.isChecked = i.first == settings!!.moodEnergy
@@ -75,7 +75,7 @@ class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
                 }
                 q = 0
                 for (i in settings!!.languages.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettings)
+                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
                     radioButton.text = i.second
                     radioButton.id = q++
                     radioButton.isChecked = i.first == settings!!.language
@@ -83,7 +83,7 @@ class PlayerTagSettings : AppCompatActivity(), CoroutineScope {
                 }
                 q = 0
                 for (i in settings!!.diversities.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettings)
+                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
                     radioButton.text = i.second
                     radioButton.id = q++
                     radioButton.isChecked = i.first == settings!!.diversity

@@ -82,7 +82,7 @@ class PlayerInfoFragment : Fragment() {
         }
 
         settingsButton.setOnClickListener {
-            startActivity(Intent(context, PlayerTagSettings::class.java))
+            startActivity(Intent(context, PlayerTagSettingsActivity::class.java))
         }
 
         isInterfaceInited = true
