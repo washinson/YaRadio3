@@ -52,7 +52,7 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         queue.clear()
     }
 
-    fun startTrack(): String {
+    fun startTrack(quality: String): String {
         manager.sayAboutTrack(track!!,0.0, auth, manager.trackStarted)
 
         Log.i(TAG,"----")
@@ -66,9 +66,6 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
 
         track!!.qualityInfo = qualityInfo
 
-        //val quality = sharedPreferences.getString("quality", SettingFragment.defVal);
-        //todo
-        val quality = "aac_64"
         val src = qualityInfo.byQuality(quality) + "&format=json"
 
         val builder = okhttp3.Request.Builder().get().url(src)

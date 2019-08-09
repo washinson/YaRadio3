@@ -3,12 +3,9 @@ package com.washinson.yaradio3
 import android.accounts.NetworkErrorException
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
-import android.os.PersistableBundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -26,8 +23,6 @@ import com.washinson.yaradio3.Session.SettingsFragment
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
-import java.io.File
-import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -35,6 +30,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     TypeFragment.OnFragmentInteractionListener, CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
+
+    val settingsFragmentTag: String = "settings"
 
     override fun start(tag: Tag) {
         launch(Dispatchers.IO) {
@@ -92,6 +89,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun loadSession() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.menu.clear()
+        if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
+            supportFragmentManager.popBackStackImmediate()
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commitAllowingStateLoss()
         launch(Dispatchers.IO) {
             try {
@@ -198,7 +197,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> {
-                //supportFragmentManager.beginTransaction().replace(R.id.tags_frame, SettingsFragment()).commit()
+                if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) == null && types != null)
+                    supportFragmentManager.beginTransaction().replace(R.id.tags_frame,
+                        SettingsFragment(), settingsFragmentTag).addToBackStack(settingsFragmentTag).commitAllowingStateLoss()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -210,7 +211,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, getString(R.string.please_login), Toast.LENGTH_SHORT).show()
             login()
         } else {
-            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commit()
+            if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
+                supportFragmentManager.popBackStackImmediate()
+            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commitAllowingStateLoss()
         }
     }
 

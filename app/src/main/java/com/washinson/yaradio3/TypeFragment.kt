@@ -102,9 +102,4 @@ class TypeFragment(val type: Type) : Fragment() {
     interface OnFragmentInteractionListener {
         fun start(tag: Tag)
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(type: Type) = TypeFragment(type)
-    }
 }

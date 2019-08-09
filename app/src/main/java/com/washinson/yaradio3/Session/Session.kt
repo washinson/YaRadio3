@@ -26,6 +26,8 @@ class Session private constructor(context: Context) {
     var tag: Tag?
         get() = yandexCommunicator.tag
         private set(tag) {yandexCommunicator.tag = tag}
+    //todo: check correct quality
+    var quality = "aac_192"
 
     init {
         updateSession(context)
@@ -180,7 +182,7 @@ class Session private constructor(context: Context) {
     fun startTrack(): String {
         if(track == null)
             return ""
-        return yandexCommunicator.startTrack()
+        return yandexCommunicator.startTrack(quality)
     }
 
     fun getNextTracks(): ArrayList<Track> {
