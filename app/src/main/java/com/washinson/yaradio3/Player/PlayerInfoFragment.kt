@@ -100,6 +100,12 @@ class PlayerInfoFragment : Fragment() {
                 setProgressIfBuffering()
             }
         })
+
+        val metadata = playerService.mediaSession.controller.metadata
+        updateOnMedatada(metadata)
+
+        val state = playerService.mediaSession.controller.playbackState
+        updateOnPlaybackState(state)
     }
 
     @Suppress("DEPRECATION")
