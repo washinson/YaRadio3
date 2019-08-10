@@ -226,7 +226,7 @@ class PlayerService : Service(), CoroutineScope {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mNotificationManager != null) {
             val mChannel = NotificationChannel(
                 TrackNotification.channelID, "YaRadio3",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             mNotificationManager.createNotificationChannel(mChannel)
         }
