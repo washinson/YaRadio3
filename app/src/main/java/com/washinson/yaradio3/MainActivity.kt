@@ -2,9 +2,9 @@ package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.DialogInterface
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
@@ -19,12 +19,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.washinson.yaradio3.Player.PlayerActivity
 import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.Session.SettingsFragment
 import com.washinson.yaradio3.Station.Tag
 import com.washinson.yaradio3.Station.Type
 import kotlinx.coroutines.*
-import java.io.PrintWriter
-import java.io.StringWriter
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     TagsFragment.OnFragmentInteractionListener, CoroutineScope {
@@ -32,6 +29,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override val coroutineContext = Dispatchers.Main.immediate+job
 
     val settingsFragmentTag: String = "settings"
+    lateinit var sharedPreferences: SharedPreferences
 
     override fun start(tag: Tag) {
         launch(Dispatchers.IO) {
@@ -67,6 +65,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         navView.setNavigationItemSelectedListener(this)
 
+        sharedPreferences = getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
+
         loadSession()
     }
 
@@ -95,13 +95,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             supportFragmentManager.popBackStackImmediate()
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commitAllowingStateLoss()
         launch(Dispatchers.IO) {
-            try {
-                session = Session.getInstance(0, this@MainActivity)
-                loadTypes()
-                updateNavButtons()
-            } catch (error: NetworkErrorException) {
-                error.printStackTrace()
-                Snackbar.make(findViewById(android.R.id.content), getString(R.string.no_internet), Snackbar.LENGTH_LONG).show()
+            var result = false
+            while(!result) {
+                try {
+                    session = Session.getInstance(0, this@MainActivity)
+                    loadTypes()
+                    updateNavButtons()
+                    result = true
+                } catch (error: NetworkErrorException) {
+                    error.printStackTrace()
+                    Snackbar.make(
+                        findViewById(android.R.id.content),
+                        getString(R.string.no_internet),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    delay(5000)
+                }
             }
         }
     }
@@ -149,28 +158,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun loadTypes() {
-        try {
-            types = session!!.getTypes()
-        } catch(e: Exception) {
-            // todo: rem it
-            launch(Dispatchers.Main) {
-                val sw = StringWriter()
-                val pw = PrintWriter(sw)
-                e.printStackTrace(pw)
-                e.printStackTrace()
-                val sStackTrace = sw.toString() // stack trace as a string
-
-                val builder = AlertDialog.Builder(this@MainActivity)
-                builder.setTitle("Важное сообщение!")
-                    .setMessage(sStackTrace)
-                    .setIcon(android.R.drawable.ic_delete)
-                    .setCancelable(false)
-                    .setNegativeButton("ОК",
-                        DialogInterface.OnClickListener { dialog, _ -> dialog.cancel() })
-                val alert = builder.create()
-                alert.show()
-            }
+        val response: String
+        if (sharedPreferences.contains("library.jsx"))
+            response = sharedPreferences.getString("library.jsx", "")!!
+        else {
+            response = session!!.getTypesResponseForSave()
+            sharedPreferences.edit().putString("library.jsx", response).apply()
         }
+        types = session!!.getTypes(response)
         val navView: NavigationView = findViewById(R.id.nav_view)
         launch (Dispatchers.Main) {
             for(i in 0 until types!!.size)

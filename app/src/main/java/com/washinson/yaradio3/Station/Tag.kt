@@ -15,10 +15,7 @@ interface Tag {
     val type: Type?
 
     fun getSettings(): Settings? {
-        val response = Session.getInstance(0, null).manager.get(
-            "https://radio.yandex.ru/api/v2.1/handlers/radio/$id/$tag/settings"
-            , null, null) ?: throw NetworkErrorException()
-
+        val response = Session.getInstance(0, null).getTagSettings(id, tag)
         return Settings(JSONObject(response))
     }
 

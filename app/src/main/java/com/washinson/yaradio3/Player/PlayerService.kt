@@ -256,7 +256,7 @@ class PlayerService : Service(), CoroutineScope {
     val eventListener = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when(playbackState) {
-                STATE_IDLE -> mediaSessionCallback.onSkipToNext()
+                //STATE_IDLE -> mediaSessionCallback.onSkipToNext()
                 STATE_ENDED -> {
                     val time = simpleExoPlayer.currentPosition
                     nextTrack(true, time / 1000.0)

@@ -1,7 +1,6 @@
-package com.washinson.yaradio3.Session
+package com.washinson.yaradio3
 
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -15,6 +14,7 @@ import android.widget.RadioGroup
 
 import android.content.Intent
 import android.net.Uri
+import com.washinson.yaradio3.Session.Session
 
 
 /**
@@ -40,7 +40,7 @@ class SettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(com.washinson.yaradio3.R.layout.fragment_settings, container, false)
+        return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,29 +49,33 @@ class SettingsFragment : Fragment() {
         if(sharedPreferences == null)
             return
 
-        val button: RadioButton = when(sharedPreferences!!.getString(QUALITY, defautQualityValue)) {
-            "mp3_192" -> view.findViewById(com.washinson.yaradio3.R.id.radioButtonMP3_192)
-            "aac_192" -> view.findViewById(com.washinson.yaradio3.R.id.radioButtonAAC_192)
-            "aac_128" -> view.findViewById(com.washinson.yaradio3.R.id.radioButtonAAC_128)
-            "aac_64" ->  view.findViewById(com.washinson.yaradio3.R.id.radioButtonAAC_64)
-            else -> view.findViewById(com.washinson.yaradio3.R.id.radioButtonAAC_192)
+        val button: RadioButton = when(sharedPreferences!!.getString(
+            QUALITY,
+            defautQualityValue
+        )) {
+            "mp3_192" -> view.findViewById(R.id.radioButtonMP3_192)
+            "aac_192" -> view.findViewById(R.id.radioButtonAAC_192)
+            "aac_128" -> view.findViewById(R.id.radioButtonAAC_128)
+            "aac_64" ->  view.findViewById(R.id.radioButtonAAC_64)
+            else -> view.findViewById(R.id.radioButtonAAC_192)
         }
         button.isChecked = true
 
-        val radioGroup: RadioGroup = view.findViewById(com.washinson.yaradio3.R.id.radio_group)
+        val radioGroup: RadioGroup = view.findViewById(R.id.radio_group)
         radioGroup.setOnCheckedChangeListener {
                 _, i ->
             val curQuality = when(i) {
-                com.washinson.yaradio3.R.id.radioButtonMP3_192 -> "mp3_192"
-                com.washinson.yaradio3.R.id.radioButtonAAC_192 -> "aac_192"
-                com.washinson.yaradio3.R.id.radioButtonAAC_128 -> "aac_128"
-                com.washinson.yaradio3.R.id.radioButtonAAC_64  -> "aac_64"
+                R.id.radioButtonMP3_192 -> "mp3_192"
+                R.id.radioButtonAAC_192 -> "aac_192"
+                R.id.radioButtonAAC_128 -> "aac_128"
+                R.id.radioButtonAAC_64 -> "aac_64"
                 else -> "aac_192"
             }
             sharedPreferences!!.edit().putString(QUALITY, curQuality).apply()
+            Session.getInstance(0, context).quality = curQuality
         }
 
-        val apkButton = view.findViewById<Button>(com.washinson.yaradio3.R.id.apk_button)
+        val apkButton = view.findViewById<Button>(R.id.apk_button)
         apkButton.setOnClickListener{
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/washinson/YaRadio3/releases")))
         }

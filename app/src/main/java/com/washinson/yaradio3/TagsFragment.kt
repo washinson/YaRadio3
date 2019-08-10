@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ExpandableListView
-import com.washinson.yaradio3.Station.Type
 import android.widget.SimpleExpandableListAdapter
 import com.washinson.yaradio3.Station.Tag
 import android.widget.ArrayAdapter
@@ -23,13 +22,13 @@ class TagsFragment(val tags: List<Tag>) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        if (isFragmentHaveChilds(tags))
+        if (isFragmentHaveChild(tags))
             return  inflater.inflate(R.layout.fragment_tags_expandable, container, false)
         else
             return  inflater.inflate(R.layout.fragment_tags_simple, container, false)
     }
 
-    fun isFragmentHaveChilds(tags: List<Tag>): Boolean {
+    fun isFragmentHaveChild(tags: List<Tag>): Boolean {
         for (i in tags) {
             if (i.children != null && i.children!!.size > 0) return true
         }
@@ -103,7 +102,7 @@ class TagsFragment(val tags: List<Tag>) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (isFragmentHaveChilds(tags))
+        if (isFragmentHaveChild(tags))
             genExpandableView(view)
         else
             genSimpleView(view)

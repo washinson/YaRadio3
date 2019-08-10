@@ -12,6 +12,7 @@ import android.content.DialogInterface
 import android.R
 import android.app.AlertDialog
 import com.washinson.yaradio3.MainActivity
+import com.washinson.yaradio3.SettingsFragment
 import com.washinson.yaradio3.Station.*
 import org.json.JSONException
 import java.net.CookieManager
@@ -27,13 +28,21 @@ class Session private constructor(context: Context) {
         get() = yandexCommunicator.tag
         private set(tag) {yandexCommunicator.tag = tag}
     //todo: check correct quality
-    var quality = "aac_192"
+    var quality: String = "aac_192"
+        set(value) {
+            if (value != "aac_192" && value != "aac_128" &&
+                    value != "aac_64" && value != "mp3_192") throw Exception("Incorrect quality")
+            field = value
+        }
 
     init {
         updateSession(context)
     }
 
     fun updateSession(context: Context) {
+        quality = context.getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
+            .getString(SettingsFragment.QUALITY, SettingsFragment.defautQualityValue) ?: "aac_192"
+
         manager = Manager(context)
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
@@ -53,6 +62,11 @@ class Session private constructor(context: Context) {
                 return sessions[id] ?: throw NetworkErrorException()
             }
         }
+    }
+
+    fun getTagSettings(id: String, tag: String): String {
+        return manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$id/$tag/settings",
+            null, null) ?: throw NetworkErrorException()
     }
 
     fun updateInfo(language: String, moodEnergy: String, diversity: String) {
@@ -138,8 +152,12 @@ class Session private constructor(context: Context) {
         return null
     }
 
-    fun getTypes(): ArrayList<Type> {
-        val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
+    fun getTypesResponseForSave(): String {
+        return manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
+    }
+
+    fun getTypes(response1: String? = null): ArrayList<Type> {
+        val response = response1 ?: getTypesResponseForSave()
         val mainBody = JSONObject(response)
         val types = mainBody.getJSONObject("types")
         val stations = mainBody.getJSONObject("stations")
