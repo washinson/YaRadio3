@@ -27,7 +27,7 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    TypeFragment.OnFragmentInteractionListener, CoroutineScope {
+    TagsFragment.OnFragmentInteractionListener, CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
 
@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .setIcon(android.R.drawable.ic_delete)
                     .setCancelable(false)
                     .setNegativeButton("ОК",
-                        DialogInterface.OnClickListener { dialog, id -> dialog.cancel() })
+                        DialogInterface.OnClickListener { dialog, _ -> dialog.cancel() })
                 val alert = builder.create()
                 alert.show()
             }
@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
                 supportFragmentManager.popBackStackImmediate()
-            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type)).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TagsFragment(type.tags)).commitAllowingStateLoss()
         }
     }
 

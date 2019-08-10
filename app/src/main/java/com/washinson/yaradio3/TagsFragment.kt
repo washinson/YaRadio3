@@ -14,7 +14,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 
 
-class TypeFragment(val type: Type) : Fragment() {
+class TagsFragment(val tags: List<Tag>) : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
 
 
@@ -23,17 +23,17 @@ class TypeFragment(val type: Type) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        if (!isTypeTagsHaveNotChilds(type))
+        if (isFragmentHaveChilds(tags))
             return  inflater.inflate(R.layout.fragment_tags_expandable, container, false)
         else
             return  inflater.inflate(R.layout.fragment_tags_simple, container, false)
     }
 
-    fun isTypeTagsHaveNotChilds(type: Type): Boolean {
-        for (i in type.tags) {
-            if (i.children != null && i.children!!.size > 0) return false
+    fun isFragmentHaveChilds(tags: List<Tag>): Boolean {
+        for (i in tags) {
+            if (i.children != null && i.children!!.size > 0) return true
         }
-        return true
+        return false
     }
 
     fun genExpandableView(view: View) {
@@ -41,7 +41,7 @@ class TypeFragment(val type: Type) : Fragment() {
         val groupDataList = ArrayList<Map<String, String>>()
         val childDataList = ArrayList<ArrayList<Map<String, String>>>()
 
-        for (tag in type.tags) {
+        for (tag in tags) {
             map = HashMap()
             map["groupName"] = tag.name
             groupDataList.add(map)
@@ -79,31 +79,31 @@ class TypeFragment(val type: Type) : Fragment() {
         expandableListView.setAdapter(adapter)
         expandableListView.setOnChildClickListener {
                 _, _, i1, i2, _ ->
-            if (i2 == 0) listener?.start(type.tags[i1])
-            else listener?.start(type.tags[i1].children!![i2 - 1])
+            if (i2 == 0) listener?.start(tags[i1])
+            else listener?.start(tags[i1].children!![i2 - 1])
             true
         }
     }
 
     fun genSimpleView(view: View) {
         val tags = ArrayList<String>()
-        for (i in type.tags) {
+        for (i in this.tags) {
             tags.add(i.name)
         }
 
-        val adapter = ArrayAdapter(context!!, android.R.layout.simple_list_item_1, tags)
+        val adapter = ArrayAdapter(context!!, R.layout.simple_list_item_1_custom, tags)
 
         val listView = view.findViewById<ListView>(R.id.tags_simple_list)
         listView.adapter = adapter
         listView.setOnItemClickListener { _, _, i, _ ->
-            listener?.start(type.tags[i])
+            listener?.start(this.tags[i])
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (!isTypeTagsHaveNotChilds(type))
+        if (isFragmentHaveChilds(tags))
             genExpandableView(view)
         else
             genSimpleView(view)
