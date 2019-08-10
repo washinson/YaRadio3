@@ -32,7 +32,7 @@ class PlayerHistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_track_history, container, false)
+        return inflater.inflate(R.layout.fragment_player_history, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

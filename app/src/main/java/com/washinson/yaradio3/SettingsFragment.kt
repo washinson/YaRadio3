@@ -1,6 +1,8 @@
 package com.washinson.yaradio3
 
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -8,12 +10,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.RadioButton
-import android.widget.RadioGroup
 
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
+import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.*
+import androidx.media.session.MediaButtonReceiver
+import com.washinson.yaradio3.Player.PlayerService
 import com.washinson.yaradio3.Session.Session
 
 
@@ -81,6 +85,20 @@ class SettingsFragment : Fragment() {
         }
         val version = context!!.packageManager.getPackageInfo(context!!.packageName, 0).versionName
         apkButton.text = apkButton.text.toString().format(version)
-    }
 
+        val setTimerButton: Button = view.findViewById(R.id.set_timer_button)
+        setTimerButton.setOnClickListener{
+            val alarmMgr = context!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val alarmIntent= MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP)
+
+            val hours = view.findViewById<EditText>(R.id.hours).text
+            val minutes = view.findViewById<EditText>(R.id.minutes).text
+
+            val additionalTime = (3600 * hours.toString().toInt() + 60 * minutes.toString().toInt()) * 1000
+
+            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,SystemClock.elapsedRealtime() + additionalTime, alarmIntent)
+
+            Toast.makeText(context!!, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+        }
+    }
 }

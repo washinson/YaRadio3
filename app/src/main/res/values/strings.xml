@@ -40,4 +40,9 @@
     <string name="_64_aac_bitrate">Low quality - high economy (64 bitrate aac)</string>
     <string name="_192_mp3_bitrate">Pure quality - no economy (192 bitrate mp3)</string>
     <string name="update_apk">Update APK\n(current version is %1$s)</string>
+    <string name="tag_icon">Tag icon</string>
+    <string name="hours">Hours</string>
+    <string name="minutes">Minutes</string>
+    <string name="_0">0</string>
+    <string name="set_timer">Set timer</string>
 </resources>

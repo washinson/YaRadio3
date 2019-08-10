@@ -12,6 +12,6 @@ class Icon(icon: JSONObject) {
     }
 
     fun getIcon(xSize: Int, ySize: Int): String {
-        return imageUrl.replace("%%", xSize.toString() + "x" + ySize.toString());
+        return "https://" + imageUrl.replace("%%", xSize.toString() + "x" + ySize.toString())
     }
 }

@@ -9,7 +9,6 @@ import java.io.File
 import kotlin.concurrent.thread
 import android.R.string.cancel
 import android.content.DialogInterface
-import android.R
 import android.app.AlertDialog
 import com.washinson.yaradio3.MainActivity
 import com.washinson.yaradio3.SettingsFragment
@@ -27,7 +26,6 @@ class Session private constructor(context: Context) {
     var tag: Tag?
         get() = yandexCommunicator.tag
         private set(tag) {yandexCommunicator.tag = tag}
-    //todo: check correct quality
     var quality: String = "aac_192"
         set(value) {
             if (value != "aac_192" && value != "aac_128" &&
