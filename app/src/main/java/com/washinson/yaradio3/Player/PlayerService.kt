@@ -1,5 +1,7 @@
 package com.washinson.yaradio3.Player
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
@@ -13,6 +15,7 @@ import android.content.Context
 import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
+import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
@@ -204,7 +207,36 @@ class PlayerService : Service(), CoroutineScope {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         MediaButtonReceiver.handleIntent(mediaSession, intent)
+
+        hackNotificationForStartForeground()
+
         return START_STICKY
+    }
+
+    fun hackNotificationForStartForeground() {
+        val notification = TrackNotification.getNotification(
+            mediaSession.controller.playbackState.state,
+            mediaSession,
+            this,
+            Session.getInstance(0, this).track
+        ) ?: return
+        val mNotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mNotificationManager != null) {
+            val mChannel = NotificationChannel(
+                TrackNotification.channelID, "YaRadio3",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            mNotificationManager.createNotificationChannel(mChannel)
+        }
+
+        startForeground(TrackNotification.NOTIFICATION_ID, notification)
+        refreshNotificationAndForegroundStatus(
+            mediaSession.controller.playbackState.state,
+            mediaSession,
+            this,
+            Session.getInstance(0, this).track)
     }
 
     val eventListener = object : Player.EventListener {
