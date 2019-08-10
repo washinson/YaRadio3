@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             for(i in 0 until types!!.size)
                 navView.menu.add(Menu.NONE, i, Menu.NONE, types!![i].name)
         }
-        loadType(types!![1])
+        loadType(types!!.last())
     }
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
