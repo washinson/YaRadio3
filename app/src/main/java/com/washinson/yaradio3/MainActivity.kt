@@ -37,7 +37,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         launch(Dispatchers.IO) {
             session!!.setTagToPlay(tag)
             launch (Dispatchers.Main) {
-                startActivity(Intent(this@MainActivity, PlayerActivity::class.java))
+                val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+                intent.putExtra("tag", "${tag.id}:${tag.tag}")
+                startActivity(intent)
             }
         }
     }

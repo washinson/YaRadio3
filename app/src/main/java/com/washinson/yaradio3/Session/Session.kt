@@ -2,8 +2,6 @@ package com.washinson.yaradio3.Session
 
 import android.accounts.NetworkErrorException
 import android.content.Context
-import com.washinson.yaradio3.Station.Tag
-import com.washinson.yaradio3.Station.Type
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
@@ -14,8 +12,8 @@ import android.content.DialogInterface
 import android.R
 import android.app.AlertDialog
 import com.washinson.yaradio3.MainActivity
-import com.washinson.yaradio3.Station.DefaultType
-import com.washinson.yaradio3.Station.RecommendType
+import com.washinson.yaradio3.Station.*
+import org.json.JSONException
 import java.net.CookieManager
 
 
@@ -126,17 +124,19 @@ class Session private constructor(context: Context) {
         return result
     }
 
-    /*private fun tryGenTag(type: String, tag: String, parent: Type, response1: String? = null): Tag? {
-        //if(!isTagAvailable(type, tag))
-        //    return null
+    private fun tryGenTag(type: String, tag: String, parent: Type?): Tag? {
+        if(!isTagAvailable(type, tag))
+            return null
         val response =
-            response1 ?: manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null)
+            manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null) ?: return null
 
-        val jsonStation = JSONObject("{\"$type:$tag\":$response}")
-        val jsonId = JSONObject("{\"type\": \"$type\", \"tag\": \"$tag\"}")
-
-        return Tag(jsonTag, jsonStation, parent)
-    }*/
+        try {
+            return StationTag(JSONObject(response).getJSONObject("station"), parent)
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        return null
+    }
 
     fun getTypes(): ArrayList<Type> {
         val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
@@ -152,12 +152,12 @@ class Session private constructor(context: Context) {
             val type = DefaultType(currentType, stations)
 
             // Hack for my friend
-            /*if (type.id == "user" && type.tags.size == 0 && isUserLoggedIn()) {
-                var t = tryGenStation(type.id, getUserLogin()!!, type)
+            if (type.id == "user" && type.tags.size == 0 && isUserLoggedIn()) {
+                var t = tryGenTag(type.id, getUserLogin()!!, type)
                 if (t != null) type.tags.add(t)
-                t = tryGenStation(type.id, "onyourwave", type)
+                t = tryGenTag(type.id, "onyourwave", type)
                 if (t != null) type.tags.add(t)
-            }*/
+            }
 
             typesResult.add(type)
         }

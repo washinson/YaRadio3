@@ -18,6 +18,7 @@ class StationTag(station: JSONObject, override val type: Type? = null) : Tag {
 
         icon = Icon(station.getJSONObject("icon"))
         idForForm = station.getString("idForFrom")
+
         name = station.getString("name")
     }
 }

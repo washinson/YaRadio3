@@ -55,4 +55,12 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
     fun getCoverSize(sizeX: Int, sizeY: Int): String {
         return cover.replace("%%", sizeX.toString() + "x" + sizeY.toString())
     }
+
+    override fun toString(): String {
+        return "Track(id=$id, albumId=$albumId, " +
+                "album='$album', title='$title', " +
+                "batchId='$batchId', artist='$artist', " +
+                "cover='$cover', durationMs=$durationMs, " +
+                "liked=$liked, disliked=$disliked)"
+    }
 }
