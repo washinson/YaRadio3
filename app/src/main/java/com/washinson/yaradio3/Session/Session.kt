@@ -14,6 +14,8 @@ import android.content.DialogInterface
 import android.R
 import android.app.AlertDialog
 import com.washinson.yaradio3.MainActivity
+import com.washinson.yaradio3.Station.DefaultType
+import com.washinson.yaradio3.Station.RecommendType
 import java.net.CookieManager
 
 
@@ -124,15 +126,17 @@ class Session private constructor(context: Context) {
         return result
     }
 
-    private fun tryGenStation(type: String, tag: String, parent: Type): Tag? {
-        if(!isTagAvailable(type, tag))
-            return null
-        val response = manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null)
+    /*private fun tryGenTag(type: String, tag: String, parent: Type, response1: String? = null): Tag? {
+        //if(!isTagAvailable(type, tag))
+        //    return null
+        val response =
+            response1 ?: manager.get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/settings", null, null)
+
         val jsonStation = JSONObject("{\"$type:$tag\":$response}")
-        val jsonTag = JSONObject("{\"type\": \"$type\", \"tag\": \"$tag\"}")
+        val jsonId = JSONObject("{\"type\": \"$type\", \"tag\": \"$tag\"}")
 
         return Tag(jsonTag, jsonStation, parent)
-    }
+    }*/
 
     fun getTypes(): ArrayList<Type> {
         val response = manager.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: throw NetworkErrorException()
@@ -145,7 +149,7 @@ class Session private constructor(context: Context) {
 
         for(i in 0 until typesArray.length()) {
             val currentType = typesArray.getJSONObject(i)
-            val type = Type(currentType, stations)
+            val type = DefaultType(currentType, stations)
 
             // Hack for my friend
             /*if (type.id == "user" && type.tags.size == 0 && isUserLoggedIn()) {
@@ -158,7 +162,15 @@ class Session private constructor(context: Context) {
             typesResult.add(type)
         }
 
+        typesResult.add(getRecommendationsType())
+
         return typesResult
+    }
+
+    private fun getRecommendationsType(): RecommendType {
+        val response = manager.get("https://radio.yandex.ru/handlers/recommended.jsx", null, null) ?: throw NetworkErrorException()
+
+        return RecommendType("Рекомендации", response, "recommendations", true)
     }
 
     fun setTagToPlay(tag: Tag) {
