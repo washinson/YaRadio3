@@ -51,4 +51,10 @@
     <string name="incorrect_input">Incorrect input!</string>
     <string name="timer_info_print">Left %1$s hours, %2$s minutes, %3$s seconds</string>
     <string name="playback_will_stop_in">Playback will stop in %1$s</string>
+    <string name="already_exist">Already exist</string>
+    <string name="download_track">Download track?</string>
+    <string name="download_title">Download?</string>
+    <string name="error">Error</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="permission_granted">Permission granted</string>
 </resources>

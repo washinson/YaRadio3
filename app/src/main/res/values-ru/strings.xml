@@ -48,4 +48,10 @@
     <string name="incorrect_input">Некорректный ввод!</string>
     <string name="timer_info_print">Осталось %1$s часов, %2$s минут, %3$s секунд</string>
     <string name="playback_will_stop_in">Воспроизведение остановится в %1$s</string>
+    <string name="already_exist">Уже есть</string>
+    <string name="download_title">Загрузить?</string>
+    <string name="download_track">Загрузить трек?</string>
+    <string name="error">Ошибка</string>
+    <string name="permission_denied">Нет прав</string>
+    <string name="permission_granted">Права предоставлены</string>
 </resources>

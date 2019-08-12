@@ -313,7 +313,7 @@ class Session private constructor(context: Context) {
     fun startTrack(): String {
         if(track == null)
             return ""
-        return yandexCommunicator.startTrack(quality)
+        return yandexCommunicator.startTrack(track!!, quality)
     }
 
     /**

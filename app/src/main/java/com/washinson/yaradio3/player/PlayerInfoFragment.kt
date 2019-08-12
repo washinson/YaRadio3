@@ -1,6 +1,7 @@
 package com.washinson.yaradio3.player
 
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
@@ -18,7 +19,13 @@ import android.widget.TextView
 import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.STATE_BUFFERING
-import com.washinson.yaradio3.R
+import com.washinson.yaradio3.common.Mp3Downloader
+import com.washinson.yaradio3.session.Session
+import android.app.AlertDialog
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 
 
 /**
@@ -43,7 +50,7 @@ class PlayerInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_player_info, container, false)
+        return inflater.inflate(com.washinson.yaradio3.R.layout.fragment_player_info, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,18 +59,18 @@ class PlayerInfoFragment : Fragment() {
     }
 
     fun initInterface() {
-        nextButton = view!!.findViewById(R.id.track_next)
-        pauseButton = view!!.findViewById(R.id.track_pause)
-        likeButton = view!!.findViewById(R.id.track_like)
-        dislikeButton = view!!.findViewById(R.id.track_dislike)
-        settingsButton = view!!.findViewById(R.id.track_settings)
+        nextButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_next)
+        pauseButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_pause)
+        likeButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_like)
+        dislikeButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_dislike)
+        settingsButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_settings)
 
-        trackCover = view!!.findViewById(R.id.track_cover)
-        trackLabel = view!!.findViewById(R.id.track_label)
+        trackCover = view!!.findViewById(com.washinson.yaradio3.R.id.track_cover)
+        trackLabel = view!!.findViewById(com.washinson.yaradio3.R.id.track_label)
 
-        progressBar = view!!.findViewById(R.id.track_progress_bar)
+        progressBar = view!!.findViewById(com.washinson.yaradio3.R.id.track_progress_bar)
 
-        spinKitView = view!!.findViewById(R.id.spin_kit)
+        spinKitView = view!!.findViewById(com.washinson.yaradio3.R.id.spin_kit)
         val curActivity = (activity ?: return) as PlayerActivity
         nextButton.setOnClickListener {
             curActivity.playerService?.mediaSessionCallback?.onSkipToNext()
@@ -84,6 +91,9 @@ class PlayerInfoFragment : Fragment() {
         settingsButton.setOnClickListener {
             startActivity(Intent(context, PlayerTagSettingsActivity::class.java))
         }
+        trackCover.setOnClickListener {
+            onLoadTrackClicked()
+        }
 
         isInterfaceInited = true
 
@@ -92,6 +102,67 @@ class PlayerInfoFragment : Fragment() {
 
         val state = curActivity.playerService?.mediaSession?.controller?.playbackState
         if (state != null) updateOnPlaybackState(state)
+    }
+
+    fun onLoadTrackClicked() {
+        val builder = AlertDialog.Builder(context)
+
+        builder.setMessage(getString(com.washinson.yaradio3.R.string.download_track))
+            .setTitle(getString(com.washinson.yaradio3.R.string.download_title))
+
+        builder.setPositiveButton(getString(android.R.string.yes)) { dialogInterface, _ ->
+            val requested = ContextCompat.checkSelfPermission(context!!, WRITE_EXTERNAL_STORAGE)
+            if(requested == PackageManager.PERMISSION_DENIED){
+                val ACCESS_EXTERNAL_STORAGE_STATE = 1
+                ActivityCompat.requestPermissions(activity!!,
+                    arrayOf(WRITE_EXTERNAL_STORAGE),
+                    ACCESS_EXTERNAL_STORAGE_STATE)
+            } else {
+                try {
+                    loadTrack()
+                } catch (e: Exception) {
+                    val alertBuilder1 = AlertDialog.Builder(activity)
+                    alertBuilder1.setMessage(getString(com.washinson.yaradio3.R.string.error))
+                        .setTitle(e.message)
+                        .create().show()
+                    e.printStackTrace()
+                }
+            }
+            dialogInterface.cancel()
+        }
+        builder.setNegativeButton(getString(android.R.string.no)) { dialogInterface, _ ->
+            dialogInterface.cancel()
+        }
+
+        builder.create().show()
+    }
+
+    fun loadTrack() {
+        val mp3Downloader = Mp3Downloader(context!!)
+        val track = Session.getInstance(0, context).track ?: return
+        mp3Downloader.loadTrack(track)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        try {
+            when(requestCode) {
+                1 -> {
+                    if (grantResults.isNotEmpty()
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        loadTrack()
+                    } else {
+                        throw Exception(getString(com.washinson.yaradio3.R.string.permission_denied))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            val alertBuilder1 = AlertDialog.Builder(activity)
+            alertBuilder1.setMessage(getString(com.washinson.yaradio3.R.string.error))
+                .setTitle(e.message)
+                .create().show()
+            e.printStackTrace()
+        }
     }
 
     fun onServiceConnected(playerService: PlayerService) {
@@ -118,26 +189,26 @@ class PlayerInfoFragment : Fragment() {
         progressBar.progress = state.position.toInt()
         if(curActivity.playerService?.mediaSession?.controller?.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(R.drawable.exo_controls_pause))
+                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_pause))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(R.drawable.exo_controls_pause))
+                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_pause))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(R.drawable.exo_controls_play))
+                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_play))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(R.drawable.exo_controls_play))
+                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_play))
         }
 
         if(curActivity.session?.track?.liked == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_liked))
+                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_liked))
             else
-                likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_liked))
+                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_liked))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_like))
+                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like))
             else
-                likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like))
+                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like))
         }
     }
 
