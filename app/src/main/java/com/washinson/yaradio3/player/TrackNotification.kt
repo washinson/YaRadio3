@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 import android.app.Notification
 import androidx.core.content.ContextCompat
@@ -10,7 +10,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.washinson.yaradio3.Session.Track
+import com.washinson.yaradio3.session.Track
 import androidx.core.app.NotificationManagerCompat
 import android.app.NotificationManager
 import android.app.NotificationChannel

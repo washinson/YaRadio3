@@ -1,23 +1,22 @@
-package com.washinson.yaradio3.Session
+package com.washinson.yaradio3.session
 
 import android.util.Log
-import com.washinson.yaradio3.Station.Tag
+import com.washinson.yaradio3.station.Tag
 import java.util.*
-import android.R.attr.track
 import org.json.JSONObject
 import java.lang.Exception
 import kotlin.collections.HashMap
-import android.R.attr.src
-import android.R.attr.track
-import android.R.attr.src
-import android.R.attr.path
-import android.R.attr.host
 import android.accounts.NetworkErrorException
 import java.math.BigInteger
 import java.security.MessageDigest
-import com.washinson.yaradio3.Session.YandexCommunicator.DownloadInfo
 import kotlin.collections.ArrayList
 
+/**
+ * Provides "player" support like current track, next tracks and etc
+ *
+ * @property manager manager to access internet
+ * @property auth
+ */
 class YandexCommunicator(val manager: Manager, val auth: Auth) {
     val TAG = "YandexCommunicator"
 
@@ -27,6 +26,10 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
     val queue = ArrayDeque<Track>()
     val trackHistory = ArrayList<Track>()
 
+    /**
+     * Prepare player to next track
+     *
+     */
     fun next() {
         if(track != null)
             trackHistory.add(track!!)
@@ -39,6 +42,10 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         }
     }
 
+    /**
+     * Load tracks if queue empty
+     *
+     */
     fun updateTracksIfNeed() {
         while(queue.size == 0) {
             queue.addAll(manager.getTracks(tag!!, track, nextTrack))
@@ -52,6 +59,12 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         queue.clear()
     }
 
+    /**
+     * Start current [track] with quality
+     *
+     * @param quality something from "aac_{64,128,192}" or "mp3_192"
+     * @return track url to playing
+     */
     fun startTrack(quality: String): String {
         manager.sayAboutTrack(track!!,0.0, auth, manager.trackStarted)
 
@@ -81,6 +94,14 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         return downloadPath
     }
 
+    /**
+     * Provides track's qualities
+     *
+     * @constructor
+     * Generates data from JSON src
+     *
+     * @param src JSON object of qualities
+     */
     class QualityInfo(src: JSONObject) {
         val qualities = HashMap<String, JSONObject>()
 
@@ -100,6 +121,12 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         }
     }
 
+    /**
+     * Decrypt track url
+     * @author makedonsky94
+     *
+     * @param jsonObject
+     */
     class DownloadInfo(jsonObject: JSONObject) {
         val s: String
         val ts: String

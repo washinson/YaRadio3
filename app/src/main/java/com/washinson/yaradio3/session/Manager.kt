@@ -1,31 +1,29 @@
-package com.washinson.yaradio3.Session
+package com.washinson.yaradio3.session
 
 import android.content.Context
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
-import com.washinson.yaradio3.Station.Tag
+import com.washinson.yaradio3.station.Tag
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.time.Duration
 import java.util.*
-import android.R.attr.track
-import android.R.attr.duration
-import android.R.attr.name
-import android.R.attr.targetName
 import android.util.Log
 import okhttp3.*
 import org.json.JSONArray
-import android.R.attr.track
 import android.accounts.NetworkErrorException
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
 import java.lang.Exception
 
-@Suppress("SpellCheckingInspection")
+/**
+ * Manager is intermediary app with network
+ *
+ * @param context Needed to cookie support
+ */
 class Manager(context: Context) {
-    val TAG = "Manager"
+    private val TAG = "Manager"
 
     val trackStarted = "trackStarted"
     val dislike = "dislike"
@@ -36,18 +34,30 @@ class Manager(context: Context) {
     val radioStarted = "radioStarted"
     val undislike = "undislike"
 
-    val sharedPreferences = context.getSharedPreferences("CookiePersistence", Context.MODE_PRIVATE)
-    val sharedPrefsCookiePersistor = SharedPrefsCookiePersistor(sharedPreferences)
-    val cookieJar: PersistentCookieJar = PersistentCookieJar(SetCookieCache(), sharedPrefsCookiePersistor)
+    private val sharedPreferences = context.getSharedPreferences("CookiePersistence", Context.MODE_PRIVATE)!!
+    private val sharedPrefsCookiePersistor = SharedPrefsCookiePersistor(sharedPreferences)
+    private val cookieJar: PersistentCookieJar = PersistentCookieJar(SetCookieCache(), sharedPrefsCookiePersistor)
     var okHttpClient: OkHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build()
     var browser = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0"
 
-    fun typeAndTag(tag: Tag?): String {
+    private fun typeAndTag(tag: Tag?): String {
         if(tag == null) return ""
         return "${tag.id}/${tag.tag}"
     }
 
-    fun historyFeedback(track: Track, duration: Double, auth: Auth, feedback: String): String? {
+    /**
+     * Additional function for sayAboutTrack
+     *  Needed for to memory a tracks on a yandex servers
+     *
+     * @throws NetworkErrorException
+     *
+     * @param track Current track
+     * @param duration Track playback position when feedback called
+     * @param auth
+     * @param feedback Feedback string like trackStarted
+     * @return result or null if network error
+     */
+    private fun historyFeedback(track: Track, duration: Double, auth: Auth, feedback: String): String? {
         Log.d(TAG, "History $feedback: duration $duration")
         Log.d(TAG, "History $feedback: track=$track")
 
@@ -58,11 +68,11 @@ class Manager(context: Context) {
             postBody.toString().toRequestBody("application/json".toMediaTypeOrNull()), null, "application/json", track.tag)
     }
 
-    fun setDefaulHistoryFeedbackBody(track: Track, postBody: JSONObject, auth: Auth, duration: Double, feedback: String) {
+    private fun setDefaulHistoryFeedbackBody(track: Track, postBody: JSONObject, auth: Auth, duration: Double, feedback: String) {
         postBody.put("external-domain", "radio.yandex.ru")
         postBody.put("overembed", "no")
         postBody.put("sign", auth.sign)
-        postBody.put("timestamp", Date().getTime())
+        postBody.put("timestamp", Date().time)
 
         val jsonTrack = JSONObject()
         jsonTrack.put("album", Integer.valueOf(track.albumId))
@@ -78,7 +88,7 @@ class Manager(context: Context) {
         jsonTrack.put("yaDisk", false)
         jsonTrack.put("timestamp", Date().time)
 
-        if (feedback.equals(trackStarted))
+        if (feedback == trackStarted)
             jsonTrack.put("sendReason", "start")
         else
             jsonTrack.put("sendReason", "end")
@@ -86,6 +96,16 @@ class Manager(context: Context) {
         postBody.put("data", JSONArray().put(jsonTrack))
     }
 
+    /**
+     * Returns queue of next tracks
+     *
+     * @throws NetworkErrorException
+     *
+     * @param tag Current tag
+     * @param curTrack Current track. Needed to inform the server
+     * @param nextTrack Next track. Needed to inform the server
+     * @return ArrayDeque of tracks
+     */
     fun getTracks(tag: Tag, curTrack: Track? = null, nextTrack: Track? = null): ArrayDeque<Track> {
         Log.d(TAG, "Get tracks tag=$tag curTrack=$curTrack nextTrack=$nextTrack")
 
@@ -109,6 +129,14 @@ class Manager(context: Context) {
         return trackList
     }
 
+    /**
+     * Checks if tag is available
+     *
+     * @throws NetworkErrorException
+     *
+     * @param tag Tag for check
+     * @return true if avalible and false othervise
+     */
     fun isTagAvailable(tag: Tag): Boolean {
         Log.d(TAG, "Is tag avalible $tag")
 
@@ -117,6 +145,15 @@ class Manager(context: Context) {
         return JSONObject(response).getBoolean("available")
     }
 
+    /**
+     * Checks if tag is available
+     *
+     * @throws NetworkErrorException
+     *
+     * @param type tag's id
+     * @param tag
+     * @return
+     */
     fun isTagAvailable(type: String, tag: String): Boolean {
         Log.d(TAG, "Is tag avalible $type:$tag")
 
@@ -125,6 +162,18 @@ class Manager(context: Context) {
         return JSONObject(response).getBoolean("available")
     }
 
+    /**
+     * Update tag settings
+     *
+     * @throws NetworkErrorException
+     *
+     * @param moodEnergy
+     * @param diversity
+     * @param language
+     * @param tag Current tag
+     * @param auth
+     * @return
+     */
     fun updateInfo(moodEnergy: String, diversity: String, language: String, tag: Tag, auth: Auth): String? {
         Log.d(TAG, "Update station: $moodEnergy $diversity $language")
         Log.d(TAG, "Update station: $tag")
@@ -142,6 +191,17 @@ class Manager(context: Context) {
         return post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull()), null, "application/x-www-form-urlencoded", tag)
     }
 
+    /**
+     * Send [feedback] to server
+     *
+     * @throws NetworkErrorException
+     *
+     * @param track Current track
+     * @param duration Track playback position when feedback called
+     * @param auth
+     * @param feedback Feedback string like trackStarted
+     * @return
+     */
     fun sayAboutTrack(track: Track, duration: Double, auth: Auth, feedback: String): String? {
         Log.d(TAG, "$feedback: with duration $duration")
         Log.d(TAG, "$feedback: $track")
@@ -161,7 +221,25 @@ class Manager(context: Context) {
         return out
     }
 
-    fun getGetRequest(url: String, tag: Tag?): Request {
+    private fun setDefaultPostDataTrack(postData: PostConfig, track: Track, auth: Auth) {
+        postData.put("timestamp", Date().time.toString())
+        postData.put("from", "radio-web-${track.tag.id}-${track.tag.tag}-direct")
+        postData.put("sign", auth.sign)
+        postData.put("external-domain", "radio.yandex.ru")
+        postData.put("overembed", "no")
+        postData.put("batchId", track.batchId)
+        postData.put("trackId", track.id.toString())
+        postData.put("albumId", track.albumId.toString())
+    }
+
+    /**
+     * Build default get request
+     *
+     * @param url
+     * @param tag
+     * @return
+     */
+    private fun getGetRequest(url: String, tag: Tag?): Request {
         val builder = Request.Builder()
         builder.url(url)
 
@@ -176,7 +254,16 @@ class Manager(context: Context) {
         return builder.build()
     }
 
-    fun getPostRequest(url: String, contentType: String, tag: Tag, requestBody: RequestBody): Request {
+    /**
+     * Build default post request
+     *
+     * @param url
+     * @param contentType
+     * @param tag
+     * @param requestBody
+     * @return
+     */
+    private fun getPostRequest(url: String, contentType: String, tag: Tag, requestBody: RequestBody): Request {
         val builder = Request.Builder()
         builder.url(url).post(requestBody)
 
@@ -193,33 +280,43 @@ class Manager(context: Context) {
         return builder.build()
     }
 
+    /**
+     * Do get request to [url]
+     *
+     * @throws NetworkErrorException
+     *
+     * @param url
+     * @param request1 Get request. If null get request will be default
+     * @param tag
+     * @return
+     */
     fun get(url: String, request1: Request?, tag: Tag?): String? {
         val request = request1 ?: getGetRequest(url, tag)
         return doRequest(request)
     }
 
+    /**
+     * Do post request
+     *
+     * @throws NetworkErrorException
+     *
+     * @param url
+     * @param requestBody
+     * @param request1 Post request. If null post request will be default
+     * @param contentType
+     * @param tag
+     * @return
+     */
     fun post(url: String, requestBody: RequestBody, request1: Request?, contentType: String, tag: Tag): String? {
         val request = request1 ?: getPostRequest(url, contentType, tag, requestBody)
         return doRequest(request)
     }
 
-    fun setDefaultPostDataTrack(postData: PostConfig, track: Track, auth: Auth) {
-        postData.put("timestamp", Date().time.toString())
-        postData.put("from", "radio-web-${track.tag.id}-${track.tag.tag}-direct")
-        postData.put("sign", auth.sign)
-        postData.put("external-domain", "radio.yandex.ru")
-        postData.put("overembed", "no")
-        postData.put("batchId", track.batchId)
-        postData.put("trackId", track.id.toString())
-        postData.put("albumId", track.albumId.toString())
-    }
-
-    fun getCookiesString(cookies: List<Cookie>): String {
+    private fun getCookiesString(cookies: List<Cookie>): String {
         val builder = StringBuilder()
-        var i = 0
-        for (cookie in cookies) {
+        for ((i, cookie) in cookies.withIndex()) {
             builder.append(cookie.name).append("=").append(cookie.value)
-            if(i++ != cookies.size - 1) builder.append("; ")
+            if(i != cookies.size - 1) builder.append("; ")
         }
         return builder.toString()
     }
@@ -237,7 +334,15 @@ class Manager(context: Context) {
         request.addHeader("X-Requested-With", "XMLHttpRequest")
     }
 
-    fun doRequest(request: Request): String? {
+    /**
+     * Connect to server with request
+     *
+     * @throws NetworkErrorException
+     *
+     * @param request
+     * @return String result or null if connection error
+     */
+    private fun doRequest(request: Request): String? {
         var res: String? = null
         val response: Response
         try {
@@ -253,10 +358,10 @@ class Manager(context: Context) {
 
             val q = response.body!!.bytes()
             val contentEncoding = response.header("Content-Encoding")
-            if (contentEncoding != null && contentEncoding == "gzip")
-                res = Utils.decodeGZIP(q)
+            res = if (contentEncoding != null && contentEncoding == "gzip")
+                Utils.decodeGZIP(q)
             else
-                res = String(q)
+                String(q)
             response.close()
         } catch (e: Exception) {
             response.close()

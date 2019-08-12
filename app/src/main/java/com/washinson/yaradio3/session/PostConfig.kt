@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Session
+package com.washinson.yaradio3.session
 
 class PostConfig {
     val cur = StringBuilder();

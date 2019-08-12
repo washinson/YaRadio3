@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 import android.accounts.NetworkErrorException
 import android.os.Build
@@ -6,17 +6,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.washinson.yaradio3.Common.ThreadWaitForResult
+import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.R
-import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.Station.Settings
+import com.washinson.yaradio3.session.Session
+import com.washinson.yaradio3.station.Settings
 import kotlinx.coroutines.*
 
 class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {

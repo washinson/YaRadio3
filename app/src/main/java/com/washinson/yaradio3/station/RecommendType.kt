@@ -1,6 +1,5 @@
-package com.washinson.yaradio3.Station
+package com.washinson.yaradio3.station
 
-import com.bumptech.glide.Glide.init
 import org.json.JSONObject
 
 class RecommendType(override val name: String,

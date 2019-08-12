@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Station
+package com.washinson.yaradio3.station
 
 import org.json.JSONObject
 

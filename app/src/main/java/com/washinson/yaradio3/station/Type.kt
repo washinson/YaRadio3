@@ -1,6 +1,4 @@
-package com.washinson.yaradio3.Station
-
-import org.json.JSONObject
+package com.washinson.yaradio3.station
 
 interface Type {
     val tags: ArrayList<Tag>

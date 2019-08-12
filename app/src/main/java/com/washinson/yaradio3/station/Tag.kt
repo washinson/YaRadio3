@@ -1,7 +1,6 @@
-package com.washinson.yaradio3.Station
+package com.washinson.yaradio3.station
 
-import android.accounts.NetworkErrorException
-import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.session.Session
 import org.json.JSONObject
 
 

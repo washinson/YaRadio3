@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Common
+package com.washinson.yaradio3.common
 
 import kotlinx.coroutines.delay
 import kotlin.Exception

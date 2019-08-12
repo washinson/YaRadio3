@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 import android.accounts.NetworkErrorException
 import android.support.v4.media.session.MediaSessionCompat
@@ -12,8 +12,8 @@ import android.media.AudioFocusRequest
 import android.os.Build
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.Player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import com.washinson.yaradio3.session.Session
+import com.washinson.yaradio3.player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

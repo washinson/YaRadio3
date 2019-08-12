@@ -1,8 +1,7 @@
-package com.washinson.yaradio3.Session
+package com.washinson.yaradio3.session
 
 import android.accounts.NetworkErrorException
 import okhttp3.Cookie
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
 

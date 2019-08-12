@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 
 import android.accounts.NetworkErrorException
@@ -11,10 +11,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.washinson.yaradio3.Session.Track
+import com.washinson.yaradio3.session.Track
 import com.bumptech.glide.Glide
 import com.washinson.yaradio3.R
-import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.session.Session
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

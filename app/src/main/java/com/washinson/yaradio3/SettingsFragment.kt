@@ -18,8 +18,7 @@ import android.os.SystemClock
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.media.session.MediaButtonReceiver
-import com.washinson.yaradio3.Player.PlayerService
-import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.session.Session
 import java.text.SimpleDateFormat
 import java.util.*
 

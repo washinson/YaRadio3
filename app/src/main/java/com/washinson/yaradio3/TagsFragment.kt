@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.bumptech.glide.Glide
-import com.washinson.yaradio3.Station.Tag
+import com.washinson.yaradio3.station.Tag
 
 
 class TagsFragment(val tags: List<Tag>) : Fragment() {

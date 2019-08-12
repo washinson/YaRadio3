@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -6,7 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.washinson.yaradio3.Session.Session
+import com.washinson.yaradio3.session.Session
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -32,8 +32,8 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelection
-import com.washinson.yaradio3.Common.ThreadWaitForResult
-import com.washinson.yaradio3.Player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
+import com.washinson.yaradio3.common.ThreadWaitForResult
+import com.washinson.yaradio3.player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import com.washinson.yaradio3.R
 import kotlinx.coroutines.*
 

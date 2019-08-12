@@ -1,36 +1,40 @@
-package com.washinson.yaradio3.Station
+package com.washinson.yaradio3.station
 
 import org.json.JSONObject
 
-class StationTag(station: JSONObject, override val type: Type? = null) : Tag {
+class DefaultTag(idJson: JSONObject, stations: JSONObject, override val type: Type?, override val id: String) : Tag {
     override var children: ArrayList<Tag>? = null
-    override val id: String
     override val tag: String
     override val name: String
     override val idForForm: String
     override val icon: Icon
 
     init {
-        val idJson = station.getJSONObject("id")
-
-        id = idJson.getString("type")
         tag = idJson.getString("tag")
-
+        val cur = stations.getJSONObject("$id:$tag")
+        val station = cur.getJSONObject("station")
+        name = station.getString("name")
         icon = Icon(station.getJSONObject("icon"))
         idForForm = station.getString("idForFrom")
 
-        name = station.getString("name")
+        if (station.has("children")) {
+            children = ArrayList()
+            val child = station.getJSONArray("children")
+            for (i in 0 until child.length()) {
+                children!!.add(DefaultTag(child.getJSONObject(i), stations, type, id))
+            }
+        }
     }
 
     override fun toString(): String {
-        return "StationTag(id='$id', tag='$tag', name='$name')"
+        return "DefaultTag(id='$id', tag='$tag', name='$name')"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as StationTag
+        other as DefaultTag
 
         if (id != other.id) return false
         if (tag != other.tag) return false
@@ -43,6 +47,4 @@ class StationTag(station: JSONObject, override val type: Type? = null) : Tag {
         result = 31 * result + tag.hashCode()
         return result
     }
-
-
 }

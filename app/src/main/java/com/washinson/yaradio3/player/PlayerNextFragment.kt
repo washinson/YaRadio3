@@ -1,4 +1,4 @@
-package com.washinson.yaradio3.Player
+package com.washinson.yaradio3.player
 
 
 import android.annotation.SuppressLint
@@ -13,8 +13,8 @@ import android.widget.ListView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.washinson.yaradio3.R
-import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.Session.Track
+import com.washinson.yaradio3.session.Session
+import com.washinson.yaradio3.session.Track
 
 /**
  * A simple [Fragment] subclass.

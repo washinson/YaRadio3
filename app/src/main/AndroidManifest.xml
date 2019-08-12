@@ -19,12 +19,12 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Player.PlayerTagSettingsActivity"
+        <activity android:name=".player.PlayerTagSettingsActivity"
                   tools:ignore="InnerclassSeparator">
         </activity>
 
         <service
-                android:name=".Player.PlayerService"
+                android:name=".player.PlayerService"
                 android:exported="false"
                 tools:ignore="InnerclassSeparator">
             <intent-filter>
@@ -39,7 +39,7 @@
         </receiver>
 
         <activity
-                android:name=".Player.PlayerActivity"
+                android:name=".player.PlayerActivity"
                 android:launchMode="singleInstance"
                 android:theme="@style/AppTheme.NoActionBar"
                 tools:ignore="InnerclassSeparator">

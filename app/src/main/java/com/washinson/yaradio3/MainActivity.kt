@@ -17,11 +17,11 @@ import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
-import com.washinson.yaradio3.Common.ThreadWaitForResult
-import com.washinson.yaradio3.Player.PlayerActivity
-import com.washinson.yaradio3.Session.Session
-import com.washinson.yaradio3.Station.Tag
-import com.washinson.yaradio3.Station.Type
+import com.washinson.yaradio3.common.ThreadWaitForResult
+import com.washinson.yaradio3.player.PlayerActivity
+import com.washinson.yaradio3.session.Session
+import com.washinson.yaradio3.station.Tag
+import com.washinson.yaradio3.station.Type
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
