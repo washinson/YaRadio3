@@ -54,4 +54,6 @@
     <string name="error">Ошибка</string>
     <string name="permission_denied">Нет прав</string>
     <string name="permission_granted">Права предоставлены</string>
+    <string name="track_info">Инфо о треке</string>
+    <string name="copied">Скопировано</string>
 </resources>

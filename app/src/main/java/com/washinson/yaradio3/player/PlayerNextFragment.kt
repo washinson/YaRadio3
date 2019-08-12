@@ -130,12 +130,19 @@ class PlayerNextFragment : Fragment() {
             }
 
             val track = tracks[position]
-            view!!.findViewById<TextView>(R.id.track_label).text = track.artist + " - " + track.title
+
+            val trackLabel = view!!.findViewById<TextView>(R.id.track_label)
+            trackLabel.text = track.artist + " - " + track.title
+            trackLabel.setOnClickListener {
+                Utils.trackIntoClipboard(context, track)
+            }
+
             val trackCover = view.findViewById<ImageView>(R.id.track_cover)
             Glide.with(context).load(track.getCoverSize(600, 600)).into(trackCover)
             trackCover.setOnClickListener {
                 onLoadTrackClicked(track)
             }
+
             return view
         }
 

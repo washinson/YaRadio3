@@ -94,6 +94,9 @@ class PlayerInfoFragment : Fragment() {
         trackCover.setOnClickListener {
             onLoadTrackClicked()
         }
+        trackLabel.setOnClickListener {
+            Utils.trackIntoClipboard(context!!, Session.getInstance(0, context).track ?: return@setOnClickListener)
+        }
 
         isInterfaceInited = true
 
