@@ -1,18 +1,22 @@
 package com.washinson.yaradio3.player
 
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.washinson.yaradio3.R
+import com.washinson.yaradio3.common.Mp3Downloader
 import com.washinson.yaradio3.session.Session
 import com.washinson.yaradio3.session.Track
 
@@ -45,6 +49,66 @@ class PlayerNextFragment : Fragment() {
         adapter.onMetadataUpdate()
     }
 
+    fun onLoadTrackClicked(track: Track) {
+        val builder = AlertDialog.Builder(context)
+
+        builder.setMessage(getString(R.string.download_track))
+            .setTitle(getString(R.string.download_title))
+
+        builder.setPositiveButton(getString(android.R.string.yes)) { dialogInterface, _ ->
+            val requested = ContextCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if(requested == PackageManager.PERMISSION_DENIED){
+                val ACCESS_EXTERNAL_STORAGE_STATE = 1
+                ActivityCompat.requestPermissions(activity!!,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    ACCESS_EXTERNAL_STORAGE_STATE)
+            } else {
+                try {
+                    loadTrack(track)
+                } catch (e: Exception) {
+                    val alertBuilder1 = AlertDialog.Builder(activity)
+                    alertBuilder1.setMessage(getString(R.string.error))
+                        .setTitle(e.message)
+                        .create().show()
+                    e.printStackTrace()
+                }
+            }
+            dialogInterface.cancel()
+        }
+        builder.setNegativeButton(getString(android.R.string.no)) { dialogInterface, _ ->
+            dialogInterface.cancel()
+        }
+
+        builder.create().show()
+    }
+
+    fun loadTrack(track: Track) {
+        val mp3Downloader = Mp3Downloader(context!!)
+        mp3Downloader.loadTrack(track)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        try {
+            when(requestCode) {
+                1 -> {
+                    if (grantResults.isNotEmpty()
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(context, getString(R.string.permission_granted), Toast.LENGTH_SHORT).show()
+                    } else {
+                        throw Exception(getString(R.string.permission_denied))
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            val alertBuilder1 = AlertDialog.Builder(activity)
+            alertBuilder1.setMessage(getString(R.string.error))
+                .setTitle(e.message)
+                .create().show()
+            e.printStackTrace()
+        }
+    }
+
     inner class MyAdapter(val context: Context) : BaseAdapter() {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         var tracks = ArrayList<Track>()
@@ -67,7 +131,11 @@ class PlayerNextFragment : Fragment() {
 
             val track = tracks[position]
             view!!.findViewById<TextView>(R.id.track_label).text = track.artist + " - " + track.title
-            Glide.with(context).load(track.getCoverSize(600, 600)).into(view.findViewById(R.id.track_cover))
+            val trackCover = view.findViewById<ImageView>(R.id.track_cover)
+            Glide.with(context).load(track.getCoverSize(600, 600)).into(trackCover)
+            trackCover.setOnClickListener {
+                onLoadTrackClicked(track)
+            }
             return view
         }
 
