@@ -17,7 +17,6 @@ import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
-import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media.session.MediaButtonReceiver
 import com.bumptech.glide.Glide
@@ -26,7 +25,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.STATE_ENDED
-import com.google.android.exoplayer2.Player.STATE_IDLE
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
@@ -34,6 +32,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.TrackSelection
+import com.washinson.yaradio3.Common.ThreadWaitForResult
 import com.washinson.yaradio3.Player.TrackNotification.Companion.refreshNotificationAndForegroundStatus
 import com.washinson.yaradio3.R
 import kotlinx.coroutines.*
@@ -159,14 +158,17 @@ class PlayerService : Service(), CoroutineScope {
     fun startTag() {
         mediaSessionCallback.onPause()
         setLoadingContent()
-        launch(Dispatchers.IO) {
-            val session = Session.getInstance(0, this@PlayerService)
-            val url = session.startTrack()
 
-            launch(Dispatchers.Main) {
-                prepareTrack(url)
-                mediaSessionCallback.onPlay()
-            }
+        launch(Dispatchers.IO) {
+            ThreadWaitForResult.load({
+                val session = Session.getInstance(0, this@PlayerService)
+                val url = session.startTrack()
+
+                launch(Dispatchers.Main) {
+                    prepareTrack(url)
+                    mediaSessionCallback.onPlay()
+                }
+            })
         }
     }
 
@@ -185,13 +187,15 @@ class PlayerService : Service(), CoroutineScope {
         mediaSessionCallback.onPause()
         setLoadingContent()
         launch(Dispatchers.IO) {
-            val session = Session.getInstance(0, this@PlayerService)
-            session.nextTrack(finished, duration)
-            val url = session.startTrack()
-            launch(Dispatchers.Main) {
-                prepareTrack(url)
-                mediaSessionCallback.onPlay()
-            }
+            ThreadWaitForResult.load({
+                val session = Session.getInstance(0, this@PlayerService)
+                session.nextTrack(finished, duration)
+                val url = session.startTrack()
+                launch(Dispatchers.Main) {
+                    prepareTrack(url)
+                    mediaSessionCallback.onPlay()
+                }
+            })
         }
     }
 

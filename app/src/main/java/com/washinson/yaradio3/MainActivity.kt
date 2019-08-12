@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
+import com.washinson.yaradio3.Common.ThreadWaitForResult
 import com.washinson.yaradio3.Player.PlayerActivity
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Tag
@@ -33,12 +34,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun start(tag: Tag) {
         launch(Dispatchers.IO) {
-            session!!.setTagToPlay(tag)
-            launch (Dispatchers.Main) {
-                val intent = Intent(this@MainActivity, PlayerActivity::class.java)
-                intent.putExtra("tag", "${tag.id}:${tag.tag}")
-                startActivity(intent)
-            }
+            ThreadWaitForResult.load({
+                session!!.setTagToPlay(tag)
+                launch(Dispatchers.Main) {
+                    val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+                    intent.putExtra("tag", "${tag.id}:${tag.tag}")
+                    startActivity(intent)
+                }
+            })
         }
     }
 
@@ -87,12 +90,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             session?.login(cookies)
 
             launch(Dispatchers.IO) {
-                val response = session!!.getTypesResponseForSave()
-                sharedPreferences.edit().putString("library.jsx", response).apply()
+                ThreadWaitForResult.load({
+                    val response = session!!.getTypesResponseForSave()
+                    sharedPreferences.edit().putString("library.jsx", response).apply()
 
-                launch(Dispatchers.Main) {
-                    loadSession()
-                }
+                    launch(Dispatchers.Main) {
+                        loadSession()
+                    }
+                })
             }
         }
     }

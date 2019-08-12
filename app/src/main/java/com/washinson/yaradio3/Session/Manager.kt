@@ -238,7 +238,7 @@ class Manager(context: Context) {
     }
 
     fun doRequest(request: Request): String? {
-        var res: String?
+        var res: String? = null
         val response: Response
         try {
            response = okHttpClient.newCall(request).execute()
@@ -261,9 +261,6 @@ class Manager(context: Context) {
         } catch (e: Exception) {
             response.close()
             e.printStackTrace()
-            okHttpClient = OkHttpClient.Builder().cookieJar(cookieJar).build()
-            Log.d(TAG,"Connection Problem")
-            res = doRequest(request)
         }
 
         return res

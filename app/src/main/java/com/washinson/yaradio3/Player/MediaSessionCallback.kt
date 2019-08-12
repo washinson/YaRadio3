@@ -1,5 +1,6 @@
 package com.washinson.yaradio3.Player
 
+import android.accounts.NetworkErrorException
 import android.support.v4.media.session.MediaSessionCompat
 import android.media.AudioManager
 import android.content.Intent
@@ -24,8 +25,10 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     }
 
     lateinit var mFocusRequest: AudioFocusRequest
+    val TAG = "MediaSessionCallback"
 
     override fun onPause() {
+        Log.d(TAG, "onPause")
         try{
             service.unregisterReceiver(becomingNoisyReceiver)
         } catch (e: IllegalArgumentException) {}
@@ -41,11 +44,13 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     }
 
     override fun onSkipToNext() {
+        Log.d(TAG, "onSkipToNext")
         service.nextTrack(false, service.simpleExoPlayer.currentPosition / 1000.0)
     }
 
     @Suppress("DEPRECATION")
     override fun onPlay() {
+        Log.d(TAG, "onPlay")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             service.startForegroundService(Intent(service.applicationContext, PlayerService::class.java))
         } else {
@@ -103,6 +108,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     @Suppress("DEPRECATION")
     override fun onStop() {
+        Log.d(TAG, "onStop")
         try{
             service.unregisterReceiver(becomingNoisyReceiver)
         } catch (e: IllegalArgumentException) {}
@@ -167,11 +173,16 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 val session = Session.getInstance(0, service)
                 val track = session.track ?: return@launch
 
-                if (track.liked) {
-                    session.unlike(track, position)
-                } else {
-                    session.like(track, position)
+                try {
+                    if (track.liked) {
+                        session.unlike(track, position)
+                    } else {
+                        session.like(track, position)
+                    }
+                } catch (e: NetworkErrorException) {
+                    e.printStackTrace()
                 }
+
                 service.launch(Dispatchers.Main) {
                     service.mediaSession.setPlaybackState(
                         service.stateBuilder.setState(
@@ -193,9 +204,13 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 val session = Session.getInstance(0, service)
                 val track = session.track ?: return@launch
 
-                session.dislike(track, position)
+                try {
+                    session.dislike(track, position)
 
-                onSkipToNext()
+                    onSkipToNext()
+                } catch (e: NetworkErrorException) {
+                    e.printStackTrace()
+                }
             }
         }
     }

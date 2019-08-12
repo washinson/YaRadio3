@@ -1,6 +1,7 @@
 package com.washinson.yaradio3.Player
 
 
+import android.accounts.NetworkErrorException
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
@@ -78,27 +79,25 @@ class PlayerHistoryFragment : Fragment() {
                     likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_liked))
                 else
                     likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_liked))
-
-                likeButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        Session.getInstance(0, context).unlike(track, 0.0)
-                        launch(Dispatchers.Main) {
-                            notifyDataSetChanged()
-                        }
-                    }
-                }
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like))
                 else
                     likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like))
+            }
 
-                likeButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        Session.getInstance(0, context).like(track, 0.0)
+            likeButton.setOnClickListener {
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        if (track.liked)
+                            Session.getInstance(0, context).unlike(track, 0.0)
+                        else
+                            Session.getInstance(0, context).like(track, 0.0)
                         launch(Dispatchers.Main) {
                             notifyDataSetChanged()
                         }
+                    } catch (e: NetworkErrorException) {
+                        Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -111,27 +110,25 @@ class PlayerHistoryFragment : Fragment() {
                     dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_disliked))
                 else
                     dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_disliked))
-
-                dislikeButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        Session.getInstance(0, context).undislike(track, 0.0)
-                        launch(Dispatchers.Main) {
-                            notifyDataSetChanged()
-                        }
-                    }
-                }
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                     dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike))
                 else
                     dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike))
+            }
 
-                dislikeButton.setOnClickListener {
-                    GlobalScope.launch(Dispatchers.IO) {
-                        Session.getInstance(0, context).dislike(track, 0.0)
+            dislikeButton.setOnClickListener {
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        if (track.disliked)
+                            Session.getInstance(0, context).undislike(track, 0.0)
+                        else
+                            Session.getInstance(0, context).dislike(track, 0.0)
                         launch(Dispatchers.Main) {
                             notifyDataSetChanged()
                         }
+                    } catch (e: NetworkErrorException) {
+                        Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
                     }
                 }
             }

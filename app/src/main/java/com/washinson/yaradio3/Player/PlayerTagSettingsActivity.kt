@@ -1,5 +1,6 @@
 package com.washinson.yaradio3.Player
 
+import android.accounts.NetworkErrorException
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.washinson.yaradio3.Common.ThreadWaitForResult
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.Session.Session
 import com.washinson.yaradio3.Station.Settings
@@ -59,18 +61,25 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
                     settings!!.languages.possibleValues[languageGroup.checkedRadioButtonId].first
                 val newDiversity =
                     settings!!.diversities.possibleValues[diversityGroup.checkedRadioButtonId].first
-                session!!.tag?.setSettings(newLanguage, newMood, newDiversity)
+                try {
+                    session!!.tag?.setSettings(newLanguage, newMood, newDiversity)
 
-                launch(Dispatchers.Main) {
-                    Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                    launch(Dispatchers.Main) {
+                        Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                        spinKitView.visibility = View.GONE
+                    }
+                } catch (e: NetworkErrorException) {
+                    Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
                     spinKitView.visibility = View.GONE
                 }
             }
         }
 
         launch(Dispatchers.IO) {
-            session = Session.getInstance(0, this@PlayerTagSettingsActivity)
-            settings = session!!.tag?.getSettings() ?: return@launch
+            ThreadWaitForResult.load({
+                session = Session.getInstance(0, this@PlayerTagSettingsActivity)
+                settings = session!!.tag?.getSettings()
+            })
             launch(Dispatchers.Main) {
                 var q = 0
                 for (i in settings!!.moodEnergies.possibleValues) {

@@ -49,9 +49,7 @@ class PlayerActivity : AppCompatActivity() {
             window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimaryDark)
         }
 
-        GlobalScope.launch {
-            session = Session.getInstance(0, this@PlayerActivity)
-        }
+        session = Session.getInstance(0, this@PlayerActivity)
 
         connectService()
     }

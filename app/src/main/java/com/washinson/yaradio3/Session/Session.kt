@@ -33,19 +33,6 @@ class Session private constructor(context: Context) {
             field = value
         }
 
-    init {
-        updateSession(context)
-    }
-
-    fun updateSession(context: Context) {
-        quality = context.getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
-            .getString(SettingsFragment.QUALITY, SettingsFragment.defautQualityValue) ?: "aac_192"
-
-        manager = Manager(context)
-        auth = Auth(manager)
-        yandexCommunicator = YandexCommunicator(manager,auth)
-    }
-
     companion object {
         private val sessions: HashMap<Int, Session> = hashMapOf()
         fun getInstance(id: Int, context: Context?): Session {
@@ -60,6 +47,19 @@ class Session private constructor(context: Context) {
                 return sessions[id] ?: throw NetworkErrorException()
             }
         }
+    }
+
+    init {
+        updateSession(context)
+    }
+
+    fun updateSession(context: Context) {
+        quality = context.getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
+            .getString(SettingsFragment.QUALITY, SettingsFragment.defautQualityValue) ?: "aac_192"
+
+        manager = Manager(context)
+        auth = Auth(manager)
+        yandexCommunicator = YandexCommunicator(manager,auth)
     }
 
     fun getTagSettings(id: String, tag: String): String {
@@ -227,26 +227,26 @@ class Session private constructor(context: Context) {
     }
 
     fun like(track: Track, duration: Double) {
-        track.liked = true
         manager.sayAboutTrack(track, duration, auth, manager.like)
+        track.liked = true
     }
 
     fun unlike(track: Track, duration: Double) {
-        track.liked = false
         manager.sayAboutTrack(track, duration, auth, manager.unlike)
+        track.liked = false
     }
 
     fun undislike(track: Track, duration: Double) {
-        track.disliked = false
         manager.sayAboutTrack(track, duration, auth, manager.undislike)
         yandexCommunicator.queue.clear()
         yandexCommunicator.updateTracksIfNeed()
+        track.disliked = false
     }
 
     fun dislike(track: Track, duration: Double) {
-        track.disliked = true
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
         yandexCommunicator.updateTracksIfNeed()
+        track.disliked = true
     }
 }
