@@ -48,6 +48,9 @@ class Manager(context: Context) {
     }
 
     fun historyFeedback(track: Track, duration: Double, auth: Auth, feedback: String): String? {
+        Log.d(TAG, "History $feedback: duration $duration")
+        Log.d(TAG, "History $feedback: track=$track")
+
         val path = "https://radio.yandex.ru/api/v2.1/handlers/track/none/history/feedback/retry"
         val postBody = JSONObject()
         setDefaulHistoryFeedbackBody(track, postBody, auth, duration, feedback)
@@ -84,6 +87,8 @@ class Manager(context: Context) {
     }
 
     fun getTracks(tag: Tag, curTrack: Track? = null, nextTrack: Track? = null): ArrayDeque<Track> {
+        Log.d(TAG, "Get tracks tag=$tag curTrack=$curTrack nextTrack=$nextTrack")
+
         var url = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(tag)}/tracks?queue="
         if (curTrack != null) {
             url += "${curTrack.id}:${curTrack.albumId}"
@@ -91,8 +96,6 @@ class Manager(context: Context) {
                 url += ",${nextTrack.id}:${nextTrack.albumId}"
             }
         }
-        Log.d(TAG, "getTracks: ${url}")
-        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
         val response = get(url, null, tag) ?: throw NetworkErrorException()
         val tracks = JSONObject(response)
         val array = tracks.getJSONArray("tracks")
@@ -107,20 +110,25 @@ class Manager(context: Context) {
     }
 
     fun isTagAvailable(tag: Tag): Boolean {
+        Log.d(TAG, "Is tag avalible $tag")
+
         val response =
             get("https://radio.yandex.ru/api/v2.1/handlers/radio/${tag.id}/${tag.tag}/available", null, tag) ?: throw NetworkErrorException()
         return JSONObject(response).getBoolean("available")
     }
 
     fun isTagAvailable(type: String, tag: String): Boolean {
+        Log.d(TAG, "Is tag avalible $type:$tag")
+
         val response =
             get("https://radio.yandex.ru/api/v2.1/handlers/radio/$type/$tag/available", null, null) ?: throw NetworkErrorException()
         return JSONObject(response).getBoolean("available")
     }
 
     fun updateInfo(moodEnergy: String, diversity: String, language: String, tag: Tag, auth: Auth): String? {
-        Log.d(TAG, "Update station : $moodEnergy $diversity $language")
-        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
+        Log.d(TAG, "Update station: $moodEnergy $diversity $language")
+        Log.d(TAG, "Update station: $tag")
+
         val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(tag)}/settings"
         val postData = PostConfig()
 
@@ -135,10 +143,10 @@ class Manager(context: Context) {
     }
 
     fun sayAboutTrack(track: Track, duration: Double, auth: Auth, feedback: String): String? {
-        Log.d(TAG, "$feedback : Track duration: $duration")
-        Log.d(TAG, "Time: ${System.currentTimeMillis() / 1000}")
-        val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(track.tag)}/feedback/$feedback/${track.id}:${track.albumId}"
+        Log.d(TAG, "$feedback: with duration $duration")
+        Log.d(TAG, "$feedback: $track")
 
+        val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(track.tag)}/feedback/$feedback/${track.id}:${track.albumId}"
         val postData = PostConfig()
         setDefaultPostDataTrack(postData, track, auth)
         postData.put("totalPlayed", duration.toString())

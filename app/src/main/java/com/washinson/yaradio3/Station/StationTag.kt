@@ -21,4 +21,8 @@ class StationTag(station: JSONObject, override val type: Type? = null) : Tag {
 
         name = station.getString("name")
     }
+
+    override fun toString(): String {
+        return "StationTag(id='$id', tag='$tag', name='$name')"
+    }
 }

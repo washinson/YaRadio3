@@ -81,10 +81,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             val cookies = data?.getStringExtra("cookies")
             session?.login(cookies)
-            loadSession()
+
+            launch(Dispatchers.IO) {
+                val response = session!!.getTypesResponseForSave()
+                sharedPreferences.edit().putString("library.jsx", response).apply()
+
+                launch(Dispatchers.Main) {
+                    loadSession()
+                }
+            }
         }
     }
 

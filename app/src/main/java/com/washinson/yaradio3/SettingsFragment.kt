@@ -13,12 +13,15 @@ import android.view.ViewGroup
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.SystemClock
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.media.session.MediaButtonReceiver
 import com.washinson.yaradio3.Player.PlayerService
 import com.washinson.yaradio3.Session.Session
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -33,6 +36,8 @@ class SettingsFragment : Fragment() {
     }
 
     var sharedPreferences: SharedPreferences? = null
+    lateinit var alarmIntent: PendingIntent
+    lateinit var alarmMgr: AlarmManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,19 +91,58 @@ class SettingsFragment : Fragment() {
         val version = context!!.packageManager.getPackageInfo(context!!.packageName, 0).versionName
         apkButton.text = apkButton.text.toString().format(version)
 
+        alarmIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP)
+        alarmMgr = context!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
         val setTimerButton: Button = view.findViewById(R.id.set_timer_button)
         setTimerButton.setOnClickListener{
-            val alarmMgr = context!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val alarmIntent= MediaButtonReceiver.buildMediaButtonPendingIntent(context, PlaybackStateCompat.ACTION_STOP)
-
             val hours = view.findViewById<EditText>(R.id.hours).text
             val minutes = view.findViewById<EditText>(R.id.minutes).text
 
-            val additionalTime = (3600 * hours.toString().toInt() + 60 * minutes.toString().toInt()) * 1000
+            val additionalTime: Int
+            try {
+                additionalTime = (3600 * hours.toString().toInt() + 60 * minutes.toString().toInt()) * 1000
+                if (additionalTime <= 0) throw NumberFormatException()
+            } catch (e: NumberFormatException) {
+                Toast.makeText(context!!, getString(R.string.incorrect_input), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
+            alarmMgr.cancel(alarmIntent)
             alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,SystemClock.elapsedRealtime() + additionalTime, alarmIntent)
 
-            Toast.makeText(context!!, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+            val output = getString(R.string.playback_will_stop_in).format(getDate(System.currentTimeMillis() + additionalTime, "kk:mm"))
+            Toast.makeText(context!!, output, Toast.LENGTH_SHORT).show()
         }
+
+        view.findViewById<Button>(R.id.get_timer_info).setOnClickListener {
+            if (false && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val time = (alarmMgr.nextAlarmClock?.triggerTime ?: return@setOnClickListener) - System.currentTimeMillis()
+
+                val hours = time / 3600_000
+                val minutes = time / 60_000 % 3600_000
+                val seconds = time / 1000 % 60_000
+
+                Toast.makeText(context, getString(R.string.timer_info_print).format(hours, minutes, seconds), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, getString(R.string.not_supported), Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * Return date in specified format.
+     * @param milliSeconds Date in milliseconds
+     * @param dateFormat Date format
+     * @return String representing date in specified format
+     */
+    fun getDate(milliSeconds: Long, dateFormat: String): String {
+        // Create a DateFormatter object for displaying date in specified format.
+        val formatter = SimpleDateFormat(dateFormat, Locale.UK)
+
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = milliSeconds
+        return formatter.format(calendar.time)
     }
 }

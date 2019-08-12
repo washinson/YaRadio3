@@ -36,7 +36,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 PlaybackStateCompat.STATE_PAUSED,
                 service.simpleExoPlayer.currentPosition, 1F).build())
 
-        val track = Session.getInstance(0, service).track ?: return
+        val track = Session.getInstance(0, service).track
         refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_PAUSED, service.mediaSession, service, track)
     }
 
@@ -46,6 +46,12 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     @Suppress("DEPRECATION")
     override fun onPlay() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            service.startForegroundService(Intent(service.applicationContext, PlayerService::class.java))
+        } else {
+            service.startService(Intent(service.applicationContext, PlayerService::class.java))
+        }
+
         val audioFocusResult: Int
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             audioFocusResult = service.audioManager!!.requestAudioFocus(
@@ -80,7 +86,9 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         // Аудиофокус надо получить строго до вызова setActive!
         service.mediaSession.isActive = true
 
-        service.registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+        try {
+            service.registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+        } catch (e: Exception) {}
 
         service.mediaSession.setPlaybackState(
             service.stateBuilder.setState(
@@ -88,6 +96,9 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 service.simpleExoPlayer.currentPosition, 1F).build())
 
         service.simpleExoPlayer.playWhenReady = true
+
+        val track = Session.getInstance(0, service).track
+        refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_PLAYING, service.mediaSession, service, track)
     }
 
     @Suppress("DEPRECATION")
@@ -110,6 +121,10 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.stateBuilder.setState(
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
+
+        val track = Session.getInstance(0, service).track
+        refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_STOPPED, service.mediaSession, service, track)
+
         service.stopSelf()
     }
 
@@ -151,16 +166,21 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.launch(Dispatchers.IO) {
                 val session = Session.getInstance(0, service)
                 val track = session.track ?: return@launch
-                if (session.track!!.liked) {
+
+                if (track.liked) {
                     session.unlike(track, position)
                 } else {
                     session.like(track, position)
                 }
+                service.launch(Dispatchers.Main) {
+                    service.mediaSession.setPlaybackState(
+                        service.stateBuilder.setState(
+                            service.mediaSession.controller.playbackState.state,
+                            service.simpleExoPlayer.currentPosition, 1F).build())
 
-                service.mediaSession.setPlaybackState(
-                    service.stateBuilder.setState(
-                        service.mediaSession.controller.playbackState.state,
-                        service.simpleExoPlayer.currentPosition, 1F).build())
+                    refreshNotificationAndForegroundStatus(service.mediaSession.controller.playbackState.state,
+                        service.mediaSession, service, track)
+                }
             }
         }
     }
@@ -172,6 +192,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.launch(Dispatchers.IO) {
                 val session = Session.getInstance(0, service)
                 val track = session.track ?: return@launch
+
                 session.dislike(track, position)
 
                 onSkipToNext()

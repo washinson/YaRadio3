@@ -7,76 +7,98 @@
               tools:context=".SettingsFragment">
 
     <TextView
+            android:paddingStart="3dp"
+            android:paddingLeft="3dp"
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/quality" />
+            android:text="@string/quality" android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
     <RadioGroup
             android:id="@+id/radio_group"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
         <RadioButton
-            android:id="@+id/radioButtonMP3_192"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/_192_mp3_bitrate" />
+                android:id="@+id/radioButtonMP3_192"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/_192_mp3_bitrate"/>
 
         <RadioButton
                 android:id="@+id/radioButtonAAC_192"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/_192_aac_bitrate" />
+                android:text="@string/_192_aac_bitrate"/>
 
         <RadioButton
                 android:id="@+id/radioButtonAAC_128"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/_128_aac_bitrate" />
+                android:text="@string/_128_aac_bitrate"/>
 
         <RadioButton
                 android:id="@+id/radioButtonAAC_64"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/_64_aac_bitrate" />
+                android:text="@string/_64_aac_bitrate"/>
     </RadioGroup>
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" android:id="@+id/view7"/>
+    <TextView
+            android:paddingStart="3dp"
+            android:paddingLeft="3dp"
+            android:text="@string/timer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/textView4"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+    <TextView
+            android:gravity="center"
+            android:text="@string/playback_will_stop_after_time_has_passed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/textView5"/>
     <LinearLayout
+            android:paddingStart="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         <TextView
-                android:gravity="end|center"
-                android:layout_gravity="center"
+                android:gravity="bottom"
+                android:paddingBottom="10dp"
                 android:text="@string/hours"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" android:id="@+id/textView2" android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" android:id="@+id/textView2"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
         <EditText
+                android:layout_gravity="bottom"
                 android:gravity="center"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="numberSigned"
+                android:inputType="numberDecimal|numberSigned"
                 android:ems="1"
                 android:maxEms="1"
                 android:id="@+id/hours" android:layout_weight="1"
-                android:text="@string/_0" android:autofillHints=""/>
+                android:text="@string/_0"/>
         <TextView
-                android:gravity="end|center"
-                android:layout_gravity="center"
+                android:gravity="bottom"
+                android:paddingBottom="10dp"
                 android:text="@string/minutes"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content" android:id="@+id/textView3" android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" android:id="@+id/textView3"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
         <EditText
+                android:layout_gravity="bottom"
                 android:gravity="center"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="numberSigned"
+                android:inputType="numberDecimal|numberSigned"
                 android:ems="2"
                 android:maxEms="2"
                 android:id="@+id/minutes" android:layout_weight="1"
@@ -85,6 +107,10 @@
                 android:text="@string/set_timer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" android:id="@+id/set_timer_button" android:layout_weight="2"/>
+        <Button
+                android:text="@string/timer_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" android:id="@+id/get_timer_info" android:layout_weight="2"/>
     </LinearLayout>
     <FrameLayout
             android:layout_width="match_parent"

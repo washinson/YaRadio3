@@ -3,12 +3,14 @@ package com.washinson.yaradio3.Player
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.Session.Session
@@ -23,6 +25,7 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
     lateinit var languageGroup: RadioGroup
     lateinit var diversityGroup: RadioGroup
     lateinit var fab: FloatingActionButton
+    lateinit var spinKitView: SpinKitView
 
     var settings: Settings? = null
     var session: Session? = null
@@ -34,8 +37,10 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimary)
+            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimaryDark)
         }
+
+        spinKitView = findViewById(R.id.spin_kit)
 
         moodGroup = findViewById(R.id.mood_energy)
         languageGroup = findViewById(R.id.language)
@@ -44,6 +49,7 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
         fab = findViewById(R.id.floatingActionButton2)
 
         fab.setOnClickListener {
+            spinKitView.visibility = View.VISIBLE
             launch(Dispatchers.IO) {
                 if (settings == null || session == null)
                     return@launch
@@ -57,6 +63,7 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
 
                 launch(Dispatchers.Main) {
                     Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                    spinKitView.visibility = View.GONE
                 }
             }
         }
@@ -89,6 +96,8 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
                     radioButton.isChecked = i.first == settings!!.diversity
                     diversityGroup.addView(radioButton)
                 }
+
+                spinKitView.visibility = View.GONE
             }
         }
     }

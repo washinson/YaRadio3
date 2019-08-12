@@ -46,7 +46,7 @@ class PlayerActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimary)
+            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimaryDark)
         }
 
         GlobalScope.launch {
@@ -60,11 +60,9 @@ class PlayerActivity : AppCompatActivity() {
         val intent1 = Intent(this, PlayerService::class.java)
         intent1.putExtra("tag", intent.getStringExtra("tag"))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent1)
             bindService(Intent(this, PlayerService::class.java),
                 mConnection, Context.BIND_AUTO_CREATE)
         } else {
-            startService(intent1)
             bindService(Intent(this, PlayerService::class.java),
                 mConnection, Context.BIND_AUTO_CREATE)
         }
@@ -83,6 +81,7 @@ class PlayerActivity : AppCompatActivity() {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             playerService = (service as PlayerService.PlayerServiceBinder).getService()
+
             mediaController = playerService!!.mediaSession.controller
             mediaController!!.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -98,7 +97,10 @@ class PlayerActivity : AppCompatActivity() {
                     playerNextFragment.adapter.onMetadataUpdate()
                 }
             })
+
             playerInfoFragment.onServiceConnected(playerService ?: return)
+
+            playerService!!.onTagChanged(intent.getStringExtra("tag"))
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -107,7 +109,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    inner class PlayerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    inner class PlayerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getItem(position: Int): Fragment {
             return when (position) {
                 0 -> playerHistoryFragment

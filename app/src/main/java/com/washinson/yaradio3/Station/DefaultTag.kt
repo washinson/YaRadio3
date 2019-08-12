@@ -25,4 +25,8 @@ class DefaultTag(idJson: JSONObject, stations: JSONObject, override val type: Ty
             }
         }
     }
+
+    override fun toString(): String {
+        return "DefaultTag(id='$id', tag='$tag', name='$name')"
+    }
 }

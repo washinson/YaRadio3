@@ -76,12 +76,6 @@ class PlayerService : Service(), CoroutineScope {
             PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0))
 
         mediaSession.controller.registerCallback(object : MediaControllerCompat.Callback() {
-            override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-                refreshNotificationAndForegroundStatus(
-                    mediaSession.controller.playbackState.state, mediaSession,
-                    this@PlayerService, Session.getInstance(0, this@PlayerService).track)
-            }
-
             override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
                 refreshNotificationAndForegroundStatus(
                     mediaSession.controller.playbackState.state, mediaSession,
@@ -214,17 +208,20 @@ class PlayerService : Service(), CoroutineScope {
 
         hackNotificationForStartForeground()
 
+        onTagChanged(intent?.getStringExtra("tag"))
+
+        return START_STICKY
+    }
+
+    fun onTagChanged(tag: String?) {
         if (curTag == null) {
-            curTag = intent?.getStringExtra("tag")
+            curTag = tag
         } else {
-            if (intent?.getStringExtra("tag") != null
-                && intent.getStringExtra("tag") != curTag) {
-                curTag = intent.getStringExtra("tag")
+            if (tag != null && tag != curTag) {
+                curTag = tag
                 startTag()
             }
         }
-
-        return START_STICKY
     }
 
     fun hackNotificationForStartForeground() {
@@ -258,8 +255,10 @@ class PlayerService : Service(), CoroutineScope {
             when(playbackState) {
                 //STATE_IDLE -> mediaSessionCallback.onSkipToNext()
                 STATE_ENDED -> {
-                    val time = simpleExoPlayer.currentPosition
-                    nextTrack(true, time / 1000.0)
+                    if (playWhenReady) {
+                        val time = simpleExoPlayer.currentPosition
+                        nextTrack(true, time / 1000.0)
+                    }
                 }
             }
         }
