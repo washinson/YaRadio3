@@ -10,9 +10,6 @@ import android.view.ViewGroup
 import android.widget.*
 import com.bumptech.glide.Glide
 import com.washinson.yaradio3.Station.Tag
-import okhttp3.internal.wait
-import android.graphics.Bitmap
-import com.bumptech.glide.request.FutureTarget
 
 
 class TagsFragment(val tags: List<Tag>) : Fragment() {
@@ -124,7 +121,7 @@ class TagsFragment(val tags: List<Tag>) : Fragment() {
         override fun getGroupView(p0: Int, isExpanded: Boolean, p2: View?, p3: ViewGroup?): View {
             var view = p2
             if (view == null) {
-                view = inflater.inflate(R.layout.simple_expandable_list_item_1_custom, p3, false)
+                view = inflater.inflate(R.layout.expandable_tag_item, p3, false)
             }
 
             view!!.findViewById<TextView>(R.id.tag_name).text = getGroup(p0).name
@@ -166,7 +163,7 @@ class TagsFragment(val tags: List<Tag>) : Fragment() {
         override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
             var view = p1
             if (view == null) {
-                view = inflater.inflate(R.layout.simple_list_item_1_custom, p2, false)
+                view = inflater.inflate(R.layout.simple_tag_item, p2, false)
             }
 
             Glide.with(context).load(getItem(p0).icon.getIcon(200,200)).into(view!!.findViewById<ImageView>(R.id.tag_icon))

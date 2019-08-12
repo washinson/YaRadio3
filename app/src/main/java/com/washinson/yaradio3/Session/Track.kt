@@ -28,13 +28,14 @@ class Track(jsonObject: JSONObject, val tag: Tag) {
 
         if(track.has("coverUri"))
             cover = "https://${track.getString("coverUri")}"
-        else {
-            if(track.getJSONArray("albums").getJSONObject(0).has("cover")){
-                cover = track.getJSONArray("albums")
-                    .getJSONObject(0).getJSONObject("cover").getString("uri")
-            } else {
-                cover = "https://music.yandex.ru/blocks/common/default.%%.png"
-            }
+        else if (track.has("ogImage")) {
+            cover = "https://${track.getString("ogImage")}"
+        } else if(track.getJSONArray("albums").getJSONObject(0).has("cover")){
+            cover = track.getJSONArray("albums")
+                .getJSONObject(0).getJSONObject("cover").getString("uri")
+        } else {
+            // Cover not found
+            cover = "https://music.yandex.ru/blocks/common/default.200x200.png"
         }
 
         durationMs = track.getLong("durationMs")

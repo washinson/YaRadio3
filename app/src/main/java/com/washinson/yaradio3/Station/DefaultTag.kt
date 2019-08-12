@@ -29,4 +29,22 @@ class DefaultTag(idJson: JSONObject, stations: JSONObject, override val type: Ty
     override fun toString(): String {
         return "DefaultTag(id='$id', tag='$tag', name='$name')"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DefaultTag
+
+        if (id != other.id) return false
+        if (tag != other.tag) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + tag.hashCode()
+        return result
+    }
 }

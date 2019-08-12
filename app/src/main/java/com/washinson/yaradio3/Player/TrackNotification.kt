@@ -21,6 +21,7 @@ class TrackNotification {
     companion object {
         val NOTIFICATION_ID = 1
         val channelID = "1"
+
         fun refreshNotificationAndForegroundStatus(playbackState: Int, mediaSession: MediaSessionCompat, playerService: PlayerService, track: Track?) {
             when (playbackState) {
                 PlaybackStateCompat.STATE_PLAYING -> {

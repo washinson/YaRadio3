@@ -190,6 +190,8 @@ class Session private constructor(context: Context) {
     }
 
     fun setTagToPlay(tag: Tag) {
+        if (this.tag == tag)
+            return
         yandexCommunicator.cleanup()
         this.tag = tag
         yandexCommunicator.next()
@@ -202,6 +204,7 @@ class Session private constructor(context: Context) {
                 manager.sayAboutTrack(track!!, duration, auth, manager.trackFinished)
             } else {
                 manager.sayAboutTrack(track!!, duration, auth, manager.skip)
+                yandexCommunicator.queue.clear()
             }
         }
         yandexCommunicator.next()
@@ -249,4 +252,6 @@ class Session private constructor(context: Context) {
         yandexCommunicator.updateTracksIfNeed()
         track.disliked = true
     }
+
+
 }

@@ -19,7 +19,8 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Player.PlayerTagSettingsActivity">
+        <activity android:name=".Player.PlayerTagSettingsActivity"
+                  tools:ignore="InnerclassSeparator">
         </activity>
 
         <service
@@ -39,6 +40,7 @@
 
         <activity
                 android:name=".Player.PlayerActivity"
+                android:launchMode="singleInstance"
                 android:theme="@style/AppTheme.NoActionBar"
                 tools:ignore="InnerclassSeparator">
         </activity>
