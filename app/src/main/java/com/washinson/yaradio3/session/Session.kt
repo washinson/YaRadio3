@@ -97,10 +97,13 @@ class Session private constructor(context: Context) {
      * @param diversity
      */
     fun updateInfo(language: String, moodEnergy: String, diversity: String) {
+        val tempNextTrack = yandexCommunicator.nextTrack
+
         yandexCommunicator.nextTrack = null
         yandexCommunicator.queue.clear()
         manager.updateInfo(moodEnergy, diversity, language, track?.tag ?: return, auth)
-        yandexCommunicator.updateTracksIfNeed()
+
+        yandexCommunicator.updateTracksIfNeed(track, tempNextTrack)
     }
 
     fun isTagAvailable(tag: Tag) = manager.isTagAvailable(tag)
@@ -370,7 +373,7 @@ class Session private constructor(context: Context) {
     fun undislike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.undislike)
         yandexCommunicator.queue.clear()
-        yandexCommunicator.updateTracksIfNeed()
+        yandexCommunicator.updateTracksIfNeed(track, yandexCommunicator.nextTrack)
         track.disliked = false
     }
 
@@ -383,7 +386,7 @@ class Session private constructor(context: Context) {
     fun dislike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
-        yandexCommunicator.updateTracksIfNeed()
+        yandexCommunicator.updateTracksIfNeed(track, yandexCommunicator.nextTrack)
         track.disliked = true
     }
 

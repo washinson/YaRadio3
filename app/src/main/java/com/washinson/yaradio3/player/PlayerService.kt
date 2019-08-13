@@ -159,8 +159,7 @@ class PlayerService : Service(), CoroutineScope {
     }
 
     fun startTag() {
-        mediaSessionCallback.onPause()
-        setLoadingContent()
+        onStartNewTrack()
 
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load({
@@ -186,12 +185,29 @@ class PlayerService : Service(), CoroutineScope {
             .build())
     }
 
+    fun onStartNewTrack() {
+        isPlayerReady = false
+
+        simpleExoPlayer.stop()
+        simpleExoPlayer.seekTo(0)
+
+        mediaSession.setPlaybackState(
+            stateBuilder.setState(
+                PlaybackStateCompat.STATE_SKIPPING_TO_NEXT,
+                0L, 1F).build())
+
+        refreshNotificationAndForegroundStatus(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT, mediaSession,
+            this, Session.getInstance(0, this).track)
+
+        setLoadingContent()
+    }
+
     fun nextTrack(finished: Boolean, duration: Double) {
         if (!isPlayerReady)
             return
-        isPlayerReady = false
-        mediaSessionCallback.onPause()
-        setLoadingContent()
+
+        onStartNewTrack()
+
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load({
                 val session = Session.getInstance(0, this@PlayerService)

@@ -1,7 +1,6 @@
 package com.washinson.yaradio3.player
 
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
@@ -101,7 +100,7 @@ class PlayerInfoFragment : Fragment() {
         isInterfaceInited = true
 
         val metadata = curActivity.playerService?.mediaSession?.controller?.metadata
-        if (metadata != null) updateOnMedatada(metadata)
+        if (metadata != null) onMetadataUpdate(metadata)
 
         val state = curActivity.playerService?.mediaSession?.controller?.playbackState
         if (state != null) updateOnPlaybackState(state)
@@ -176,7 +175,7 @@ class PlayerInfoFragment : Fragment() {
         })
 
         val metadata = playerService.mediaSession.controller.metadata
-        updateOnMedatada(metadata)
+        onMetadataUpdate(metadata)
 
         val state = playerService.mediaSession.controller.playbackState
         updateOnPlaybackState(state)
@@ -189,6 +188,7 @@ class PlayerInfoFragment : Fragment() {
 
         val curActivity = (activity ?: return) as PlayerActivity
 
+        //progressBar.setProgress(state.position.toInt(), true)
         progressBar.progress = state.position.toInt()
         if(curActivity.playerService?.mediaSession?.controller?.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -216,7 +216,7 @@ class PlayerInfoFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    fun updateOnMedatada(metadata: MediaMetadataCompat) {
+    fun onMetadataUpdate(metadata: MediaMetadataCompat) {
         if (!isInterfaceInited)
             return
         trackLabel.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) + " - " + metadata.getString(

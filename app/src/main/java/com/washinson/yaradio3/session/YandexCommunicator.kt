@@ -33,9 +33,10 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
     fun next() {
         if(track != null)
             trackHistory.add(track!!)
+        val tempTrack = track
         track = null
         while (track == null) {
-            updateTracksIfNeed()
+            updateTracksIfNeed(tempTrack, nextTrack)
             track = nextTrack
             nextTrack = queue.first
             queue.removeFirst()
@@ -46,7 +47,7 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
      * Load tracks if queue empty
      *
      */
-    fun updateTracksIfNeed() {
+    fun updateTracksIfNeed(track: Track?, nextTrack: Track?) {
         while(queue.size == 0) {
             queue.addAll(manager.getTracks(tag!!, track, nextTrack))
         }

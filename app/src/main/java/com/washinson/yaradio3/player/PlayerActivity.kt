@@ -88,7 +88,7 @@ class PlayerActivity : AppCompatActivity() {
                 }
 
                 override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-                    playerInfoFragment.updateOnMedatada(metadata ?: return)
+                    playerInfoFragment.onMetadataUpdate(metadata ?: return)
                     playerHistoryFragment.adapter.onMetadataUpdate()
                     playerNextFragment.adapter.onMetadataUpdate()
                 }

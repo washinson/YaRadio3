@@ -344,27 +344,22 @@ class Manager(context: Context) {
      */
     private fun doRequest(request: Request): String? {
         var res: String? = null
-        val response: Response
         try {
-           response = okHttpClient.newCall(request).execute()
-        } catch (exception: IOException) {
-            throw NetworkErrorException()
-        }
-        try {
-            if (response.body == null) {
-                Log.d(TAG, "response body: null")
-                return null
-            }
+            okHttpClient.newCall(request).execute().use {
+                response ->
+                if (response.body == null) {
+                    Log.d(TAG, "response body is null")
+                    return null
+                }
 
-            val q = response.body!!.bytes()
-            val contentEncoding = response.header("Content-Encoding")
-            res = if (contentEncoding != null && contentEncoding == "gzip")
-                Utils.decodeGZIP(q)
-            else
-                String(q)
-            response.close()
+                val q = response.body!!.bytes()
+                val contentEncoding = response.header("Content-Encoding")
+                res = if (contentEncoding != null && contentEncoding == "gzip")
+                    Utils.decodeGZIP(q)
+                else
+                    String(q)
+            }
         } catch (e: Exception) {
-            response.close()
             e.printStackTrace()
         }
 

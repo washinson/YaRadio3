@@ -25,12 +25,7 @@ class TrackNotification {
         fun refreshNotificationAndForegroundStatus(playbackState: Int, mediaSession: MediaSessionCompat, playerService: PlayerService, track: Track?) {
             when (playbackState) {
                 PlaybackStateCompat.STATE_PLAYING -> {
-                    val notification = getNotification(
-                        playbackState,
-                        mediaSession,
-                        playerService,
-                        track
-                    ) ?: return
+                    val notification = getNotification(playbackState,mediaSession,playerService,track) ?: return
                     val mNotificationManager =
                         playerService.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
 
@@ -47,14 +42,13 @@ class TrackNotification {
                 PlaybackStateCompat.STATE_PAUSED -> {
                     // На паузе мы перестаем быть foreground, однако оставляем уведомление,
                     // чтобы пользователь мог play нажать
-                    val notification = getNotification(
-                        playbackState,
-                        mediaSession,
-                        playerService,
-                        track
-                    ) ?: return
+                    val notification = getNotification(playbackState,mediaSession,playerService,track) ?: return
                     NotificationManagerCompat.from(playerService).notify(NOTIFICATION_ID, notification)
                     playerService.stopForeground(false)
+                }
+                PlaybackStateCompat.STATE_SKIPPING_TO_NEXT -> {
+                    val notification = getNotification(PlaybackStateCompat.STATE_PAUSED,mediaSession,playerService,track) ?: return
+                    NotificationManagerCompat.from(playerService).notify(NOTIFICATION_ID, notification)
                 }
                 else -> {
                     // Все, можно прятать уведомление
