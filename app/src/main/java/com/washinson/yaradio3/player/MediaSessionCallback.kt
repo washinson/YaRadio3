@@ -51,6 +51,10 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     @Suppress("DEPRECATION")
     override fun onPlay() {
         Log.d(TAG, "onPlay")
+
+        // Reset variable for contingencies
+        isPausedWhenDucked = false
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             service.startForegroundService(Intent(service.applicationContext, PlayerService::class.java))
         } else {
@@ -77,6 +81,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 // Если true - нам выдадут фокус как только это будет возможно
                 // (например, закончится телефонный разговор)
                 .setAcceptsDelayedFocusGain(false)
+                .setWillPauseWhenDucked(false)
                 .setAudioAttributes(audioAttributes)
                 .build()
             audioFocusResult = service.audioManager!!
@@ -132,6 +137,14 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         service.stopSelf()
     }
 
+    /**
+     * Used to detect pause when ducked
+     * and don't play when focus gained if state was paused
+     *
+     * Needed to support < oreo versions
+     */
+    private var isPausedWhenDucked = false
+
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_GAIN -> {
@@ -140,7 +153,8 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 // Звонок закончился, фокус выдали опять
                 // и мы продолжили воспроизведение.
                 service.simpleExoPlayer.volume = 1F
-                onPlay()
+                if (!isPausedWhenDucked)
+                    onPlay()
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // Фокус отняли, потому что какому-то приложению надо
@@ -149,11 +163,13 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 // "Через 50 метров поворот направо".
                 // В этой ситуации нам разрешено не останавливать вопроизведение,
                 // но надо снизить громкость.
+                isPausedWhenDucked = !service.simpleExoPlayer.playWhenReady
                 service.simpleExoPlayer.volume = 0.3F
             }
-            else ->
+            else -> {
                 // Фокус совсем отняли.
                 onPause()
+            }
         }
     }
 
