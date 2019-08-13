@@ -77,8 +77,6 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 // Если true - нам выдадут фокус как только это будет возможно
                 // (например, закончится телефонный разговор)
                 .setAcceptsDelayedFocusGain(false)
-                // Вместо уменьшения громкости собираемся вставать на паузу
-                .setWillPauseWhenDucked(true)
                 .setAudioAttributes(audioAttributes)
                 .build()
             audioFocusResult = service.audioManager!!
@@ -136,22 +134,23 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
-            AudioManager.AUDIOFOCUS_GAIN ->
+            AudioManager.AUDIOFOCUS_GAIN -> {
                 // Фокус предоставлен.
                 // Например, был входящий звонок и фокус у нас отняли.
                 // Звонок закончился, фокус выдали опять
                 // и мы продолжили воспроизведение.
+                service.simpleExoPlayer.volume = 1F
                 onPlay()
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // Фокус отняли, потому что какому-то приложению надо
                 // коротко "крякнуть".
                 // Например, проиграть звук уведомления или навигатору сказать
                 // "Через 50 метров поворот направо".
                 // В этой ситуации нам разрешено не останавливать вопроизведение,
                 // но надо снизить громкость.
-                // Приложение не обязано именно снижать громкость,
-                // можно встать на паузу, что мы здесь и делаем.
-                onPause()
+                service.simpleExoPlayer.volume = 0.3F
+            }
             else ->
                 // Фокус совсем отняли.
                 onPause()
