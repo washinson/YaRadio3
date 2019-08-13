@@ -75,10 +75,10 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
         }
 
         launch(Dispatchers.IO) {
-            ThreadWaitForResult.load({
+            ThreadWaitForResult.load{
                 session = Session.getInstance(0, this@PlayerTagSettingsActivity)
                 settings = session!!.tag?.getSettings()
-            })
+            }
             launch(Dispatchers.Main) {
                 var q = 0
                 for (i in settings!!.moodEnergies.possibleValues) {

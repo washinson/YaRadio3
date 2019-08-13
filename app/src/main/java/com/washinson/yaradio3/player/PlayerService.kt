@@ -62,6 +62,10 @@ class PlayerService : Service(), CoroutineScope {
 
     var isPlayerReady = true
 
+    fun stopJobs() {
+        job.cancel()
+    }
+
     override fun onCreate() {
         super.onCreate()
         mediaSession = MediaSessionCompat(this, "YaRadio3")
@@ -162,7 +166,7 @@ class PlayerService : Service(), CoroutineScope {
         onStartNewTrack()
 
         launch(Dispatchers.IO) {
-            ThreadWaitForResult.load({
+            ThreadWaitForResult.load{
                 val session = Session.getInstance(0, this@PlayerService)
                 val url = session.startTrack()
 
@@ -170,7 +174,7 @@ class PlayerService : Service(), CoroutineScope {
                     prepareTrack(url)
                     mediaSessionCallback.onPlay()
                 }
-            })
+            }
         }
     }
 
@@ -209,7 +213,7 @@ class PlayerService : Service(), CoroutineScope {
         onStartNewTrack()
 
         launch(Dispatchers.IO) {
-            ThreadWaitForResult.load({
+            ThreadWaitForResult.load{
                 val session = Session.getInstance(0, this@PlayerService)
                 session.nextTrack(finished, duration)
                 val url = session.startTrack()
@@ -217,12 +221,13 @@ class PlayerService : Service(), CoroutineScope {
                     prepareTrack(url)
                     mediaSessionCallback.onPlay()
                 }
-            })
+            }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        job.cancel()
         mediaSession.release()
         simpleExoPlayer.release()
         unregisterReceiver(mediaSessionCallback.likeReceiver)
@@ -250,7 +255,7 @@ class PlayerService : Service(), CoroutineScope {
         }
     }
 
-    fun hackNotificationForStartForeground() {
+    private fun hackNotificationForStartForeground() {
         val notification = TrackNotification.getNotification(
             mediaSession.controller.playbackState.state,
             mediaSession,

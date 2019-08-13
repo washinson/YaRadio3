@@ -119,7 +119,7 @@ class PlayerHistoryFragment : Fragment() {
         }
 
         fun onMetadataUpdate() {
-            tracks = Session.getInstance(0, context).getTrackHistory()
+            tracks = Session.getInstance(0, context).trackHistory
             notifyDataSetChanged()
         }
 

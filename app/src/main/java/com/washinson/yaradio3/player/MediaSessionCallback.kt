@@ -122,6 +122,8 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
             service.audioManager!!.abandonAudioFocusRequest(mFocusRequest)
         }
 
+        service.stopJobs()
+
         service.simpleExoPlayer.playWhenReady = false
         service.simpleExoPlayer.stop(true)
         service.simpleExoPlayer.release()

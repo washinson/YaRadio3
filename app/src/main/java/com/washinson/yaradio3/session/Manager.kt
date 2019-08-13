@@ -16,6 +16,10 @@ import android.accounts.NetworkErrorException
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
 import java.lang.Exception
+import java.net.UnknownHostException
+import okhttp3.OkHttpClient
+
+
 
 /**
  * Manager is intermediary app with network
@@ -335,7 +339,7 @@ class Manager(context: Context) {
     }
 
     /**
-     * Connect to server with request
+     * Connect to server with request and get server response
      *
      * @throws NetworkErrorException
      *
@@ -359,8 +363,13 @@ class Manager(context: Context) {
                 else
                     String(q)
             }
-        } catch (e: Exception) {
+        } catch (e: UnknownHostException) {
+            throw NetworkErrorException()
+        }catch (e: Exception) {
             e.printStackTrace()
+
+            // Architecture works instability without result
+            res = doRequest(request)
         }
 
         return res

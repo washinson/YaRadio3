@@ -34,14 +34,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun start(tag: Tag) {
         launch(Dispatchers.IO) {
-            ThreadWaitForResult.load({
+            ThreadWaitForResult.load{
                 session!!.setTagToPlay(tag)
                 launch(Dispatchers.Main) {
                     val intent = Intent(this@MainActivity, PlayerActivity::class.java)
                     intent.putExtra("tag", "${tag.id}:${tag.tag}")
                     startActivity(intent)
                 }
-            })
+            }
         }
     }
 
@@ -90,14 +90,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             session?.login(cookies)
 
             launch(Dispatchers.IO) {
-                ThreadWaitForResult.load({
+                ThreadWaitForResult.load{
                     val response = session!!.getTypesResponseForSave()
                     sharedPreferences.edit().putString("library.jsx", response).apply()
 
                     launch(Dispatchers.Main) {
                         loadSession()
                     }
-                })
+                }
             }
         }
     }
@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun logout() {
         launch(Dispatchers.IO) {
             session?.logout()
+            sharedPreferences.edit().remove("library.jsx").apply()
             launch(Dispatchers.Main) {
                 loadSession()
             }

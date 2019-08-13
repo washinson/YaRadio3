@@ -25,8 +25,11 @@ class Session private constructor(context: Context) {
     lateinit var auth: Auth
     lateinit var manager: Manager
     lateinit var yandexCommunicator: YandexCommunicator
+
     val track: Track?
         get() = yandexCommunicator.track
+    val nextTrack: Track?
+        get() = yandexCommunicator.nextTrack
     var tag: Tag?
         get() = yandexCommunicator.tag
         private set(tag) {yandexCommunicator.tag = tag}
@@ -36,6 +39,8 @@ class Session private constructor(context: Context) {
                     value != "aac_64" && value != "mp3_192") throw Exception("Incorrect quality")
             field = value
         }
+    val trackHistory: ArrayList<Track>
+        get() = yandexCommunicator.trackHistory
 
     companion object {
         private val sessions: HashMap<Int, Session> = hashMapOf()
@@ -97,13 +102,11 @@ class Session private constructor(context: Context) {
      * @param diversity
      */
     fun updateInfo(language: String, moodEnergy: String, diversity: String) {
-        val tempNextTrack = yandexCommunicator.nextTrack
-
         yandexCommunicator.nextTrack = null
         yandexCommunicator.queue.clear()
         manager.updateInfo(moodEnergy, diversity, language, track?.tag ?: return, auth)
 
-        yandexCommunicator.updateTracksIfNeed(track, tempNextTrack)
+        yandexCommunicator.updateTracksIfNeed(track, nextTrack)
     }
 
     fun isTagAvailable(tag: Tag) = manager.isTagAvailable(tag)
@@ -130,6 +133,9 @@ class Session private constructor(context: Context) {
     }
 
     /**
+     * Logout
+     * To regenerate session internet needed
+     *
      * @throws NetworkErrorException
      *
      */
@@ -137,6 +143,7 @@ class Session private constructor(context: Context) {
         val cookies = manager.okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
         val cookies2 = ArrayList<Cookie>()
         for (i in cookies) {
+            // Like newCookie = i; newCookie.expiresAt(now)
             val builder = Cookie.Builder()
                 .domain(i.domain)
                 .expiresAt(System.currentTimeMillis())
@@ -157,7 +164,7 @@ class Session private constructor(context: Context) {
     /**
      * Check if user logged in
      *
-     * @return true if user is logged or false otherwise
+     * @return true if user is logged in or false otherwise
      */
     fun isUserLoggedIn(): Boolean {
         val t = manager.okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
@@ -261,7 +268,7 @@ class Session private constructor(context: Context) {
 
     /**
      * Yandex provides recommendations
-     * In can be loaded there
+     * In can be loaded here
      *
      * @return Recommendation's Type
      */
@@ -334,15 +341,6 @@ class Session private constructor(context: Context) {
     }
 
     /**
-     * Get previous tracks
-     *
-     * @return
-     */
-    fun getTrackHistory(): ArrayList<Track> {
-        return yandexCommunicator.trackHistory
-    }
-
-    /**
      * Like current track
      *
      * @param track
@@ -350,6 +348,8 @@ class Session private constructor(context: Context) {
      */
     fun like(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.like)
+        yandexCommunicator.queue.clear()
+        yandexCommunicator.updateTracksIfNeed(this.track, nextTrack)
         track.liked = true
     }
 
@@ -361,6 +361,8 @@ class Session private constructor(context: Context) {
      */
     fun unlike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.unlike)
+        yandexCommunicator.queue.clear()
+        yandexCommunicator.updateTracksIfNeed(this.track, nextTrack)
         track.liked = false
     }
 
@@ -373,7 +375,7 @@ class Session private constructor(context: Context) {
     fun undislike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.undislike)
         yandexCommunicator.queue.clear()
-        yandexCommunicator.updateTracksIfNeed(track, yandexCommunicator.nextTrack)
+        yandexCommunicator.updateTracksIfNeed(this.track, nextTrack)
         track.disliked = false
     }
 
@@ -386,7 +388,7 @@ class Session private constructor(context: Context) {
     fun dislike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
-        yandexCommunicator.updateTracksIfNeed(track, yandexCommunicator.nextTrack)
+        yandexCommunicator.updateTracksIfNeed(this.track, nextTrack)
         track.disliked = true
     }
 
