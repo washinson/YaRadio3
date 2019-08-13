@@ -25,6 +25,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.STATE_ENDED
+import com.google.android.exoplayer2.Player.STATE_READY
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
@@ -58,6 +59,8 @@ class PlayerService : Service(), CoroutineScope {
     lateinit var simpleExoPlayer: SimpleExoPlayer
 
     var curTag: String? = null
+
+    var isPlayerReady = true
 
     override fun onCreate() {
         super.onCreate()
@@ -184,6 +187,9 @@ class PlayerService : Service(), CoroutineScope {
     }
 
     fun nextTrack(finished: Boolean, duration: Double) {
+        if (!isPlayerReady)
+            return
+        isPlayerReady = false
         mediaSessionCallback.onPause()
         setLoadingContent()
         launch(Dispatchers.IO) {
@@ -258,6 +264,7 @@ class PlayerService : Service(), CoroutineScope {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when(playbackState) {
                 //STATE_IDLE -> mediaSessionCallback.onSkipToNext()
+                STATE_READY -> isPlayerReady = true
                 STATE_ENDED -> {
                     if (playWhenReady) {
                         val time = simpleExoPlayer.currentPosition
