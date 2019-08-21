@@ -23,6 +23,8 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.washinson.yaradio3.R
 import kotlinx.android.synthetic.main.fragment_player_info.view.*
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 
 /**
@@ -221,7 +223,7 @@ class PlayerInfoFragment : Fragment() {
         }
 
         val duration = state.position / 1000
-        trackTime.text = "${duration / 60}:${duration % 60}" // todo 0:00 seconds
+        trackTime.text = String.format("%02d:%02d", duration / 60, duration % 60)
     }
 
     @SuppressLint("SetTextI18n")
@@ -232,11 +234,9 @@ class PlayerInfoFragment : Fragment() {
         trackTitle.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
         trackArtist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
         trackCover.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART))
-        var duration: Long? = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
-        if(duration != null) {
-            duration /= 1000
-            trackDuration.text = "${duration / 60}:${duration % 60}" // todo 0:00 seconds
-        }
+        val duration: Long = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) / 1000
+
+        trackDuration.text = String.format("%02d:%02d", duration / 60, duration % 60)
         trackTime.text = "0:00"
 
         setProgressIfBuffering()

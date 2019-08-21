@@ -103,7 +103,6 @@
     <TextView
             android:textSize="15sp"
             android:layout_above="@id/panel"
-            android:text="0:00"
             android:textColor="#ECECEC"
             android:paddingLeft="15dp"
             android:layout_width="wrap_content"
@@ -113,7 +112,6 @@
             android:layout_alignParentRight="true"
             android:textSize="15sp"
             android:layout_above="@id/panel"
-            android:text="15:15"
             android:textColor="#ECECEC"
             android:paddingRight="15dp"
             android:layout_width="wrap_content"
@@ -137,8 +135,8 @@
 
         <ImageView
                 android:id="@+id/forward"
-                android:layout_width="26dp"
-                android:layout_height="19dp"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="40dp"
                 android:layout_toRightOf="@+id/pause"
@@ -163,10 +161,10 @@
 
         <ImageView
                 android:id="@+id/dislike"
-                android:layout_width="25dp"
-                android:layout_height="14dp"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="46dp"
+                android:layout_marginRight="40dp"
                 android:layout_toLeftOf="@id/like"
                 android:paddingLeft="10dp"
                 app:srcCompat="@drawable/ic_dislike_passive" />
