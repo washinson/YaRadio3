@@ -124,49 +124,76 @@
             android:layout_marginBottom="50dp"
             android:id="@+id/panel"
             >
+        <LinearLayout
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/pause"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="20dp">
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+            <ImageView
+                    android:id="@+id/dislike"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_dislike_passive" />
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+            <ImageView
+                    android:id="@+id/like"
+                    app:srcCompat="@drawable/ic_like_passive"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"/>
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+        </LinearLayout>
         <ImageView
                 android:id="@+id/pause"
                 android:layout_width="70dp"
                 android:layout_height="80dp"
                 app:srcCompat="@drawable/ic_pause_button"
                 android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                />
+                android:layout_centerHorizontal="true"/>
 
-        <ImageView
-                android:id="@+id/forward"
-                android:layout_width="30dp"
-                android:layout_height="20dp"
+        <LinearLayout
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="40dp"
-                android:layout_toRightOf="@+id/pause"
-                app:srcCompat="@drawable/ic_forward" />
-        <ImageView
-                android:id="@+id/advanced"
-                app:srcCompat="@drawable/ic_advanced"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/forward"
-                android:layout_marginLeft="40dp"
-                android:paddingRight="10dp"/>
-        <ImageView
-                android:id="@+id/like"
-                app:srcCompat="@drawable/ic_like_passive"
-                android:layout_width="30dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/pause"
-                android:layout_marginRight="40dp"/>
+                android:orientation="horizontal"
+                android:layout_toRightOf="@id/pause"
+                android:layout_width="match_parent"
+                android:layout_height="20dp">
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+            <ImageView
+                    android:id="@+id/forward"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_forward" />
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+            <ImageView
+                    android:layout_weight="1"
+                    android:id="@+id/advanced"
+                    app:srcCompat="@drawable/ic_advanced"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+            <View
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"/>
+        </LinearLayout>
 
-        <ImageView
-                android:id="@+id/dislike"
-                android:layout_width="30dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="40dp"
-                android:layout_toLeftOf="@id/like"
-                android:paddingLeft="10dp"
-                app:srcCompat="@drawable/ic_dislike_passive" />
     </RelativeLayout>
 </RelativeLayout>
