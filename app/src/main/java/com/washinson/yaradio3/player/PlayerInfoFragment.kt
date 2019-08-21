@@ -11,20 +11,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Player.STATE_BUFFERING
 import com.washinson.yaradio3.common.Mp3Downloader
 import com.washinson.yaradio3.session.Session
 import android.app.AlertDialog
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
+import android.widget.*
 import androidx.core.app.ActivityCompat
+import com.washinson.yaradio3.R
+import kotlinx.android.synthetic.main.fragment_player_info.view.*
 
 
 /**
@@ -32,15 +30,18 @@ import androidx.core.app.ActivityCompat
  *
  */
 class PlayerInfoFragment : Fragment() {
-    lateinit var nextButton: ImageButton
-    lateinit var pauseButton: ImageButton
-    lateinit var likeButton: ImageButton
-    lateinit var dislikeButton: ImageButton
-    lateinit var settingsButton: ImageButton
+    lateinit var nextButton: ImageView
+    lateinit var pauseButton: ImageView
+    lateinit var likeButton: ImageView
+    lateinit var dislikeButton: ImageView
+    lateinit var settingsButton: ImageView
     lateinit var trackCover: ImageView
-    lateinit var trackLabel: TextView
+    lateinit var trackTitle: TextView
+    lateinit var trackArtist: TextView
+    lateinit var trackDuration: TextView
+    lateinit var trackTime: TextView
     lateinit var spinKitView: SpinKitView
-    lateinit var progressBar: ProgressBar
+    lateinit var progressBar: SeekBar
 
     var isInterfaceInited = false
 
@@ -58,18 +59,21 @@ class PlayerInfoFragment : Fragment() {
     }
 
     fun initInterface() {
-        nextButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_next)
-        pauseButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_pause)
-        likeButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_like)
-        dislikeButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_dislike)
-        settingsButton = view!!.findViewById(com.washinson.yaradio3.R.id.track_settings)
+        nextButton = view!!.findViewById(com.washinson.yaradio3.R.id.forward)
+        pauseButton = view!!.findViewById(com.washinson.yaradio3.R.id.pause)
+        likeButton = view!!.findViewById(com.washinson.yaradio3.R.id.like)
+        dislikeButton = view!!.findViewById(com.washinson.yaradio3.R.id.dislike)
+        settingsButton = view!!.findViewById(com.washinson.yaradio3.R.id.settings)
 
-        trackCover = view!!.findViewById(com.washinson.yaradio3.R.id.track_cover)
-        trackLabel = view!!.findViewById(com.washinson.yaradio3.R.id.track_label)
+        trackCover = view!!.findViewById(com.washinson.yaradio3.R.id.album)
+        trackTitle = view!!.findViewById(com.washinson.yaradio3.R.id.name)
+        trackArtist = view!!.findViewById(com.washinson.yaradio3.R.id.artist)
+        trackDuration = view!!.findViewById(R.id.duration)
+        trackTime = view!!.findViewById(R.id.time)
 
-        progressBar = view!!.findViewById(com.washinson.yaradio3.R.id.track_progress_bar)
+        progressBar = view!!.findViewById(com.washinson.yaradio3.R.id.progressBar)
 
-        spinKitView = view!!.findViewById(com.washinson.yaradio3.R.id.spin_kit)
+        //spinKitView = view!!.findViewById(com.washinson.yaradio3.R.id.spin_kit)
         val curActivity = (activity ?: return) as PlayerActivity
         nextButton.setOnClickListener {
             curActivity.playerService?.mediaSessionCallback?.onSkipToNext()
@@ -93,9 +97,11 @@ class PlayerInfoFragment : Fragment() {
         trackCover.setOnClickListener {
             onLoadTrackClicked()
         }
-        trackLabel.setOnClickListener {
-            Utils.trackIntoClipboard(context!!, Session.getInstance(0, context).track ?: return@setOnClickListener)
-        }
+        //trackLabel.setOnClickListener {
+        //    Utils.trackIntoClipboard(context!!, Session.getInstance(0, context).track ?: return@setOnClickListener)
+        //}
+
+        progressBar.isEnabled = false
 
         isInterfaceInited = true
 
@@ -192,36 +198,46 @@ class PlayerInfoFragment : Fragment() {
         progressBar.progress = state.position.toInt()
         if(curActivity.playerService?.mediaSession?.controller?.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_pause))
+                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_pause_button))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_pause))
+                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_pause_button))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_play))
+                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_button_play))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.exo_controls_play))
+                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_button_play))
         }
 
         if(curActivity.session?.track?.liked == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_liked))
+                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_active))
             else
-                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_liked))
+                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_active))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like))
+                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_passive))
             else
-                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like))
+                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_passive))
         }
+
+        val duration = state.position / 1000
+        trackTime.text = "${duration / 60}:${duration % 60}" // todo 0:00 seconds
     }
 
     @SuppressLint("SetTextI18n")
     fun onMetadataUpdate(metadata: MediaMetadataCompat) {
         if (!isInterfaceInited)
             return
-        trackLabel.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) + " - " + metadata.getString(
-            MediaMetadataCompat.METADATA_KEY_TITLE)
+
+        trackTitle.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+        trackArtist.text = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
         trackCover.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART))
+        var duration: Long? = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+        if(duration != null) {
+            duration /= 1000
+            trackDuration.text = "${duration / 60}:${duration % 60}" // todo 0:00 seconds
+        }
+        trackTime.text = "0:00"
 
         setProgressIfBuffering()
 
@@ -235,11 +251,11 @@ class PlayerInfoFragment : Fragment() {
         val metadata = service.mediaSession.controller.metadata ?: return
         val simpleExoPlayer = service.simpleExoPlayer
 
-        if (metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART) == null
-            || simpleExoPlayer.playbackState == STATE_BUFFERING)
-            spinKitView.visibility = View.VISIBLE
-        else
-            spinKitView.visibility = View.GONE
+        //if (metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ART) == null
+        //    || simpleExoPlayer.playbackState == STATE_BUFFERING)
+            //spinKitView.visibility = View.VISIBLE
+        //else
+            //spinKitView.visibility = View.GONE
 
     }
 }

@@ -14,6 +14,6 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
     <style name="CustomProgress" parent="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal">
-        <item name="colorAccent">#000000</item>
+        <item name="colorAccent">#D7D7D7</item>
     </style>
 </resources>
