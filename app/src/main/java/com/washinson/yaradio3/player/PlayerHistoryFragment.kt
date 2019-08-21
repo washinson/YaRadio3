@@ -132,11 +132,13 @@ class PlayerHistoryFragment : Fragment() {
 
             val track = tracks[tracks.size - 1 - position]
 
-            val trackLabel = view!!.findViewById<TextView>(R.id.track_label)
-            trackLabel.text = track.artist + " - " + track.title
-            trackLabel.setOnClickListener {
-                Utils.trackIntoClipboard(context, track)
-            }
+            val trackTitle = view!!.findViewById<TextView>(R.id.title)
+            trackTitle.text = track.title
+            val trackArtist = view.findViewById<TextView>(R.id.artist)
+            trackArtist.text = track.artist
+            //TOdo: do it trackLabel.setOnClickListener {
+            //    Utils.trackIntoClipboard(context, track)
+            //}
 
             val trackCover = view.findViewById<ImageView>(R.id.track_cover)
             Glide.with(context).load(track.getCoverSize(600, 600)).into(trackCover)
@@ -150,17 +152,17 @@ class PlayerHistoryFragment : Fragment() {
         }
 
         @Suppress("DEPRECATION")
-        fun initLikeButton(likeButton: ImageButton, track: Track) {
+        fun initLikeButton(likeButton: ImageView, track: Track) {
             if (track.liked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_liked))
+                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_active))
                 else
-                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_liked))
+                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_active))
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like))
+                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_passive))
                 else
-                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like))
+                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_passive))
             }
 
             likeButton.setOnClickListener {
@@ -181,17 +183,17 @@ class PlayerHistoryFragment : Fragment() {
         }
 
         @Suppress("DEPRECATION")
-        fun initDislikeButton(dislikeButton: ImageButton, track: Track) {
+        fun initDislikeButton(dislikeButton: ImageView, track: Track) {
             if (track.disliked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_disliked))
+                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_active))
                 else
-                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_disliked))
+                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_active))
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike))
+                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_passive))
                 else
-                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike))
+                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_passive))
             }
 
             dislikeButton.setOnClickListener {

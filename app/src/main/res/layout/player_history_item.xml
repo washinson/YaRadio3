@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-        android:background="@color/colorPrimaryDark"
+        android:background="#C4C4C4"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="horizontal"
@@ -8,6 +8,8 @@
         android:layout_height="70dp">
 
     <ImageView
+            android:padding="1dp"
+            app:srcCompat="@drawable/ic_album"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/track_cover"
@@ -17,27 +19,51 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
-    <TextView
-            android:textColor="@android:color/white"
-            android:gravity="start|center"
+    <RelativeLayout
+            android:layout_weight="20"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:id="@+id/track_label" android:layout_weight="20"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
-    <ImageButton
-            android:background="?android:selectableItemBackground"
-            app:srcCompat="@drawable/ic_dislike"
+            android:layout_height="match_parent">
+        <View
+                android:id="@+id/info_center"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true"/>
+        <TextView
+                android:textSize="15sp"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@id/info_center"
+                android:textColor="@android:color/black"
+                android:gravity="start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/title" />
+        <TextView
+                android:id="@+id/artist"
+                android:textColor="#69000000"
+                android:textSize="15sp"
+                android:layout_below="@id/info_center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+    </RelativeLayout>
+    <ImageView
+            app:srcCompat="@drawable/ic_dislike_passive"
             android:layout_width="0dp"
-            android:layout_height="match_parent" android:id="@+id/track_dislike" android:layout_weight="4"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/track_dislike" android:layout_weight="4"
             android:contentDescription="@string/track_dislike"/>
     <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
-    <ImageButton
-            android:background="?android:selectableItemBackground"
-            app:srcCompat="@drawable/ic_like"
+    <ImageView
+            app:srcCompat="@drawable/ic_like_passive"
             android:layout_width="0dp"
-            android:layout_height="match_parent" android:id="@+id/track_like" android:layout_weight="4"
+            android:layout_gravity="center_vertical"
+            android:layout_height="20dp" android:id="@+id/track_like" android:layout_weight="4"
             android:contentDescription="@string/track_like"/>
+    <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 </LinearLayout>

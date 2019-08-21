@@ -5,10 +5,10 @@
         android:id="@+id/passive"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#BA88EC">
+        android:background="@color/colorPlayer">
     <FrameLayout
             android:id="@+id/rectangle"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="25dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
