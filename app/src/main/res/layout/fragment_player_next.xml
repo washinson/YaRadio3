@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        android:background="@color/colorPrimary"
+<LinearLayout android:background="@color/colorPlayer"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".player.PlayerHistoryFragment"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <View
+    <FrameLayout
+            android:id="@+id/rectangle"
             android:layout_width="match_parent"
-            android:layout_height="10dp" android:id="@+id/view"/>
+            android:layout_height="25dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/ic_rectangle">
+        <ImageView
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:layout_width="20dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/ic_back_button" />
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:textColor="@android:color/black"
+                android:text="Next tracks"/>
+    </FrameLayout>
+
     <ListView android:layout_width="match_parent" android:layout_height="match_parent"
               android:id="@+id/session_history">
 

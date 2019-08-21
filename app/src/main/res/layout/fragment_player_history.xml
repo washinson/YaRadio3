@@ -28,7 +28,7 @@
                 android:gravity="center"
                 android:textAllCaps="true"
                 android:textColor="@android:color/black"
-                android:text="Track history"/>
+                android:text="@string/track_history"/>
     </FrameLayout>
     <ListView android:layout_width="match_parent" android:layout_height="match_parent"
               android:id="@+id/session_history">

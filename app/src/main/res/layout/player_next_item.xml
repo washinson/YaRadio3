@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        android:background="@color/colorPrimaryDark"
+<LinearLayout android:background="@color/colorTrackList"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="70dp">
+        android:layout_height="70dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
+            android:padding="1dp"
+            app:srcCompat="@drawable/ic_album"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/track_cover"
@@ -16,11 +18,30 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
-    <TextView
-            android:textColor="@android:color/white"
-            android:gravity="start|center"
+    <RelativeLayout
+            android:layout_weight="30"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:id="@+id/track_label" android:layout_weight="29"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:layout_height="match_parent">
+        <View
+                android:id="@+id/info_center"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true"/>
+        <TextView
+                android:textSize="15sp"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@id/info_center"
+                android:textColor="@android:color/black"
+                android:gravity="start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/title" />
+        <TextView
+                android:id="@+id/artist"
+                android:textColor="#69000000"
+                android:textSize="15sp"
+                android:layout_below="@id/info_center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+    </RelativeLayout>
 </LinearLayout>

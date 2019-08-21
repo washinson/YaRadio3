@@ -6,4 +6,5 @@
     <color name="colorAccent">@color/colorPrimary</color>
     <color name="colorHeader">#C4C4C4</color>
     <color name="colorPlayer">#BA88EC</color>
+    <color name="colorTrackList">#C4C4C4</color>
 </resources>

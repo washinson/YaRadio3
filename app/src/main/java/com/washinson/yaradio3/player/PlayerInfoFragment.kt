@@ -237,7 +237,7 @@ class PlayerInfoFragment : Fragment() {
         val duration: Long = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) / 1000
 
         trackDuration.text = String.format("%02d:%02d", duration / 60, duration % 60)
-        trackTime.text = "0:00"
+        trackTime.text = "00:00"
 
         setProgressIfBuffering()
 

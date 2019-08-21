@@ -59,4 +59,5 @@
     <string name="permission_granted">Permission granted</string>
     <string name="track_info">Track info</string>
     <string name="copied">Copied</string>
+    <string name="track_history">Track history</string>
 </resources>
