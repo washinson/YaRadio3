@@ -21,7 +21,7 @@ import androidx.viewpager.widget.ViewPager
 import com.washinson.yaradio3.R
 
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInteractionListener {
     var session: Session? = null
     var playerService: PlayerService? = null
     var mediaController: MediaControllerCompat? = null
@@ -70,8 +70,12 @@ class PlayerActivity : AppCompatActivity() {
         unbindService(mConnection)
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun changeView(id: Int) {
+        viewPager.currentItem = id
+    }
+
+    override fun finishActivity() {
+        finish()
     }
 
     private val mConnection = object : ServiceConnection {

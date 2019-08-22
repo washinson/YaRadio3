@@ -46,7 +46,7 @@
     <string name="_0" translatable="false">0</string>
     <string name="set_timer">Set timer</string>
     <string name="playback_will_stop_after_time_has_passed">Playback will stop after time has passed</string>
-    <string name="timer">Timer</string>
+    <string name="timer">Timer (test)</string>
     <string name="timer_info">Timer info</string>
     <string name="incorrect_input">Incorrect input!</string>
     <string name="timer_info_print">Left %1$s hours, %2$s minutes, %3$s seconds</string>

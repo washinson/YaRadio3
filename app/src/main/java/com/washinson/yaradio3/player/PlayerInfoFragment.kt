@@ -18,11 +18,13 @@ import com.washinson.yaradio3.session.Session
 import android.app.AlertDialog
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.Activity
+import android.content.Context
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.washinson.yaradio3.R
+import com.washinson.yaradio3.TagsFragment
 import kotlinx.android.synthetic.main.fragment_player_info.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,8 @@ import java.text.SimpleDateFormat
 class PlayerInfoFragment : Fragment(), CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
+
+    private var listener: OnFragmentInteractionListener? = null
 
     lateinit var nextButton: ImageView
     lateinit var pauseButton: ImageView
@@ -64,6 +68,15 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_player_info, container, false)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            listener = context
+        } else {
+            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -118,21 +131,20 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
         trackCover.setOnClickListener {
             onLoadTrackClicked()
         }
-        // todo: return it
-        //trackLabel.setOnClickListener {
-        //    Utils.trackIntoClipboard(context!!, Session.getInstance(0, context).track ?: return@setOnClickListener)
-        //}
+
+        trackTitle.setOnClickListener { Utils.trackIntoClipboard(context!!,
+            Session.getInstance(0, context).track ?: return@setOnClickListener) }
+        trackArtist.setOnClickListener { Utils.trackIntoClipboard(context!!,
+            Session.getInstance(0, context).track ?: return@setOnClickListener) }
 
         advancedButton.setOnClickListener {
-            //todo: make with connection
-            curActivity.viewPager.currentItem = 2
+            listener?.changeView(2)
         }
         historyButton.setOnClickListener {
-            //todo: make with connection
-            curActivity.viewPager.currentItem = 0
+            listener?.changeView(0)
         }
         backButton.setOnClickListener {
-            curActivity.finish()
+            listener?.finishActivity()
         }
 
         progressBar.isEnabled = false
@@ -306,5 +318,10 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
         //else
             //spinKitView.visibility = View.GONE
 
+    }
+
+    interface OnFragmentInteractionListener {
+        fun changeView(id: Int)
+        fun finishActivity()
     }
 }

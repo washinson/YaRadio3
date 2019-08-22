@@ -141,11 +141,12 @@ class PlayerHistoryFragment : Fragment() {
 
             val trackTitle = view!!.findViewById<TextView>(R.id.title)
             trackTitle.text = track.title
+            trackTitle.setOnClickListener { Utils.trackIntoClipboard(context, track) }
+
             val trackArtist = view.findViewById<TextView>(R.id.artist)
             trackArtist.text = track.artist
-            //TOdo: do it trackLabel.setOnClickListener {
-            //    Utils.trackIntoClipboard(context, track)
-            //}
+            trackArtist.setOnClickListener { Utils.trackIntoClipboard(context, track) }
+
 
             val trackCover = view.findViewById<ImageView>(R.id.track_cover)
             Glide.with(context).load(track.getCoverSize(600, 600)).into(trackCover)

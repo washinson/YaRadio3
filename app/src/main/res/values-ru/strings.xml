@@ -42,7 +42,7 @@
     <string name="update_apk">Обновить APK\n(текущая версия %1$s)</string>
     <string name="updated">Обновлено</string>
     <string name="user_guest">Гость</string>
-    <string name="timer">Таймер</string>
+    <string name="timer">Таймер (тестовое)</string>
     <string name="playback_will_stop_after_time_has_passed">Воспроизведение остановится\nпо истечении времени</string>
     <string name="timer_info">Информация</string>
     <string name="incorrect_input">Некорректный ввод!</string>

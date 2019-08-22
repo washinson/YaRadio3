@@ -72,7 +72,6 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
-        // todo: must be startOnResult and return new settings values
     }
 
     fun updateResult() {
@@ -108,6 +107,7 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
             setChecked(checkedRadioButtonId)
         }
 
+        @Suppress("DEPRECATION")
         fun setChecked(id: Int) {
             checkedRadioButtonId = id
             for (i in 0 until layout.childCount) {
