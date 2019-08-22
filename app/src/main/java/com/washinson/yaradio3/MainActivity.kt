@@ -23,7 +23,7 @@ import com.washinson.yaradio3.station.Type
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CoroutineScope,
-        RecommendedFragment.OnFragmentInteractionListener {
+        RecommendedFragment.OnFragmentInteractionListener, TypeFragment.OnFragmentInteractionListener {
     override fun startTag(tag: Tag) {
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
                 supportFragmentManager.popBackStackImmediate()
-            //supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TagsFragment(type.tags)).commitAllowingStateLoss()
+            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type.tags)).commitAllowingStateLoss()
         }
     }
 
