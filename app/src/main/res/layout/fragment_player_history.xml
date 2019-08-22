@@ -17,6 +17,7 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/ic_rectangle">
         <ImageView
+                android:id="@+id/back"
                 android:layout_marginLeft="10dp"
                 android:layout_gravity="center_vertical"
                 android:layout_width="20dp"

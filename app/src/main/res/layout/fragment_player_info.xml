@@ -15,6 +15,7 @@
             android:layout_alignParentTop="true"
             android:background="@drawable/ic_rectangle">
         <ImageView
+                android:id="@+id/back"
                 android:layout_marginLeft="10dp"
                 android:layout_gravity="center_vertical"
                 android:layout_width="20dp"
@@ -53,15 +54,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
     </RelativeLayout>
+
     <ImageView
-            android:layout_alignLeft="@id/album"
+            android:id="@+id/history"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            app:srcCompat="@drawable/ic_story"
             android:layout_below="@+id/rectangle"
+            android:layout_alignLeft="@id/album"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="30dp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="20dp"
+            app:srcCompat="@drawable/ic_story" />
 
     <ImageView
             android:id="@+id/settings"

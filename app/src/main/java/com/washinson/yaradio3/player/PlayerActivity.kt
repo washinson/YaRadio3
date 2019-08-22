@@ -26,10 +26,11 @@ class PlayerActivity : AppCompatActivity() {
     var playerService: PlayerService? = null
     var mediaController: MediaControllerCompat? = null
 
-
     val playerInfoFragment = PlayerInfoFragment()
     val playerHistoryFragment = PlayerHistoryFragment()
     val playerNextFragment = PlayerNextFragment()
+
+    lateinit var viewPager: ViewPager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +38,7 @@ class PlayerActivity : AppCompatActivity() {
 
         val adapter = PlayerAdapter(supportFragmentManager)
 
-        val viewPager: ViewPager = findViewById(R.id.view_pager_player)
+        viewPager = findViewById(R.id.view_pager_player)
         viewPager.adapter = adapter
         viewPager.currentItem = 1
 

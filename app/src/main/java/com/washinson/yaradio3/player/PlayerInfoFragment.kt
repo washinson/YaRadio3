@@ -17,12 +17,17 @@ import com.washinson.yaradio3.common.Mp3Downloader
 import com.washinson.yaradio3.session.Session
 import android.app.AlertDialog
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.washinson.yaradio3.R
 import kotlinx.android.synthetic.main.fragment_player_info.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
@@ -31,12 +36,18 @@ import java.text.SimpleDateFormat
  * A simple [Fragment] subclass.
  *
  */
-class PlayerInfoFragment : Fragment() {
+class PlayerInfoFragment : Fragment(), CoroutineScope {
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
+
     lateinit var nextButton: ImageView
     lateinit var pauseButton: ImageView
     lateinit var likeButton: ImageView
     lateinit var dislikeButton: ImageView
     lateinit var settingsButton: ImageView
+    lateinit var advancedButton: ImageView
+    lateinit var historyButton: ImageView
+    lateinit var backButton: ImageView
     lateinit var trackCover: ImageView
     lateinit var trackTitle: TextView
     lateinit var trackArtist: TextView
@@ -52,7 +63,7 @@ class PlayerInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(com.washinson.yaradio3.R.layout.fragment_player_info, container, false)
+        return inflater.inflate(R.layout.fragment_player_info, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,22 +71,30 @@ class PlayerInfoFragment : Fragment() {
         initInterface()
     }
 
-    fun initInterface() {
-        nextButton = view!!.findViewById(com.washinson.yaradio3.R.id.forward)
-        pauseButton = view!!.findViewById(com.washinson.yaradio3.R.id.pause)
-        likeButton = view!!.findViewById(com.washinson.yaradio3.R.id.like)
-        dislikeButton = view!!.findViewById(com.washinson.yaradio3.R.id.dislike)
-        settingsButton = view!!.findViewById(com.washinson.yaradio3.R.id.settings)
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
 
-        trackCover = view!!.findViewById(com.washinson.yaradio3.R.id.album)
-        trackTitle = view!!.findViewById(com.washinson.yaradio3.R.id.name)
-        trackArtist = view!!.findViewById(com.washinson.yaradio3.R.id.artist)
+    fun initInterface() {
+        nextButton = view!!.findViewById(R.id.forward)
+        pauseButton = view!!.findViewById(R.id.pause)
+        likeButton = view!!.findViewById(R.id.like)
+        dislikeButton = view!!.findViewById(R.id.dislike)
+        settingsButton = view!!.findViewById(R.id.settings)
+        advancedButton = view!!.findViewById(R.id.advanced)
+        historyButton = view!!.findViewById(R.id.history)
+        backButton = view!!.findViewById(R.id.back)
+
+        trackCover = view!!.findViewById(R.id.album)
+        trackTitle = view!!.findViewById(R.id.name)
+        trackArtist = view!!.findViewById(R.id.artist)
         trackDuration = view!!.findViewById(R.id.duration)
         trackTime = view!!.findViewById(R.id.time)
 
-        progressBar = view!!.findViewById(com.washinson.yaradio3.R.id.progressBar)
+        progressBar = view!!.findViewById(R.id.progressBar)
 
-        //spinKitView = view!!.findViewById(com.washinson.yaradio3.R.id.spin_kit)
+        //spinKitView = view!!.findViewById(R.id.spin_kit)
         val curActivity = (activity ?: return) as PlayerActivity
         nextButton.setOnClickListener {
             curActivity.playerService?.mediaSessionCallback?.onSkipToNext()
@@ -94,14 +113,27 @@ class PlayerInfoFragment : Fragment() {
         }
 
         settingsButton.setOnClickListener {
-            startActivity(Intent(context, PlayerTagSettingsActivity::class.java))
+            startActivityForResult(Intent(context, PlayerTagSettingsActivity::class.java), 0)
         }
         trackCover.setOnClickListener {
             onLoadTrackClicked()
         }
+        // todo: return it
         //trackLabel.setOnClickListener {
         //    Utils.trackIntoClipboard(context!!, Session.getInstance(0, context).track ?: return@setOnClickListener)
         //}
+
+        advancedButton.setOnClickListener {
+            //todo: make with connection
+            curActivity.viewPager.currentItem = 2
+        }
+        historyButton.setOnClickListener {
+            //todo: make with connection
+            curActivity.viewPager.currentItem = 0
+        }
+        backButton.setOnClickListener {
+            curActivity.finish()
+        }
 
         progressBar.isEnabled = false
 
@@ -114,11 +146,28 @@ class PlayerInfoFragment : Fragment() {
         if (state != null) updateOnPlaybackState(state)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+            val curMoodEnergy =
+                data.getStringExtra("moodEnergy") ?: return
+            val curDiversity =
+                data.getStringExtra("diversity") ?: return
+            val curLanguage =
+                data.getStringExtra("language") ?: return
+            launch(Dispatchers.IO) {
+                Session.getInstance(0, activity).updateInfo(curLanguage, curMoodEnergy, curDiversity)
+                launch(Dispatchers.Main) {
+                    Toast.makeText(context, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     fun onLoadTrackClicked() {
         val builder = AlertDialog.Builder(context)
 
-        builder.setMessage(getString(com.washinson.yaradio3.R.string.download_track))
-            .setTitle(getString(com.washinson.yaradio3.R.string.download_title))
+        builder.setMessage(getString(R.string.download_track))
+            .setTitle(getString(R.string.download_title))
 
         builder.setPositiveButton(getString(android.R.string.yes)) { dialogInterface, _ ->
             val requested = ContextCompat.checkSelfPermission(context!!, WRITE_EXTERNAL_STORAGE)
@@ -132,7 +181,7 @@ class PlayerInfoFragment : Fragment() {
                     loadTrack()
                 } catch (e: Exception) {
                     val alertBuilder1 = AlertDialog.Builder(activity)
-                    alertBuilder1.setMessage(getString(com.washinson.yaradio3.R.string.error))
+                    alertBuilder1.setMessage(getString(R.string.error))
                         .setTitle(e.message)
                         .create().show()
                     e.printStackTrace()
@@ -162,13 +211,13 @@ class PlayerInfoFragment : Fragment() {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         loadTrack()
                     } else {
-                        throw Exception(getString(com.washinson.yaradio3.R.string.permission_denied))
+                        throw Exception(getString(R.string.permission_denied))
                     }
                 }
             }
         } catch (e: Exception) {
             val alertBuilder1 = AlertDialog.Builder(activity)
-            alertBuilder1.setMessage(getString(com.washinson.yaradio3.R.string.error))
+            alertBuilder1.setMessage(getString(R.string.error))
                 .setTitle(e.message)
                 .create().show()
             e.printStackTrace()
@@ -200,26 +249,26 @@ class PlayerInfoFragment : Fragment() {
         progressBar.progress = state.position.toInt()
         if(curActivity.playerService?.mediaSession?.controller?.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_pause_button))
+                pauseButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_pause_button))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_pause_button))
+                pauseButton.setImageDrawable(resources.getDrawable(R.drawable.ic_pause_button))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                pauseButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_button_play))
+                pauseButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_button_play))
             else
-                pauseButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_button_play))
+                pauseButton.setImageDrawable(resources.getDrawable(R.drawable.ic_button_play))
         }
 
         if(curActivity.session?.track?.liked == true) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_active))
+                likeButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_like_active))
             else
-                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_active))
+                likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_active))
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                likeButton.setImageDrawable(curActivity.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_passive))
+                likeButton.setImageDrawable(curActivity.getDrawable(R.drawable.ic_like_passive))
             else
-                likeButton.setImageDrawable(resources.getDrawable(com.washinson.yaradio3.R.drawable.ic_like_passive))
+                likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_passive))
         }
 
         val duration = state.position / 1000

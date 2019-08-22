@@ -1,6 +1,8 @@
 package com.washinson.yaradio3.player
 
 import android.accounts.NetworkErrorException
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Build
@@ -53,16 +55,42 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
 
                 for ((id, i) in settings!!.moodEnergies.possibleValues.withIndex()) {
                     moodGroup.addItem(i.second, id)
+                    if (i.first == settings!!.moodEnergy) moodGroup.setChecked(id)
                 }
                 for ((id, i) in settings!!.languages.possibleValues.withIndex()) {
-
                     languageGroup.addItem(i.second, id)
+                    if (i.first == settings!!.language) languageGroup.setChecked(id)
                 }
                 for ((id, i) in settings!!.diversities.possibleValues.withIndex()) {
                     diversityGroup.addItem(i.second, id)
+                    if (i.first == settings!!.diversity) diversityGroup.setChecked(id)
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+        // todo: must be startOnResult and return new settings values
+    }
+
+    fun updateResult() {
+        val intent = Intent()
+        if (settings != null) {
+            val curMoodEnergy =
+                settings!!.moodEnergies.possibleValues[moodGroup.checkedRadioButtonId].first
+            val curDiversity =
+                settings!!.diversities.possibleValues[diversityGroup.checkedRadioButtonId].first
+            val curLanguage =
+                settings!!.languages.possibleValues[languageGroup.checkedRadioButtonId].first
+            if (curMoodEnergy != settings!!.moodEnergy || curDiversity != settings!!.diversity || curLanguage != settings!!.language) {
+                intent.putExtra("moodEnergy", curMoodEnergy)
+                intent.putExtra("diversity", curDiversity)
+                intent.putExtra("language", curLanguage)
+            }
+        }
+        setResult(Activity.RESULT_OK, intent)
     }
 
     inner class CustomRadioGroup(val layout: LinearLayout) {
@@ -74,13 +102,13 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
             val button = newView.findViewById<Button>(R.id.button)
             button.text = i
             button.id = id
-            button.setOnClickListener { setChecked(it.id) }
+            button.setOnClickListener { setChecked(it.id); updateResult() }
 
             layout.addView(newView)
             setChecked(checkedRadioButtonId)
         }
 
-        private fun setChecked(id: Int) {
+        fun setChecked(id: Int) {
             checkedRadioButtonId = id
             for (i in 0 until layout.childCount) {
                 val cur = layout.getChildAt(i) as? Button ?: continue

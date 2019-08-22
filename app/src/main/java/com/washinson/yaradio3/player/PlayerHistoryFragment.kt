@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
  */
 class PlayerHistoryFragment : Fragment() {
     lateinit var listHistoryView: ListView
+    lateinit var backButton: ImageView
     lateinit var adapter: MyAdapter
 
     override fun onCreateView(
@@ -45,6 +46,12 @@ class PlayerHistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adapter = MyAdapter(context!!)
+
+        backButton = view.findViewById(R.id.back)
+        backButton.setOnClickListener {
+            val curActivity = (activity ?: return@setOnClickListener) as PlayerActivity
+            curActivity.viewPager.currentItem = 1
+        }
 
         listHistoryView = view.findViewById(R.id.session_history)
         listHistoryView.adapter = adapter
