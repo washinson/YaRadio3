@@ -261,8 +261,6 @@ class Session private constructor(context: Context) {
             typesResult.add(type)
         }
 
-        typesResult.add(getRecommendationsType())
-
         return typesResult
     }
 
@@ -272,7 +270,7 @@ class Session private constructor(context: Context) {
      *
      * @return Recommendation's Type
      */
-    private fun getRecommendationsType(): RecommendType {
+    fun getRecommendedType(): RecommendType {
         val response = manager.get("https://radio.yandex.ru/handlers/recommended.jsx", null, null) ?: throw NetworkErrorException()
 
         return RecommendType("Рекомендации", response, "recommendations", true)

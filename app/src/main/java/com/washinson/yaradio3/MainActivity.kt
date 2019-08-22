@@ -8,12 +8,10 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
-import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import android.view.Menu
 import android.widget.TextView
 import android.widget.Toast
@@ -24,15 +22,9 @@ import com.washinson.yaradio3.station.Tag
 import com.washinson.yaradio3.station.Type
 import kotlinx.coroutines.*
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    TagsFragment.OnFragmentInteractionListener, CoroutineScope {
-    protected val job = SupervisorJob() // экземпляр Job для данной активности
-    override val coroutineContext = Dispatchers.Main.immediate+job
-
-    val settingsFragmentTag: String = "settings"
-    lateinit var sharedPreferences: SharedPreferences
-
-    override fun start(tag: Tag) {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CoroutineScope,
+        RecommendedFragment.OnFragmentInteractionListener {
+    override fun startTag(tag: Tag) {
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
                 session!!.setTagToPlay(tag)
@@ -45,26 +37,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
+
+    val settingsFragmentTag: String = "settings"
+    lateinit var sharedPreferences: SharedPreferences
+
     var session: Session? = null
     var types: ArrayList<Type>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        //val toolbar: Toolbar = findViewById(R.id.toolbar)
+        //setSupportActionBar(toolbar)
 
-        //val fab: FloatingActionButton = findViewById(R.id.fab)
-        //fab.setOnClickListener { view ->
-        //    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-        //        .setAction("Action", null).show()
-        //}
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        //val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+        //val toggle = ActionBarDrawerToggle(
+        //    this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        //)
+        //drawerLayout.addDrawerListener(toggle)
+        //toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
 
@@ -105,8 +98,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun loadSession() {
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.menu.clear()
-        if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
-            supportFragmentManager.popBackStackImmediate()
+
+        // Erase stack: full restart
+        while(supportFragmentManager.popBackStackImmediate()){}
+
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commitAllowingStateLoss()
         launch(Dispatchers.IO) {
             var result = false
@@ -134,30 +129,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navHeaderView = navView.getHeaderView(0)
         launch (Dispatchers.Main) {
             if (session!!.isUserLoggedIn()) {
-                navHeaderView.findViewById<TextView>(R.id.user_login_button).setOnClickListener {
-                    logout()
-                }
+                //navHeaderView.findViewById<TextView>(R.id.user_login_button).setOnClickListener {
+                //    logout()
+                //}
                 navHeaderView.findViewById<TextView>(R.id.user_login_text).text = session?.getUserLogin()
-                navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.logout_text)
-
-
-                /*launch(Dispatchers.IO) {
-                    val filename = "myfile"
-                    val fileContents = session?.manager?.get("https://radio.yandex.ru/handlers/library.jsx?lang=ru", null, null) ?: return@launch
-
-                    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath + "/filename.txt")
-                    file.createNewFile()
-                    val fileOutputStream = FileOutputStream(file)
-
-                    fileOutputStream.write(fileContents.toByteArray())
-                }*/
-
+                //navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.logout_text)
             } else {
                 navHeaderView.setOnClickListener {
                     login()
                 }
                 navHeaderView.findViewById<TextView>(R.id.user_login_text).text = getString(R.string.user_guest)
-                navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.login_text)
+                //navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.login_text)
             }
         }
     }
@@ -180,13 +162,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             response = session!!.getTypesResponseForSave()
             sharedPreferences.edit().putString("library.jsx", response).apply()
         }
+
         types = session!!.getTypes(response)
+
+        val recommendedFragment = RecommendedFragment(session!!.getRecommendedType())
+        supportFragmentManager.beginTransaction().replace(R.id.tags_frame, recommendedFragment).commitAllowingStateLoss()
+        //loadType(types!!.last())
+
         val navView: NavigationView = findViewById(R.id.nav_view)
         launch (Dispatchers.Main) {
             for(i in 0 until types!!.size)
                 navView.menu.add(Menu.NONE, i, Menu.NONE, types!![i].name)
         }
-        loadType(types!!.last())
     }
     override fun onBackPressed() {
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
@@ -225,7 +212,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
                 supportFragmentManager.popBackStackImmediate()
-            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TagsFragment(type.tags)).commitAllowingStateLoss()
+            //supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TagsFragment(type.tags)).commitAllowingStateLoss()
         }
     }
 
