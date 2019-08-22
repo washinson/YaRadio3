@@ -5,7 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import android.view.MenuItem
@@ -13,8 +15,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
+import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.player.PlayerActivity
 import com.washinson.yaradio3.session.Session
@@ -23,7 +28,78 @@ import com.washinson.yaradio3.station.Type
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CoroutineScope,
-        RecommendedFragment.OnFragmentInteractionListener, TypeFragment.OnFragmentInteractionListener {
+        RecommendedFragment.OnFragmentInteractionListener, TagsFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener {
+    protected val job = SupervisorJob() // экземпляр Job для данной активности
+    override val coroutineContext = Dispatchers.Main.immediate+job
+
+    val settingsFragmentTag: String = "settingsFragmentTag"
+    val tagsFragmentTag: String = "tagsFragmentTag"
+    val tagsExtendedFragmentTag: String = "tagsExtendedFragmentTag"
+    lateinit var sharedPreferences: SharedPreferences
+
+    var session: Session? = null
+    var types: ArrayList<Type>? = null
+    lateinit var navView: NavigationView
+    lateinit var drawerLayout: DrawerLayout
+    lateinit var loginButton: Button
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        //val toolbar: Toolbar = findViewById(R.id.toolbar)
+        //setSupportActionBar(toolbar)
+
+        loginButton = findViewById(R.id.user_login_button)
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navView = findViewById(R.id.nav_view)
+        //val toggle = ActionBarDrawerToggle(
+        //    this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        //)
+        //drawerLayout.addDrawerListener(toggle)
+        //toggle.syncState()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            updateStatusBarColor(R.color.colorPlayerHeaderAlpha)
+        }
+
+        navView.setNavigationItemSelectedListener(this)
+
+        sharedPreferences = getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
+
+        loadSession()
+    }
+
+    override fun openSettings() {
+        updateStatusBarColor(R.color.colorHeaderAlpha)
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
+            .addToBackStack(settingsFragmentTag).replace(R.id.tags_frame, SettingsFragment(), settingsFragmentTag).commitAllowingStateLoss()
+    }
+
+    override fun openNavBarMenu() {
+        drawerLayout.openDrawer(Gravity.LEFT)
+    }
+
+    override fun backStackFragment() {
+        supportFragmentManager.popBackStackImmediate()
+    }
+
+    override fun updateStatusBarColor(colorId: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            window.statusBarColor = ContextCompat.getColor(this, colorId)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    override fun onParentTagSelected(tags: ArrayList<Tag>) {
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
+            .addToBackStack(tagsFragmentTag).replace(R.id.tags_frame, TagsFragment(tags), tagsFragmentTag).commitAllowingStateLoss()
+    }
+
     override fun startTag(tag: Tag) {
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
@@ -35,40 +111,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-    }
-
-    protected val job = SupervisorJob() // экземпляр Job для данной активности
-    override val coroutineContext = Dispatchers.Main.immediate+job
-
-    val settingsFragmentTag: String = "settings"
-    lateinit var sharedPreferences: SharedPreferences
-
-    var session: Session? = null
-    var types: ArrayList<Type>? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        //val toolbar: Toolbar = findViewById(R.id.toolbar)
-        //setSupportActionBar(toolbar)
-
-        //val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        //val toggle = ActionBarDrawerToggle(
-        //    this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        //)
-        //drawerLayout.addDrawerListener(toggle)
-        //toggle.syncState()
-
-        navView.setNavigationItemSelectedListener(this)
-
-        sharedPreferences = getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
-
-        loadSession()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
     }
 
     fun login() {
@@ -129,17 +171,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navHeaderView = navView.getHeaderView(0)
         launch (Dispatchers.Main) {
             if (session!!.isUserLoggedIn()) {
-                //navHeaderView.findViewById<TextView>(R.id.user_login_button).setOnClickListener {
-                //    logout()
-                //}
+                loginButton.setOnClickListener {
+                    logout()
+                }
                 navHeaderView.findViewById<TextView>(R.id.user_login_text).text = session?.getUserLogin()
-                //navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.logout_text)
+                loginButton.text = getString(R.string.logout_text)
             } else {
-                navHeaderView.setOnClickListener {
+                loginButton.setOnClickListener {
                     login()
                 }
                 navHeaderView.findViewById<TextView>(R.id.user_login_text).text = getString(R.string.user_guest)
-                //navHeaderView.findViewById<TextView>(R.id.user_login_button).text = getString(R.string.login_text)
+                loginButton.text = getString(R.string.login_text)
             }
         }
     }
@@ -210,9 +252,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, getString(R.string.please_login), Toast.LENGTH_SHORT).show()
             login()
         } else {
-            if (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null)
-                supportFragmentManager.popBackStackImmediate()
-            supportFragmentManager.beginTransaction().replace(R.id.tags_frame, TypeFragment(type.tags)).commitAllowingStateLoss()
+            val tagsFragment = TagsFragment(type.tags)
+
+            // Remove all excess fragments
+            while (supportFragmentManager.findFragmentByTag(settingsFragmentTag) != null ||
+                    supportFragmentManager.findFragmentByTag(tagsFragmentTag) != null ||
+                    supportFragmentManager.findFragmentByTag(tagsExtendedFragmentTag) != null)
+                if(!supportFragmentManager.popBackStackImmediate()) break
+
+            val tag = if(tagsFragment.isFragmentHaveChild()) tagsExtendedFragmentTag else tagsFragmentTag
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left, R.anim.anim_slide_in_left, R.anim.anim_slide_out_right)
+                .addToBackStack(tag)
+                .replace(R.id.tags_frame, tagsFragment, tag).commitAllowingStateLoss()
         }
     }
 

@@ -19,6 +19,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.*
 import androidx.media.session.MediaButtonReceiver
 import com.washinson.yaradio3.session.Session
+import com.washinson.yaradio3.station.Tag
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,6 +34,7 @@ class SettingsFragment : Fragment() {
         const val QUALITY = "quality"
         const val defautQualityValue = "aac_192"
     }
+    private var listener: OnFragmentInteractionListener? = null
 
     var sharedPreferences: SharedPreferences? = null
     lateinit var alarmIntent: PendingIntent
@@ -41,6 +43,15 @@ class SettingsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = activity?.getSharedPreferences(TAG_PREFERENCES, Context.MODE_PRIVATE)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            listener = context
+        } else {
+            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+        }
     }
 
     override fun onCreateView(
@@ -127,6 +138,12 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(context, getString(R.string.not_supported), Toast.LENGTH_SHORT).show()
             }
         }
+
+        view.findViewById<ImageView>(R.id.back).setOnClickListener { listener?.backStackFragment() }
+    }
+
+    interface OnFragmentInteractionListener {
+        fun backStackFragment()
     }
 
     /**

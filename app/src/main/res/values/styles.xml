@@ -16,4 +16,8 @@
     <style name="CustomProgress" parent="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal">
         <item name="colorAccent">#D7D7D7</item>
     </style>
+    <style name="SettingsRadioButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="colorControlActivated">@android:color/black</item>
+    </style>
 </resources>

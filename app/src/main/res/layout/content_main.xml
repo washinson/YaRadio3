@@ -6,5 +6,6 @@
         android:layout_height="match_parent"
         tools:showIn="@layout/app_bar_main"
         tools:context=".MainActivity"
-        android:id="@+id/tags_frame">
+        android:id="@+id/tags_frame"
+        android:background="@color/colorPlayer">
 </FrameLayout>

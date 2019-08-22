@@ -59,4 +59,5 @@
     <string name="track_history">"История "</string>
     <string name="settings">Настройки</string>
     <string name="next_tracks">Следующие треки</string>
+    <string name="recommendations">Рекомендации</string>
 </resources>

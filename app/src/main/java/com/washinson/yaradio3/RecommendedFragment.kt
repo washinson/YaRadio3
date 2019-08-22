@@ -2,7 +2,6 @@ package com.washinson.yaradio3
 
 import android.content.Context
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.washinson.yaradio3.station.RecommendType
 import com.washinson.yaradio3.station.Tag
-import kotlinx.android.synthetic.main.fragment_settings.*
-import org.w3c.dom.Text
 
 /**
  * A simple [Fragment] subclass.
@@ -47,17 +44,26 @@ class RecommendedFragment(val recommendType: RecommendType) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.recommended_list)
         recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context!!, LinearLayoutManager.HORIZONTAL, false)
             adapter = RecommendedAdapter(recommendType)
         }
+
+        view.findViewById<ImageView>(R.id.menu).setOnClickListener { listener?.openNavBarMenu() }
+        view.findViewById<ImageView>(R.id.settings).setOnClickListener { listener?.openSettings() }
     }
 
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        listener?.updateStatusBarColor(R.color.colorPlayerHeaderAlpha)
     }
 
     /**
@@ -73,8 +79,10 @@ class RecommendedFragment(val recommendType: RecommendType) : Fragment() {
      */
     interface OnFragmentInteractionListener {
         fun startTag(tag: Tag)
+        fun updateStatusBarColor(colorId: Int)
+        fun openSettings()
+        fun openNavBarMenu()
     }
-
 
     inner class RecommendedAdapter(val recommendType: RecommendType) : RecyclerView.Adapter<RecommendedAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -86,7 +94,7 @@ class RecommendedFragment(val recommendType: RecommendType) : Fragment() {
 
         override fun onBindViewHolder(holder: ViewHolder, i: Int) {
             holder.border.setCardBackgroundColor(Color.parseColor(recommendType.tags[i].icon.backgroundColor))
-            Glide.with(context!!).load(recommendType.tags[i].icon.getIcon(200, 200)).into(holder.imageView)
+            Glide.with(context!!).load(recommendType.tags[i].icon.getIcon(300, 300)).into(holder.imageView)
             holder.textView.text = recommendType.tags[i].name
             holder.itemView.setOnClickListener {
                 listener?.startTag(recommendType.tags[i])
