@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:background="@drawable/type_item"
@@ -11,6 +11,7 @@
         android:orientation="horizontal">
     <androidx.cardview.widget.CardView
             android:id="@+id/tags_border"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_gravity="center_vertical"
             android:layout_width="50dp"
@@ -24,10 +25,22 @@
     </androidx.cardview.widget.CardView>
 
     <TextView
+            android:textStyle="bold"
+            android:layout_toRightOf="@+id/tags_border"
+            android:layout_toLeftOf="@id/polygon"
+            android:layout_centerVertical="true"
             android:id="@+id/tags_text"
             android:textSize="20sp"
             android:textColor="@android:color/black"
-            android:layout_gravity="center"
+            android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-</FrameLayout>
+
+    <View
+            android:id="@+id/polygon"
+            android:layout_marginRight="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="10dp"
+            android:layout_height="10dp"/>
+</RelativeLayout>

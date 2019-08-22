@@ -47,6 +47,8 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
+            android:paddingLeft="70dp"
+            android:clipToPadding="false"
             android:id="@+id/recommended_list"
             android:layout_gravity="center"
             android:layout_width="match_parent"
