@@ -1,17 +1,18 @@
 package com.washinson.yaradio3.player
 
 import android.accounts.NetworkErrorException
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.widget.*
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import com.github.ybq.android.spinkit.SpinKitView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.session.Session
@@ -22,11 +23,9 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
 
-    lateinit var moodGroup: RadioGroup
-    lateinit var languageGroup: RadioGroup
-    lateinit var diversityGroup: RadioGroup
-    lateinit var fab: FloatingActionButton
-    lateinit var spinKitView: SpinKitView
+    lateinit var moodGroup: CustomRadioGroup
+    lateinit var languageGroup: CustomRadioGroup
+    lateinit var diversityGroup: CustomRadioGroup
 
     var settings: Settings? = null
     var session: Session? = null
@@ -38,41 +37,12 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this , R.color.colorPrimaryDark)
+            window.statusBarColor = ContextCompat.getColor(this , R.color.colorHeader)
         }
 
-        spinKitView = findViewById(R.id.spin_kit)
-
-        moodGroup = findViewById(R.id.mood_energy)
-        languageGroup = findViewById(R.id.language)
-        diversityGroup = findViewById(R.id.diversity)
-
-        fab = findViewById(R.id.floatingActionButton2)
-
-        fab.setOnClickListener {
-            spinKitView.visibility = View.VISIBLE
-            launch(Dispatchers.IO) {
-                if (settings == null || session == null)
-                    return@launch
-                val newMood =
-                    settings!!.moodEnergies.possibleValues[moodGroup.checkedRadioButtonId].first
-                val newLanguage =
-                    settings!!.languages.possibleValues[languageGroup.checkedRadioButtonId].first
-                val newDiversity =
-                    settings!!.diversities.possibleValues[diversityGroup.checkedRadioButtonId].first
-                try {
-                    session!!.tag?.setSettings(newLanguage, newMood, newDiversity)
-
-                    launch(Dispatchers.Main) {
-                        Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.updated), Toast.LENGTH_SHORT).show()
-                        spinKitView.visibility = View.GONE
-                    }
-                } catch (e: NetworkErrorException) {
-                    Toast.makeText(this@PlayerTagSettingsActivity, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
-                    spinKitView.visibility = View.GONE
-                }
-            }
-        }
+        moodGroup = CustomRadioGroup(findViewById(R.id.mood_energy))
+        languageGroup = CustomRadioGroup(findViewById(R.id.language))
+        diversityGroup =  CustomRadioGroup(findViewById(R.id.diversity))
 
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
@@ -80,32 +50,51 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
                 settings = session!!.tag?.getSettings()
             }
             launch(Dispatchers.Main) {
-                var q = 0
-                for (i in settings!!.moodEnergies.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
-                    radioButton.text = i.second
-                    radioButton.id = q++
-                    radioButton.isChecked = i.first == settings!!.moodEnergy
-                    moodGroup.addView(radioButton)
-                }
-                q = 0
-                for (i in settings!!.languages.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
-                    radioButton.text = i.second
-                    radioButton.id = q++
-                    radioButton.isChecked = i.first == settings!!.language
-                    languageGroup.addView(radioButton)
-                }
-                q = 0
-                for (i in settings!!.diversities.possibleValues) {
-                    val radioButton = RadioButton(this@PlayerTagSettingsActivity)
-                    radioButton.text = i.second
-                    radioButton.id = q++
-                    radioButton.isChecked = i.first == settings!!.diversity
-                    diversityGroup.addView(radioButton)
-                }
 
-                spinKitView.visibility = View.GONE
+                for ((id, i) in settings!!.moodEnergies.possibleValues.withIndex()) {
+                    moodGroup.addItem(i.second, id)
+                }
+                for ((id, i) in settings!!.languages.possibleValues.withIndex()) {
+
+                    languageGroup.addItem(i.second, id)
+                }
+                for ((id, i) in settings!!.diversities.possibleValues.withIndex()) {
+                    diversityGroup.addItem(i.second, id)
+                }
+            }
+        }
+    }
+
+    inner class CustomRadioGroup(val layout: LinearLayout) {
+        var checkedRadioButtonId = 0
+
+        fun addItem(i: String, id: Int) {
+            val newView = layoutInflater.inflate(R.layout.settings_radio_item, layout, false)
+
+            val button = newView.findViewById<Button>(R.id.button)
+            button.text = i
+            button.id = id
+            button.setOnClickListener { setChecked(it.id) }
+
+            layout.addView(newView)
+            setChecked(checkedRadioButtonId)
+        }
+
+        private fun setChecked(id: Int) {
+            checkedRadioButtonId = id
+            for (i in 0 until layout.childCount) {
+                val cur = layout.getChildAt(i) as? Button ?: continue
+
+                if (cur.id != checkedRadioButtonId)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        cur.background = this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_passive)
+                    else
+                        cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_passive))
+                else
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        cur.background = this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_active)
+                    else
+                        cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_active))
             }
         }
     }
