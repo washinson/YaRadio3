@@ -7,10 +7,10 @@
     <string name="_64_aac_bitrate">Низкое качество - высокая экономия\n(64 битрейт AAC)</string>
     <string name="action_settings">Настройки</string>
     <string name="dislike_track">Дизлайк</string>
-    <string name="diversity"><u>Треки</u></string>
+    <string name="diversity">Треки</string>
     <string name="hello_blank_fragment">Привет шаблон фрагмент</string>
     <string name="hours">Часов</string>
-    <string name="language"><u>Язык</u></string>
+    <string name="language">Язык</string>
     <string name="like_track">Лайк</string>
     <string name="loading">Загрузка</string>
     <string name="login_text">Войти</string>
@@ -22,7 +22,7 @@
     <string name="menu_slideshow">Слайдшоу</string>
     <string name="menu_tools">Инструменты</string>
     <string name="minutes">Минут</string>
-    <string name="mood_energy"><u>Настроение</u></string>
+    <string name="mood_energy">Настроение</string>
     <string name="nav_header_desc">Заголовок навигации</string>
     <string name="navigation_drawer_close">Закрыть дизайнер навигации</string>
     <string name="navigation_drawer_open">Открыть дизайнер навигации</string>

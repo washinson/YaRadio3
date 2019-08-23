@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#D7D7D7</color>
+    <color name="colorPrimary">@color/buttonColor</color>
+    <color name="buttonColor">#D7D7D7</color>
     <color name="colorPrimaryDark">@color/colorHeader</color>
     <!--color name="colorAccent">#D81B60</color-->
     <color name="colorAccent">@color/colorPlayer</color>
     <color name="colorHeader">#1b2338</color>
-    <color name="colorHeaderAlpha">#DD1b2338</color>
+    <color name="colorHeaderAlpha">#DD1A2236</color>
     <color name="colorPlayer">#202B49</color>
-    <color name="colorPlayerHeaderAlpha">#DD202B49</color>
-    <color name="colorTrackList">#C4C4C4</color>
-    <color name="colorSelected">#FFEE52</color>
+    <color name="colorPlayerHeaderAlpha">@color/colorHeaderAlpha</color>
+    <color name="colorTrackList">#28365c</color>
+    <color name="colorSelected">#FFCD4E</color>
 </resources>

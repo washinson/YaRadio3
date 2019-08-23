@@ -5,15 +5,15 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="70dp">
+        android:layout_height="100dp">
 
     <ImageView
-            android:padding="1dp"
+            android:padding="2dp"
             app:srcCompat="@drawable/ic_album"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/track_cover"
-            android:layout_weight="6"
+            android:layout_weight="10"
             android:contentDescription="@string/track_cover"/>
     <View
             android:layout_width="0dp"
@@ -32,21 +32,21 @@
                 android:textSize="15sp"
                 android:layout_centerHorizontal="true"
                 android:layout_above="@id/info_center"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:gravity="start"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/title" />
         <TextView
                 android:id="@+id/artist"
-                android:textColor="#69000000"
+                android:textColor="#999999"
                 android:textSize="15sp"
                 android:layout_below="@id/info_center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
     </RelativeLayout>
     <ImageView
-            app:srcCompat="@drawable/ic_dislike_passive"
+            app:srcCompat="@drawable/ic_dislike_track_passive"
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
@@ -57,7 +57,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"/>
     <ImageView
-            app:srcCompat="@drawable/ic_like_passive"
+            app:srcCompat="@drawable/ic_like_track_passive"
             android:layout_width="0dp"
             android:layout_gravity="center_vertical"
             android:layout_height="20dp" android:id="@+id/track_like" android:layout_weight="4"

@@ -115,16 +115,21 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
             for (i in 0 until layout.childCount) {
                 val cur = layout.getChildAt(i) as? Button ?: continue
 
-                if (cur.id != checkedRadioButtonId)
+                if (cur.id != checkedRadioButtonId) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        cur.background = this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_passive)
+                        cur.background =
+                            this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_passive)
                     else
                         cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_passive))
-                else
+                    cur.setTextColor(Color.parseColor("#DEDEDE"))
+                } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        cur.background = this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_active)
+                        cur.background =
+                            this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_active)
                     else
                         cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_active))
+                    cur.setTextColor(Color.parseColor("#3F3F3F"))
+                }
             }
         }
     }

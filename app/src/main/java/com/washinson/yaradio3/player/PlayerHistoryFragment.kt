@@ -163,14 +163,14 @@ class PlayerHistoryFragment : Fragment() {
         fun initLikeButton(likeButton: ImageView, track: Track) {
             if (track.liked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_active))
+                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_track_active))
                 else
-                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_active))
+                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_track_active))
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_passive))
+                    likeButton.setImageDrawable(context.getDrawable(R.drawable.ic_like_track_passive))
                 else
-                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_passive))
+                    likeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_like_track_passive))
             }
 
             likeButton.setOnClickListener {
@@ -194,14 +194,14 @@ class PlayerHistoryFragment : Fragment() {
         fun initDislikeButton(dislikeButton: ImageView, track: Track) {
             if (track.disliked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_active))
+                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_track_active))
                 else
-                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_active))
+                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_track_active))
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_passive))
+                    dislikeButton.setImageDrawable(context.getDrawable(R.drawable.ic_dislike_track_passive))
                 else
-                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_passive))
+                    dislikeButton.setImageDrawable(resources.getDrawable(R.drawable.ic_dislike_track_passive))
             }
 
             dislikeButton.setOnClickListener {

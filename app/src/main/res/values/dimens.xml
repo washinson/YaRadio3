@@ -7,4 +7,5 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="button_bar_height">35dp</dimen>
     <dimen name="button_bar_button_size">25dp</dimen>
+    <dimen name="track_list_divider_height">7dp</dimen>
 </resources>

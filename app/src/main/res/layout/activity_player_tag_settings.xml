@@ -56,6 +56,7 @@
                     android:gravity="top"
                     android:orientation="vertical">
                 <TextView
+                        android:letterSpacing="0.2"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:text="@string/mood_energy"
@@ -67,9 +68,11 @@
             </LinearLayout>
 
             <View
-                    android:background="#11000000"
+                    android:layout_marginTop="7dp"
+                    android:background="#000"
                     android:layout_width="match_parent"
-                    android:layout_height="5dp"/>
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="7dp"/>
 
             <LinearLayout
                     android:id="@+id/diversity"
@@ -78,6 +81,7 @@
                     android:gravity="top"
                     android:orientation="vertical">
                 <TextView
+                        android:letterSpacing="0.2"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:text="@string/diversity"
@@ -89,9 +93,11 @@
             </LinearLayout>
 
             <View
-                    android:background="#11000000"
+                    android:layout_marginTop="7dp"
+                    android:background="#000"
                     android:layout_width="match_parent"
-                    android:layout_height="5dp"/>
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="7dp"/>
 
             <LinearLayout
                     android:id="@+id/language"
@@ -100,6 +106,7 @@
                     android:gravity="top"
                     android:orientation="vertical">
                 <TextView
+                        android:letterSpacing="0.2"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:text="@string/language"
@@ -109,6 +116,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
             </LinearLayout>
+
+            <View
+                    android:background="#00000000"
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

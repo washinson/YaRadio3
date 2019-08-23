@@ -39,7 +39,7 @@
             android:textSize="30sp"
             android:textColor="@android:color/white"
             android:textAllCaps="true"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="60dp"
             android:text="@string/recommendations"
             android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
@@ -47,6 +47,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
+            android:paddingRight="70dp"
             android:paddingLeft="70dp"
             android:clipToPadding="false"
             android:id="@+id/recommended_list"

@@ -10,6 +10,7 @@
             app:cardCornerRadius="100dp"
             android:id="@+id/tag_border">
         <ImageView
+                android:scaleType="fitCenter"
                 android:id="@+id/tag_view"
                 android:layout_width="140dp"
                 android:layout_height="140dp"

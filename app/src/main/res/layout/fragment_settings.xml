@@ -170,7 +170,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="40dp"
             android:orientation="horizontal">
         <Button
                 style="?android:attr/borderlessButtonStyle"
@@ -197,12 +197,12 @@
 
         <Button
                 style="?android:attr/borderlessButtonStyle"
-                android:paddingRight="10dp"
-                android:paddingLeft="10dp"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
                 android:background="@drawable/settings_button"
                 android:id="@+id/apk_button"
                 android:layout_width="wrap_content"
-                android:layout_height="60dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center|bottom"
                 android:layout_marginBottom="8dp"
                 android:text="@string/update_apk"/>
