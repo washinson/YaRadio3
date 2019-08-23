@@ -5,7 +5,9 @@ import okhttp3.OkHttpClient
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
+import java.util.*
 import java.util.zip.GZIPInputStream
+import kotlin.math.ceil
 
 
 class Utils {
@@ -19,7 +21,11 @@ class Utils {
                 }
             }
             deviceId = deviceId.replace("\"", "")
-            return deviceId + ":" + track.id + ":" + Math.random().toString().substring(2);
+            return deviceId + ":" + track.id + ":" + Math.random().toString().substring(2)
+        }
+
+        fun getAddTracksToPlayerTime(): String {
+            return Math.random().toString().substring(2) + "-" + ceil(Date().time / 1000.0).toString()
         }
 
         fun decodeGZIP(bytes: ByteArray): String {
