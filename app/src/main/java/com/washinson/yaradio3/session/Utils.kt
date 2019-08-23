@@ -13,7 +13,7 @@ import kotlin.math.ceil
 class Utils {
     companion object {
         fun getPlayId(track: Track, okHttpClient: OkHttpClient): String {
-            val cookies = okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!);
+            val cookies = okHttpClient.cookieJar.loadForRequest("https://radio.yandex.ru".toHttpUrlOrNull()!!)
             var deviceId = ""
             for (cookie in cookies) {
                 if (cookie.name == "device_id") {
@@ -25,7 +25,7 @@ class Utils {
         }
 
         fun getAddTracksToPlayerTime(): String {
-            return Math.random().toString().substring(2) + "-" + ceil(Date().time / 1000.0).toString()
+            return Math.random().toString().substring(2) + "-" + ceil(Date().time / 1000.0).toLong().toString()
         }
 
         fun decodeGZIP(bytes: ByteArray): String {
