@@ -67,6 +67,8 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
                 }
             }
         }
+
+        findViewById<ImageView>(R.id.back).setOnClickListener { finish() }
     }
 
     override fun onDestroy() {

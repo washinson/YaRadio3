@@ -70,6 +70,12 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
         unbindService(mConnection)
     }
 
+    override fun onBackPressed() {
+        if (viewPager.currentItem == 1)
+            super.onBackPressed()
+        else changeView(1)
+    }
+
     override fun changeView(id: Int) {
         viewPager.currentItem = id
     }

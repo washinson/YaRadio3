@@ -17,6 +17,7 @@ import com.washinson.yaradio3.common.Mp3Downloader
 import com.washinson.yaradio3.session.Session
 import android.app.AlertDialog
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.accounts.NetworkErrorException
 import android.app.Activity
 import android.content.Context
 import androidx.core.content.ContextCompat
@@ -167,9 +168,18 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
             val curLanguage =
                 data.getStringExtra("language") ?: return
             launch(Dispatchers.IO) {
-                Session.getInstance(0, activity).updateInfo(curLanguage, curMoodEnergy, curDiversity)
-                launch(Dispatchers.Main) {
-                    Toast.makeText(context, getString(R.string.updated), Toast.LENGTH_SHORT).show()
+                try {
+                    Session.getInstance(0, activity)
+                        .updateInfo(curLanguage, curMoodEnergy, curDiversity)
+                    launch(Dispatchers.Main) {
+                        Toast.makeText(context, getString(R.string.updated), Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                } catch (e: NetworkErrorException) {
+                    launch(Dispatchers.Main) {
+                        Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
         }
