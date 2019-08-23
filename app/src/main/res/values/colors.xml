@@ -4,10 +4,10 @@
     <color name="colorPrimaryDark">@color/colorHeader</color>
     <!--color name="colorAccent">#D81B60</color-->
     <color name="colorAccent">@color/colorPlayer</color>
-    <color name="colorHeader">#C4C4C4</color>
-    <color name="colorHeaderAlpha">#DDC4C4C4</color>
-    <color name="colorPlayer">#BA88EC</color>
-    <color name="colorPlayerHeaderAlpha">#DDbd9ae0</color>
+    <color name="colorHeader">#1b2338</color>
+    <color name="colorHeaderAlpha">#DD1b2338</color>
+    <color name="colorPlayer">#202B49</color>
+    <color name="colorPlayerHeaderAlpha">#DD202B49</color>
     <color name="colorTrackList">#C4C4C4</color>
-    <color name="colorSelected">#ECECEC</color>
+    <color name="colorSelected">#FFEE52</color>
 </resources>

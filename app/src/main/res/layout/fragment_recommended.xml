@@ -9,16 +9,16 @@
     <FrameLayout
             android:id="@+id/rectangle"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="@dimen/button_bar_height"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:background="@drawable/ic_rectangle_purple">
+            android:background="@drawable/ic_rectangle">
 
         <ImageView
                 android:id="@+id/menu"
                 android:padding="3dp"
-                android:layout_width="20dp"
+                android:layout_width="@dimen/button_bar_button_size"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
@@ -30,14 +30,14 @@
                 android:layout_gravity="end"
                 android:layout_marginRight="10dp"
                 android:padding="3dp"
-                android:layout_width="20dp"
+                android:layout_width="@dimen/button_bar_button_size"
                 android:layout_height="match_parent"/>
     </FrameLayout>
 
     <TextView
             android:textStyle="bold"
             android:textSize="30sp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:textAllCaps="true"
             android:layout_marginTop="40dp"
             android:text="@string/recommendations"
