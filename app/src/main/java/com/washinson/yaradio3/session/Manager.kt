@@ -65,9 +65,18 @@ class Manager(context: Context) {
         Log.d(TAG, "History $feedback: duration $duration")
         Log.d(TAG, "History $feedback: track=$track")
 
-        val path = "https://radio.yandex.ru/api/v2.1/handlers/track/none/history/feedback/retry"
+        var path: String = "https://radio.yandex.ru/api/v2.1/handlers/track/" +
+                "${track.id}:${track.albumId}/radio-web-${track.tag.idForForm}-dashboard/feedback/"
+
+        path += if (feedback == trackStarted) {
+            "start"
+        } else {
+            "end"
+        }
+
         val postBody = JSONObject()
         setDefaulHistoryFeedbackBody(track, postBody, auth, duration, feedback)
+
         return post(path,
             postBody.toString().toRequestBody("application/json".toMediaTypeOrNull()), null, "application/json", track.tag)
     }
@@ -79,23 +88,28 @@ class Manager(context: Context) {
         postBody.put("timestamp", Date().time)
 
         val jsonTrack = JSONObject()
-        jsonTrack.put("album", Integer.valueOf(track.albumId))
-        jsonTrack.put("context", "radio")
-        jsonTrack.put("contextItem", track.tag.id + ":" + track.tag.tag)
-        jsonTrack.put("duration", track.durationMs / 1000.0)
-        jsonTrack.put("feedback", feedback)
-        jsonTrack.put("from", "radio-web-${track.tag.id}-${track.tag.tag}-direct")
-        jsonTrack.put("playId", Utils.getPlayId(track, okHttpClient))
-        jsonTrack.put("played", duration)
-        jsonTrack.put("position", duration)
-        jsonTrack.put("trackId", track.id)
-        jsonTrack.put("yaDisk", false)
-        jsonTrack.put("timestamp", Date().time)
 
         if (feedback == trackStarted)
             jsonTrack.put("sendReason", "start")
         else
             jsonTrack.put("sendReason", "end")
+
+        jsonTrack.apply {
+            put("from", "radio-web-${track.tag.idForForm}-dashboard")
+            put("addTracksToPlayerTime", Utils.getAddTracksToPlayerTime())
+            put("restored", false)
+            put("yaDisk", false)
+            put("duration", track.durationMs / 1000.0)
+            put("position", duration)
+            put("played", duration)
+            put("playId", Utils.getPlayId(track, okHttpClient))
+            put("feedback", feedback)
+            put("context", "radio")
+            put("contextItem", track.tag.id + ":" + track.tag.tag)
+            put("timestamp", Date().time)
+            put("trackId", track.id)
+            put("album", Integer.valueOf(track.albumId))
+        }
 
         postBody.put("data", JSONArray().put(jsonTrack))
     }
@@ -139,13 +153,13 @@ class Manager(context: Context) {
      * @throws NetworkErrorException
      *
      * @param tag Tag for check
-     * @return true if avalible and false othervise
+     * @return true if available and false otherwise
      */
     fun isTagAvailable(tag: Tag): Boolean {
         Log.d(TAG, "Is tag avalible $tag")
 
         val response =
-            get("https://radio.yandex.ru/api/v2.1/handlers/radio/${tag.id}/${tag.tag}/available", null, tag) ?: throw NetworkErrorException()
+            get("https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(tag)}/available", null, tag) ?: throw NetworkErrorException()
         return JSONObject(response).getBoolean("available")
     }
 
@@ -364,8 +378,10 @@ class Manager(context: Context) {
                     String(q)
             }
         } catch (e: UnknownHostException) {
+            Log.d(TAG, "UnknownHostException -- no network")
             throw NetworkErrorException()
         }catch (e: Exception) {
+            Log.d(TAG, "Connection problem")
             e.printStackTrace()
 
             // Architecture works instability without result
