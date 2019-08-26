@@ -20,7 +20,6 @@ import java.net.UnknownHostException
 import okhttp3.OkHttpClient
 
 
-
 /**
  * Manager is intermediary app with network
  *
@@ -383,6 +382,11 @@ class Manager(context: Context) {
         }catch (e: Exception) {
             Log.d(TAG, "Connection problem")
             e.printStackTrace()
+
+
+            // Probalby infinity loading fix
+            okHttpClient = OkHttpClient.Builder()
+                .cookieJar(cookieJar).build()
 
             // Architecture works instability without result
             res = doRequest(request)
