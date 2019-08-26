@@ -84,6 +84,11 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
         finish()
     }
 
+    override fun onResume() {
+        super.onResume()
+        playerInfoFragment.updateInterface(playerService ?: return)
+    }
+
     private val mConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -105,7 +110,7 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
                 }
             })
 
-            playerInfoFragment.onServiceConnected(playerService ?: return)
+            playerInfoFragment.updateInterface(playerService ?: return)
 
             playerService!!.onTagChanged(intent.getStringExtra("tag"))
         }

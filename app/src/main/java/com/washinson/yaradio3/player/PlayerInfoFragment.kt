@@ -246,7 +246,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
         }
     }
 
-    fun onServiceConnected(playerService: PlayerService) {
+    fun updateInterface(playerService: PlayerService) {
         playerService.simpleExoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 setProgressIfBuffering()
