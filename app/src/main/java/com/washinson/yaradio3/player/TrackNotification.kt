@@ -115,14 +115,15 @@ class TrackNotification {
 
             builder.addAction(
                 NotificationCompat.Action(
-                    R.drawable.ic_dislike, context.getString(R.string.dislike_track),
+                    R.drawable.ic_notification_dislike_passive, context.getString(R.string.dislike_track),
                     PendingIntent.getBroadcast(context, 0, Intent(MediaSessionCallback.dislikeIntentFilter), 0)
                 )
             )
 
             builder.addAction(
                 NotificationCompat.Action(
-                    if (track?.liked == true) R.drawable.ic_liked else R.drawable.ic_like, context.getString(
+                    if (track?.liked == true) R.drawable.ic_notification_like_active
+                    else R.drawable.ic_notification_like_passive, context.getString(
                         R.string.like_track
                     ),
                     PendingIntent.getBroadcast(context, 0, Intent(MediaSessionCallback.likeIntentFilter), 0)

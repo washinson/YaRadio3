@@ -66,5 +66,5 @@
     <string name="no_information">No information</string>
     <string name="left">Left</string>
     <string name="seconds">Seconds</string>
-    <string name="please_start_radio">Please, start a radio before activate the timer</string>
+    <string name="please_start_radio">Please, start radio before activate timer</string>
 </resources>
