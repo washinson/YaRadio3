@@ -53,7 +53,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         Log.d(TAG, "onPlay")
 
         // Reset variable for contingencies
-        isPausedWhenDucked = false
+        isPausedWhenFocusChanged = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             service.startForegroundService(Intent(service.applicationContext, PlayerService::class.java))
@@ -140,12 +140,11 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     }
 
     /**
-     * Used to detect pause when ducked
-     * and don't play when focus gained if state was paused
+     * Used to detect pause when ducked or user was called
+     * And don't play when focus gained if state was paused
      *
-     * Needed to support < oreo versions
      */
-    private var isPausedWhenDucked = false
+    private var isPausedWhenFocusChanged = false
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
@@ -155,21 +154,26 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                 // Звонок закончился, фокус выдали опять
                 // и мы продолжили воспроизведение.
                 service.simpleExoPlayer.volume = 1F
-                if (!isPausedWhenDucked)
+                if (!isPausedWhenFocusChanged)
                     onPlay()
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                // Needed to support < oreo versions
+
                 // Фокус отняли, потому что какому-то приложению надо
                 // коротко "крякнуть".
                 // Например, проиграть звук уведомления или навигатору сказать
                 // "Через 50 метров поворот направо".
                 // В этой ситуации нам разрешено не останавливать вопроизведение,
                 // но надо снизить громкость.
-                isPausedWhenDucked = !service.simpleExoPlayer.playWhenReady
                 service.simpleExoPlayer.volume = 0.3F
+
+                isPausedWhenFocusChanged = !service.simpleExoPlayer.playWhenReady
             }
             else -> {
                 // Фокус совсем отняли.
+                isPausedWhenFocusChanged = !service.simpleExoPlayer.playWhenReady
+
                 onPause()
             }
         }
