@@ -39,14 +39,14 @@
     <string name="_128_aac_bitrate">Medium quality - medium economy\n(128 bitrate AAC)</string>
     <string name="_64_aac_bitrate">Low quality - high economy\n(64 bitrate AAC)</string>
     <string name="_192_mp3_bitrate">Pure quality - no economy\n(192 bitrate MP3)</string>
-    <string name="update_apk">Update APK (current version is %1$s)</string>
+    <string name="update_apk">Update APK\n(current version is %1$s)</string>
     <string name="tag_icon">Tag icon</string>
     <string name="hours">Hours</string>
     <string name="minutes">Minutes</string>
     <string name="_0" translatable="false">0</string>
     <string name="set_timer">Set timer</string>
     <string name="playback_will_stop_after_time_has_passed">Playback will stop after time has passed</string>
-    <string name="timer">Timer (test)</string>
+    <string name="timer">Timer</string>
     <string name="timer_info">Timer info</string>
     <string name="incorrect_input">Incorrect input!</string>
     <string name="timer_info_print">Left %1$s hours, %2$s minutes, %3$s seconds</string>
@@ -63,4 +63,8 @@
     <string name="settings">Settings</string>
     <string name="next_tracks">Next tracks</string>
     <string name="recommendations">Recommendations</string>
+    <string name="no_information">No information</string>
+    <string name="left">Left</string>
+    <string name="seconds">Seconds</string>
+    <string name="please_start_radio">Please, start a radio before activate the timer</string>
 </resources>

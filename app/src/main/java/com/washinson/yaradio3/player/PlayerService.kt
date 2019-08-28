@@ -40,6 +40,9 @@ import kotlinx.coroutines.*
 
 
 class PlayerService : Service(), CoroutineScope {
+    // Timer for pause player after some time
+    var timerDate: Long? = null
+
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
 
@@ -81,14 +84,6 @@ class PlayerService : Service(), CoroutineScope {
         mediaSession.setMediaButtonReceiver(
             PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0))
 
-        mediaSession.controller.registerCallback(object : MediaControllerCompat.Callback() {
-            override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-                refreshNotificationAndForegroundStatus(
-                    mediaSession.controller.playbackState.state, mediaSession,
-                    this@PlayerService, Session.getInstance(0, this@PlayerService).track)
-            }
-        })
-
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         val videoTrackSelectionFactory: TrackSelection.Factory = AdaptiveTrackSelection.Factory()
@@ -99,9 +94,19 @@ class PlayerService : Service(), CoroutineScope {
         registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(MediaSessionCallback.likeIntentFilter))
         registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
 
-        mediaSessionCallback.onPlay()
+        mediaSession.setPlaybackState(
+            stateBuilder.setState(
+                PlaybackStateCompat.STATE_PAUSED,
+                simpleExoPlayer.currentPosition, 1F).build())
         setLoadingContent()
-        startTag()
+
+        mediaSession.controller.registerCallback(object : MediaControllerCompat.Callback() {
+            override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                refreshNotificationAndForegroundStatus(
+                    mediaSession.controller.playbackState.state, mediaSession,
+                    this@PlayerService, Session.getInstance(0, this@PlayerService).track)
+            }
+        })
 
         launch(Dispatchers.IO) {
             while (true) {
@@ -247,6 +252,7 @@ class PlayerService : Service(), CoroutineScope {
     fun onTagChanged(tag: String?) {
         if (curTag == null) {
             curTag = tag
+            startTag()
         } else {
             if (tag != null && tag != curTag) {
                 curTag = tag

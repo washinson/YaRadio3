@@ -54,8 +54,6 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
     }
 
     fun connectService() {
-        val intent1 = Intent(this, PlayerService::class.java)
-        intent1.putExtra("tag", intent.getStringExtra("tag"))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             bindService(Intent(this, PlayerService::class.java),
                 mConnection, Context.BIND_AUTO_CREATE)

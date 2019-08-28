@@ -9,7 +9,7 @@
     <string name="dislike_track">Дизлайк</string>
     <string name="diversity">Треки</string>
     <string name="hello_blank_fragment">Привет шаблон фрагмент</string>
-    <string name="hours">Часов</string>
+    <string name="hours">Час.</string>
     <string name="language">Язык</string>
     <string name="like_track">Лайк</string>
     <string name="loading">Загрузка</string>
@@ -21,7 +21,7 @@
     <string name="menu_share">Поделиться</string>
     <string name="menu_slideshow">Слайдшоу</string>
     <string name="menu_tools">Инструменты</string>
-    <string name="minutes">Минут</string>
+    <string name="minutes">Мин.</string>
     <string name="mood_energy">Настроение</string>
     <string name="nav_header_desc">Заголовок навигации</string>
     <string name="navigation_drawer_close">Закрыть дизайнер навигации</string>
@@ -42,7 +42,7 @@
     <string name="update_apk">Обновить APK\n(текущая версия %1$s)</string>
     <string name="updated">Обновлено</string>
     <string name="user_guest">Гость</string>
-    <string name="timer">Таймер (тестовое)</string>
+    <string name="timer">Таймер</string>
     <string name="playback_will_stop_after_time_has_passed">Воспроизведение остановится\nпо истечении времени</string>
     <string name="timer_info">Информация</string>
     <string name="incorrect_input">Некорректный ввод!</string>
@@ -60,4 +60,8 @@
     <string name="settings">Настройки</string>
     <string name="next_tracks">Следующие треки</string>
     <string name="recommendations">Рекомендации</string>
+    <string name="no_information">Нет информации</string>
+    <string name="left">Осталось</string>
+    <string name="seconds">Сек.</string>
+    <string name="please_start_radio">Пожалуйста, включите радио, прежде чем активировать таймер</string>
 </resources>
