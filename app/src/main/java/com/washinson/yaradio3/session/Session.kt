@@ -114,6 +114,9 @@ class Session private constructor(context: Context) {
 
     /**
      * To login you must provide cookies from logged browser's session or like that
+     * To regenerate session internet needed
+     *
+     * @throws NetworkErrorException
      *
      * @param cookies
      */
@@ -130,6 +133,9 @@ class Session private constructor(context: Context) {
             cookieArrayList.add(cookie)
         }
         manager.okHttpClient.cookieJar.saveFromResponse("https://radio.yandex.ru".toHttpUrlOrNull()!!, cookieArrayList)
+
+        auth = Auth(manager)
+        yandexCommunicator = YandexCommunicator(manager,auth)
     }
 
     /**
@@ -157,6 +163,7 @@ class Session private constructor(context: Context) {
             cookies2.add(builder.build())
         }
         manager.okHttpClient.cookieJar.saveFromResponse("https://radio.yandex.ru".toHttpUrlOrNull()!!, cookies2)
+
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
     }
