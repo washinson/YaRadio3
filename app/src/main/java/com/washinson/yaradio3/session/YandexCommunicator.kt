@@ -48,8 +48,11 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
      *
      */
     fun updateTracksIfNeed(track: Track?, nextTrack: Track?) {
-        while(queue.size == 0) {
+        while(queue.isEmpty()) {
             queue.addAll(manager.getTracks(tag!!, track, nextTrack))
+        }
+        if (this.nextTrack == null) {
+            this.nextTrack = queue.first; queue.removeFirst()
         }
     }
 
