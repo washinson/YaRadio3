@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
+import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media.session.MediaButtonReceiver
 import com.bumptech.glide.Glide
@@ -24,8 +25,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Player.STATE_ENDED
-import com.google.android.exoplayer2.Player.STATE_READY
+import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
@@ -40,6 +40,8 @@ import kotlinx.coroutines.*
 
 
 class PlayerService : Service(), CoroutineScope {
+    val TAG = "PlayerService"
+
     // Timer for pause player after some time
     var timerDate: Long? = null
 
@@ -290,9 +292,19 @@ class PlayerService : Service(), CoroutineScope {
     val eventListener = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when(playbackState) {
-                //STATE_IDLE -> mediaSessionCallback.onSkipToNext()
-                STATE_READY -> isPlayerReady = true
+                STATE_BUFFERING -> {
+                    Log.d(TAG, "STATE_BUFFERING")
+                }
+                STATE_IDLE -> {
+                    Log.d(TAG, "STATE_IDLE")
+                    //mediaSessionCallback.onSkipToNext()
+                }
+                STATE_READY -> {
+                    Log.d(TAG, "STATE_READY")
+                    isPlayerReady = true
+                }
                 STATE_ENDED -> {
+                    Log.d(TAG, "STATE_ENDED")
                     if (playWhenReady) {
                         val time = simpleExoPlayer.currentPosition
                         nextTrack(true, time / 1000.0)
