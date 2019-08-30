@@ -18,11 +18,13 @@ import android.media.AudioManager
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
+import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import androidx.media.session.MediaButtonReceiver
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.*
@@ -290,21 +292,26 @@ class PlayerService : Service(), CoroutineScope {
     }
 
     val eventListener = object : Player.EventListener {
+        override fun onPlayerError(error: ExoPlaybackException?) {
+            Log.d(TAG, "Player error")
+            simpleExoPlayer.retry()
+        }
+
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             when(playbackState) {
                 STATE_BUFFERING -> {
-                    Log.d(TAG, "STATE_BUFFERING")
+                    Log.d(TAG, "STATE_BUFFERING playWhenReady=$playWhenReady")
                 }
                 STATE_IDLE -> {
-                    Log.d(TAG, "STATE_IDLE")
+                    Log.d(TAG, "STATE_IDLE playWhenReady=$playWhenReady")
                     //mediaSessionCallback.onSkipToNext()
                 }
                 STATE_READY -> {
-                    Log.d(TAG, "STATE_READY")
+                    Log.d(TAG, "STATE_READY playWhenReady=$playWhenReady")
                     isPlayerReady = true
                 }
                 STATE_ENDED -> {
-                    Log.d(TAG, "STATE_ENDED")
+                    Log.d(TAG, "STATE_ENDED playWhenReady=$playWhenReady")
                     if (playWhenReady) {
                         val time = simpleExoPlayer.currentPosition
                         nextTrack(true, time / 1000.0)
