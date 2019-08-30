@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -174,6 +175,7 @@ class PlayerHistoryFragment : Fragment() {
             }
 
             likeButton.setOnClickListener {
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.click_anim))
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
                         if (track.liked)
@@ -205,6 +207,7 @@ class PlayerHistoryFragment : Fragment() {
             }
 
             dislikeButton.setOnClickListener {
+                it.startAnimation(AnimationUtils.loadAnimation(context, R.anim.click_anim))
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
                         if (track.disliked)

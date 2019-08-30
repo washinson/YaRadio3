@@ -22,6 +22,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
+import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.washinson.yaradio3.R
@@ -111,6 +112,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
         //spinKitView = view!!.findViewById(R.id.spin_kit)
         val curActivity = (activity ?: return) as PlayerActivity
         nextButton.setOnClickListener {
+            it.startAnimation(AnimationUtils.loadAnimation(context!!, R.anim.click_anim))
             curActivity.playerService?.mediaSessionCallback?.onSkipToNext()
         }
         pauseButton.setOnClickListener {
@@ -120,9 +122,11 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
                 curActivity.playerService?.mediaSessionCallback?.onPlay()
         }
         likeButton.setOnClickListener {
+            it.startAnimation(AnimationUtils.loadAnimation(context!!, R.anim.click_anim))
             curActivity.sendBroadcast(Intent(MediaSessionCallback.likeIntentFilter))
         }
         dislikeButton.setOnClickListener {
+            it.startAnimation(AnimationUtils.loadAnimation(context!!, R.anim.click_anim))
             curActivity.sendBroadcast(Intent(MediaSessionCallback.dislikeIntentFilter))
         }
 
