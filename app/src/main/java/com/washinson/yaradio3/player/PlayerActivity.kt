@@ -82,11 +82,6 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
         finish()
     }
 
-    override fun onResume() {
-        super.onResume()
-        playerInfoFragment.updateInterface(playerService ?: return)
-    }
-
     private val mConnection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName, service: IBinder) {

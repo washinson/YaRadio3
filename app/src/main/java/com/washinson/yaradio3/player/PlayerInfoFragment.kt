@@ -246,6 +246,16 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val curActivity = (activity ?: return) as PlayerActivity
+        val metadata = curActivity.playerService?.mediaSession?.controller?.metadata
+        if (metadata != null) onMetadataUpdate(metadata)
+
+        val state = curActivity.playerService?.mediaSession?.controller?.playbackState
+        if (state != null) updateOnPlaybackState(state)
+    }
+
     fun updateInterface(playerService: PlayerService) {
         playerService.simpleExoPlayer.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
