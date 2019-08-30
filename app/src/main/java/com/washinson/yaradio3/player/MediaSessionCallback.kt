@@ -197,6 +197,8 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     val likeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            if (!service.isPlayerReady)
+                return
             val position = service.simpleExoPlayer.currentPosition / 1000.0
             service.launch(Dispatchers.IO) {
                 val session = Session.getInstance(0, service)
@@ -228,6 +230,8 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
     val dislikeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            if (!service.isPlayerReady)
+                return
             val position = service.simpleExoPlayer.currentPosition / 1000.0
             service.launch(Dispatchers.IO) {
                 val session = Session.getInstance(0, service)
