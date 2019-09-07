@@ -251,8 +251,6 @@ class PlayerService : Service(), CoroutineScope {
 
         hackNotificationForStartForeground()
 
-        onTagChanged(intent?.getStringExtra("tag"))
-
         return START_STICKY
     }
 
