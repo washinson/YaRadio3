@@ -7,6 +7,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,13 @@ class PlayerNextFragment : Fragment() {
     lateinit var listHistoryView: ListView
     lateinit var backButton: ImageView
     lateinit var adapter: MyAdapter
+
+    var isPaused = false
+
+    override fun onPause() {
+        super.onPause()
+        isPaused = true
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +61,7 @@ class PlayerNextFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        isPaused = false
         adapter.onMetadataUpdate()
     }
 
@@ -125,6 +134,8 @@ class PlayerNextFragment : Fragment() {
         }
 
         fun onMetadataUpdate() {
+            if(isPaused)
+                return
             tracks = Session.getInstance(0, context).getNextTracks()
             notifyDataSetChanged()
         }

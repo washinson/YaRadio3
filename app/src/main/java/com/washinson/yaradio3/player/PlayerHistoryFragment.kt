@@ -58,6 +58,11 @@ class PlayerHistoryFragment : Fragment() {
         listHistoryView.adapter = adapter
     }
 
+    override fun onResume() {
+        super.onResume()
+        adapter.onMetadataUpdate()
+    }
+
     fun onLoadTrackClicked(track: Track) {
         val builder = AlertDialog.Builder(context)
 
