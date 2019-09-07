@@ -55,11 +55,9 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
 
     fun connectService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(Intent(this, PlayerService::class.java))
             bindService(Intent(this, PlayerService::class.java),
                 mConnection, Context.BIND_AUTO_CREATE)
         } else {
-            startService(Intent(this, PlayerService::class.java))
             bindService(Intent(this, PlayerService::class.java),
                 mConnection, Context.BIND_AUTO_CREATE)
         }
