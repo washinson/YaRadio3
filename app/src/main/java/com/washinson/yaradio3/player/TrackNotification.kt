@@ -44,7 +44,6 @@ class TrackNotification {
                     // чтобы пользователь мог play нажать
                     val notification = getNotification(playbackState,mediaSession,playerService,track) ?: return
                     NotificationManagerCompat.from(playerService).notify(NOTIFICATION_ID, notification)
-                    playerService.stopForeground(false)
                 }
                 PlaybackStateCompat.STATE_SKIPPING_TO_NEXT -> {
                     val notification = getNotification(PlaybackStateCompat.STATE_PAUSED,mediaSession,playerService,track) ?: return

@@ -63,12 +63,6 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         // Reset variable for contingencies
         isPausedWhenFocusChanged = false
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            service.startForegroundService(Intent(service.applicationContext, PlayerService::class.java))
-        } else {
-            service.startService(Intent(service.applicationContext, PlayerService::class.java))
-        }
-
         val audioFocusResult: Int
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             audioFocusResult = service.audioManager!!.requestAudioFocus(
