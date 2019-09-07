@@ -172,11 +172,14 @@ class PlayerService : Service(), CoroutineScope {
     }
 
     fun startTag() {
+        val session = Session.getInstance(0, this)
+
         onStartNewTrack()
 
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
-                val session = Session.getInstance(0, this@PlayerService)
+                val tag = session.tagIDs!![curTag] ?: return@load
+                session.setTagToPlay(tag)
                 val url = session.startTrack()
 
                 launch(Dispatchers.Main) {

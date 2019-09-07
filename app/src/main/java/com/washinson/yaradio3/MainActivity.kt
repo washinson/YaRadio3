@@ -101,16 +101,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun startTag(tag: Tag) {
-        launch(Dispatchers.IO) {
-            ThreadWaitForResult.load{
-                session!!.setTagToPlay(tag)
-                launch(Dispatchers.Main) {
-                    val intent = Intent(this@MainActivity, PlayerActivity::class.java)
-                    intent.putExtra("tag", "${tag.id}:${tag.tag}")
-                    startActivity(intent)
-                }
-            }
-        }
+        val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+        intent.putExtra("tag", "${tag.id}:${tag.tag}")
+        startActivity(intent)
     }
 
     fun login() {
@@ -205,7 +198,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             sharedPreferences.edit().putString("library.jsx", response).apply()
         }
 
-        types = session!!.getTypes(response)
+        types = session!!.updateTypes(response)
 
         val recommendedFragment = RecommendedFragment(session!!.getRecommendedType())
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, recommendedFragment).commitAllowingStateLoss()

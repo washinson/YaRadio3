@@ -26,6 +26,18 @@ class Session private constructor(context: Context) {
     lateinit var manager: Manager
     lateinit var yandexCommunicator: YandexCommunicator
 
+    /**
+     * Cur types array
+     * Before using types check variable on null
+     * If it equals null use [updateTypes]
+     */
+    var types: ArrayList<Type>? = null
+    /**
+     * Needed for get tag from ID
+     * ID is ${tag.id}:${tag.tag}
+     */
+    var tagIDs: HashMap<String, Tag>? = null
+
     val track: Track?
         get() = yandexCommunicator.track
     val nextTrack: Track?
@@ -237,14 +249,15 @@ class Session private constructor(context: Context) {
     }
 
     /**
-     * Return an array of Types
+     * Update variable [types]
+     * After successful call this function you can use [types]
      *
      * @throws NetworkErrorException
      *
      * @param response1 library.jsx from getTypesResponseForSave or null
-     * @return
+     * @return updated [types] variable
      */
-    fun getTypes(response1: String? = null): ArrayList<Type> {
+    fun updateTypes(response1: String? = null): ArrayList<Type> {
         val response = response1 ?: getTypesResponseForSave()
         val mainBody = JSONObject(response)
         val types = mainBody.getJSONObject("types")
@@ -252,6 +265,9 @@ class Session private constructor(context: Context) {
 
         val typesResult = ArrayList<Type>()
         val typesArray =  types.toJSONArray(types.names()) ?: return typesResult
+
+        if (tagIDs == null)
+            tagIDs = HashMap()
 
         for(i in 0 until typesArray.length()) {
             val currentType = typesArray.getJSONObject(i)
@@ -265,10 +281,15 @@ class Session private constructor(context: Context) {
                 if (t != null) type.tags.add(t)
             }
 
+            for (tag in type.tags) {
+                tagIDs!!["${tag.id}:${tag.tag}"] = tag
+            }
+
             typesResult.add(type)
         }
 
-        return typesResult
+        this.types = typesResult
+        return this.types!!
     }
 
     /**
@@ -280,7 +301,16 @@ class Session private constructor(context: Context) {
     fun getRecommendedType(): RecommendType {
         val response = manager.get("https://radio.yandex.ru/handlers/recommended.jsx", null, null) ?: throw NetworkErrorException()
 
-        return RecommendType("Рекомендации", response, "recommendations", true)
+        val recommendType = RecommendType("Рекомендации", response, "recommendations", true)
+
+        if (tagIDs == null)
+            tagIDs = HashMap()
+
+        for (tag in recommendType.tags) {
+            tagIDs!!["${tag.id}:${tag.tag}"] = tag
+        }
+
+        return recommendType
     }
 
     /**
