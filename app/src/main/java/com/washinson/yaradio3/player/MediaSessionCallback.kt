@@ -30,6 +30,8 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     override fun onPause() {
         Log.d(TAG, "onPause")
 
+        service.simpleExoPlayer.playWhenReady = false
+
         // Clear timer info when needed
         if (service.timerDate != null &&
             service.timerDate!! <= System.currentTimeMillis()) {
@@ -39,8 +41,6 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
         try{
             service.unregisterReceiver(becomingNoisyReceiver)
         } catch (e: IllegalArgumentException) {}
-
-        service.simpleExoPlayer.playWhenReady = false
 
         service.mediaSession.setPlaybackState(
             service.stateBuilder.setState(
