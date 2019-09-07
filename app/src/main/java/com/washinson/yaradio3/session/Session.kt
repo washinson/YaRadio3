@@ -423,7 +423,7 @@ class Session private constructor(context: Context) {
     fun dislike(track: Track, duration: Double) {
         manager.sayAboutTrack(track, duration, auth, manager.dislike)
         yandexCommunicator.queue.clear()
-        yandexCommunicator.updateTracksIfNeed(this.track, nextTrack)
+        yandexCommunicator.next()
         track.disliked = true
     }
 

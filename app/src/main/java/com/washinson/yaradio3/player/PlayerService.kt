@@ -218,7 +218,7 @@ class PlayerService : Service(), CoroutineScope {
         setLoadingContent()
     }
 
-    fun nextTrack(finished: Boolean, duration: Double) {
+    fun nextTrack(finished: Boolean, duration: Double, disliked: Boolean = false) {
         if (!isPlayerReady)
             return
 
@@ -227,7 +227,8 @@ class PlayerService : Service(), CoroutineScope {
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
                 val session = Session.getInstance(0, this@PlayerService)
-                session.nextTrack(finished, duration)
+                if (!disliked)
+                    session.nextTrack(finished, duration)
                 val url = session.startTrack()
                 launch(Dispatchers.Main) {
                     prepareTrack(url)

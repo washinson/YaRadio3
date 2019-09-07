@@ -223,6 +223,11 @@ class Manager(context: Context) {
         Log.d(TAG, "$feedback: with duration $duration")
         Log.d(TAG, "$feedback: $track")
 
+        if(feedback == trackFinished || feedback == trackStarted
+            || feedback == skip || feedback == dislike){
+            historyFeedback(track, duration, auth, feedback)
+        }
+
         val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(track.tag)}/feedback/$feedback/${track.id}:${track.albumId}"
         val postData = PostConfig()
         setDefaultPostDataTrack(postData, track, auth)
@@ -230,10 +235,6 @@ class Manager(context: Context) {
 
         val out = post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull())
             , null, "application/x-www-form-urlencoded", track.tag)
-
-        if(feedback == trackFinished || feedback == trackStarted || feedback == skip){
-            historyFeedback(track, duration, auth, feedback)
-        }
 
         return out
     }

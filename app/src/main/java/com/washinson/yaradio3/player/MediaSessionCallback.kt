@@ -233,8 +233,9 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
 
                 try {
                     session.dislike(track, position)
-
-                    onSkipToNext()
+                    service.launch(Dispatchers.Main) {
+                        service.nextTrack(false, position, true)
+                    }
                 } catch (e: NetworkErrorException) {
                     e.printStackTrace()
                 }
