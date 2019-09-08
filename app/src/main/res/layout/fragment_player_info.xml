@@ -27,32 +27,31 @@
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:layout_above="@id/progressBar"
+            android:layout_marginBottom="20dp"
             >
-        <View
-                android:layout_centerInParent="true"
-                android:id="@+id/info_center"
-                android:layout_width="0dp"
-                android:layout_height="0dp"/>
+
         <TextView
-                android:gravity="center"
                 android:id="@+id/name"
-                android:textSize="20sp"
-                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/artist"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:gravity="bottom|center_horizontal"
                 android:text="Название произведения"
-                android:layout_centerHorizontal="true"
-                android:layout_above="@id/info_center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+
         <TextView
+                android:layout_alignParentBottom="true"
                 android:id="@+id/artist"
-                android:gravity="center"
-                android:textSize="15sp"
-                android:textColor="#DBDBDB"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/info_center"
-                android:text="Исполнитель"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:text="Исполнитель"
+                android:textColor="#DBDBDB"
+                android:textSize="15sp" />
     </RelativeLayout>
 
     <ImageView
