@@ -36,6 +36,10 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
+        // If service was killed and user open app
+        if (!intent.hasExtra("tag"))
+            finish()
+
         val adapter = PlayerAdapter(supportFragmentManager)
 
         viewPager = findViewById(R.id.view_pager_player)

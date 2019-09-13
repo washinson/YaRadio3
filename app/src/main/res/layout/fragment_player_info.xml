@@ -38,7 +38,6 @@
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:gravity="bottom|center_horizontal"
-                android:text="Название произведения"
                 android:textColor="@android:color/white"
                 android:textSize="20sp" />
 
@@ -49,7 +48,6 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
-                android:text="Исполнитель"
                 android:textColor="#DBDBDB"
                 android:textSize="15sp" />
     </RelativeLayout>
@@ -76,6 +74,7 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="20dp"/>
 
+    <!--app:srcCompat="@drawable/ic_album"-->
     <ImageView
             android:layout_above="@id/info"
             android:layout_below="@+id/settings"
@@ -84,7 +83,6 @@
             android:scaleType="fitCenter"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            app:srcCompat="@drawable/ic_album"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"

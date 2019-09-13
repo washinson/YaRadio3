@@ -95,8 +95,12 @@ class PlayerService : Service(), CoroutineScope {
         simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
         simpleExoPlayer.addListener(eventListener)
 
-        registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(MediaSessionCallback.likeIntentFilter))
-        registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
+        try{
+            registerReceiver(mediaSessionCallback.likeReceiver, IntentFilter(MediaSessionCallback.likeIntentFilter))
+        } catch (e: Exception) {}
+        try {
+            registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
+        } catch (e: Exception) {}
 
         mediaSession.setPlaybackState(
             stateBuilder.setState(
@@ -113,13 +117,21 @@ class PlayerService : Service(), CoroutineScope {
         })
 
         launch(Dispatchers.IO) {
-            while (true) {
+            var isOk = true
+            while (isOk) {
                 launch(Dispatchers.Main) {
-                    if (simpleExoPlayer.playWhenReady) {
-                        mediaSession.setPlaybackState(
-                            stateBuilder.setState(
-                                mediaSession.controller.playbackState.state,
-                                simpleExoPlayer.currentPosition, 1F).build())
+                    try {
+                        if (simpleExoPlayer.playWhenReady) {
+                            mediaSession.setPlaybackState(
+                                stateBuilder.setState(
+                                    mediaSession.controller.playbackState.state,
+                                    simpleExoPlayer.currentPosition, 1F
+                                ).build()
+                            )
+                        }
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                        isOk = false
                     }
                 }
                 delay(1000)
@@ -252,12 +264,12 @@ class PlayerService : Service(), CoroutineScope {
 
         hackNotificationForStartForeground()
 
-        return START_STICKY
+        return super.onStartCommand(intent, flags, startId);
     }
 
     fun onTagChanged(tag: String?) {
         if (curTag == null) {
-            curTag = tag
+            curTag = tag ?: return
             startTag()
         } else {
             if (tag != null && tag != curTag) {
