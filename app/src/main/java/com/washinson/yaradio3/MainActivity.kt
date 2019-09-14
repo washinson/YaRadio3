@@ -2,26 +2,28 @@ package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
+import android.media.AudioManager
+import android.media.session.MediaSession
 import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
+import android.os.IBinder
+import android.view.*
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
-import android.view.MenuItem
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.WindowManager
+import android.view.inputmethod.BaseInputConnection
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.media.session.MediaButtonReceiver
 import com.washinson.yaradio3.common.ThreadWaitForResult
+import com.washinson.yaradio3.player.MediaSessionCallback
 import com.washinson.yaradio3.player.PlayerActivity
+import com.washinson.yaradio3.player.PlayerService
 import com.washinson.yaradio3.session.Session
 import com.washinson.yaradio3.station.Tag
 import com.washinson.yaradio3.station.Type
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var navView: NavigationView
     lateinit var drawerLayout: DrawerLayout
     lateinit var loginButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -114,12 +117,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val cookies = data?.getStringExtra("cookies")
 
             launch(Dispatchers.IO) {
+                stopPlayback()
                 session?.login(cookies)
                 launch(Dispatchers.Main) {
                     loadSession()
                 }
             }
         }
+    }
+
+    fun stopPlayback() {
+        sendBroadcast(Intent(MediaSessionCallback.stopIntentFilter))
     }
 
     fun loadSession() {
@@ -173,6 +181,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun logout() {
         launch(Dispatchers.IO) {
+            stopPlayback()
             session?.logout()
             launch(Dispatchers.Main) {
                 loadSession()

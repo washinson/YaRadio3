@@ -104,6 +104,9 @@ class PlayerService : Service(), CoroutineScope {
         try {
             registerReceiver(mediaSessionCallback.dislikeReceiver, IntentFilter(MediaSessionCallback.dislikeIntentFilter))
         } catch (e: Exception) {}
+        try {
+            registerReceiver(mediaSessionCallback.stopReceiver, IntentFilter(MediaSessionCallback.stopIntentFilter))
+        } catch (e: Exception) {}
 
         mediaSession.setPlaybackState(
             stateBuilder.setState(
@@ -255,11 +258,13 @@ class PlayerService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "service destroyed")
         job.cancel()
         mediaSession.release()
         simpleExoPlayer.release()
         unregisterReceiver(mediaSessionCallback.likeReceiver)
         unregisterReceiver(mediaSessionCallback.dislikeReceiver)
+        unregisterReceiver(mediaSessionCallback.stopReceiver)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

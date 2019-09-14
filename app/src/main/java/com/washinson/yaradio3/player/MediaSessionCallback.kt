@@ -22,6 +22,7 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
     companion object {
         val likeIntentFilter = "com.washinson.yaradio3.like_broadcast"
         val dislikeIntentFilter = "com.washinson.yaradio3.dislike_broadcast"
+        val stopIntentFilter = "com.washinson.yaradio3.stop_broadcast"
     }
 
     lateinit var mFocusRequest: AudioFocusRequest
@@ -246,6 +247,12 @@ class MediaSessionCallback(val service: PlayerService) : MediaSessionCompat.Call
                     e.printStackTrace()
                 }
             }
+        }
+    }
+
+    val stopReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            onStop()
         }
     }
 }
