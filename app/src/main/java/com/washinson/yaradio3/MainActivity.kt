@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     val settingsFragmentTag: String = "settingsFragmentTag"
     val tagsFragmentTag: String = "tagsFragmentTag"
     val tagsExtendedFragmentTag: String = "tagsExtendedFragmentTag"
-    lateinit var sharedPreferences: SharedPreferences
 
     var session: Session? = null
     var types: ArrayList<Type>? = null
@@ -63,8 +62,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         navView.setNavigationItemSelectedListener(this)
-
-        sharedPreferences = getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
 
         loadSession()
     }
@@ -118,13 +115,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             launch(Dispatchers.IO) {
                 session?.login(cookies)
-                ThreadWaitForResult.load{
-                    val response = session!!.getTypesResponseForSave()
-                    sharedPreferences.edit().putString("library.jsx", response).apply()
-
-                    launch(Dispatchers.Main) {
-                        loadSession()
-                    }
+                launch(Dispatchers.Main) {
+                    loadSession()
                 }
             }
         }
@@ -182,7 +174,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     fun logout() {
         launch(Dispatchers.IO) {
             session?.logout()
-            sharedPreferences.edit().remove("library.jsx").apply()
             launch(Dispatchers.Main) {
                 loadSession()
             }
@@ -190,15 +181,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun loadTypes() {
-        val response: String
-        if (sharedPreferences.contains("library.jsx"))
-            response = sharedPreferences.getString("library.jsx", "")!!
-        else {
-            response = session!!.getTypesResponseForSave()
-            sharedPreferences.edit().putString("library.jsx", response).apply()
-        }
-
-        types = session!!.updateTypes(response)
+        types = session!!.types
 
         val recommendedFragment = RecommendedFragment(session!!.getRecommendedType())
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, recommendedFragment).commitAllowingStateLoss()

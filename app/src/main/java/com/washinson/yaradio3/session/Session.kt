@@ -2,6 +2,7 @@ package com.washinson.yaradio3.session
 
 import android.accounts.NetworkErrorException
 import android.content.Context
+import android.content.SharedPreferences
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
@@ -25,6 +26,8 @@ class Session private constructor(context: Context) {
     lateinit var auth: Auth
     lateinit var manager: Manager
     lateinit var yandexCommunicator: YandexCommunicator
+    val sharedPreferences: SharedPreferences
+            = context.getSharedPreferences(SettingsFragment.TAG_PREFERENCES, Context.MODE_PRIVATE)
 
     /**
      * Cur types array
@@ -81,6 +84,7 @@ class Session private constructor(context: Context) {
 
     init {
         updateSession(context)
+        updateTypes()
     }
 
     /**
@@ -148,6 +152,9 @@ class Session private constructor(context: Context) {
 
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
+
+        sharedPreferences.edit().remove("library.jsx").apply()
+        updateTypes()
     }
 
     /**
@@ -178,6 +185,8 @@ class Session private constructor(context: Context) {
 
         auth = Auth(manager)
         yandexCommunicator = YandexCommunicator(manager,auth)
+
+        sharedPreferences.edit().remove("library.jsx").apply()
     }
 
     /**
@@ -258,7 +267,19 @@ class Session private constructor(context: Context) {
      * @return updated [types] variable
      */
     fun updateTypes(response1: String? = null): ArrayList<Type> {
-        val response = response1 ?: getTypesResponseForSave()
+
+        val response: String
+        when {
+            response1 != null -> response = response1
+            sharedPreferences.contains("library.jsx") -> {
+                response = sharedPreferences.getString("library.jsx", "")!!
+            }
+            else -> {
+                response = getTypesResponseForSave()
+                sharedPreferences.edit().putString("library.jsx", response).apply()
+            }
+        }
+
         val mainBody = JSONObject(response)
         val types = mainBody.getJSONObject("types")
         val stations = mainBody.getJSONObject("stations")
