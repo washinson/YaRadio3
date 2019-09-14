@@ -81,7 +81,10 @@ class PlayerService : Service(), CoroutineScope {
         mediaSession.setCallback(mediaSessionCallback)
 
         val activityIntent = Intent(this, PlayerActivity::class.java)
-        mediaSession.setSessionActivity(PendingIntent.getActivity(this, 0, activityIntent, 0))
+        val nulString: String? = null
+        activityIntent.putExtra("tag", nulString)
+
+        mediaSession.setSessionActivity(PendingIntent.getActivity(this, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT))
 
         val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON,
             null, this, MediaButtonReceiver::class.java)
