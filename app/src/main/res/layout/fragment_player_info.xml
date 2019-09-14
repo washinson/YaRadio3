@@ -54,24 +54,28 @@
 
     <ImageView
             android:id="@+id/history"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
             android:layout_below="@+id/rectangle"
             android:layout_alignLeft="@id/album"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="30dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             app:srcCompat="@drawable/ic_story" />
 
     <ImageView
             android:id="@+id/settings"
             android:layout_alignRight="@id/album"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
             android:layout_below="@+id/rectangle"
             app:srcCompat="@drawable/ic_settings"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="30dp"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"/>
 
     <!--app:srcCompat="@drawable/ic_album"-->
