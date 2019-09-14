@@ -34,6 +34,7 @@ class TrackNotification {
                             channelID, "YaRadio3",
                             NotificationManager.IMPORTANCE_LOW
                         )
+                        mChannel.setShowBadge(false)
                         mNotificationManager.createNotificationChannel(mChannel)
                     }
 

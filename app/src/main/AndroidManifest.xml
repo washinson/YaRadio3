@@ -44,7 +44,7 @@
         <activity
                 android:screenOrientation="portrait"
                 android:name=".player.PlayerActivity"
-                android:launchMode="singleTop"
+                android:launchMode="singleTask"
                 android:theme="@style/AppTheme.NoActionBar"
                 tools:ignore="InnerclassSeparator">
         </activity>
