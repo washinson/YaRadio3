@@ -122,6 +122,10 @@ class PlayerService : Service(), CoroutineScope {
             }
         })
 
+        runUpdatePlayerPosition();
+    }
+
+    fun runUpdatePlayerPosition() {
         launch(Dispatchers.IO) {
             var isOk = true
             while (isOk) {
@@ -196,6 +200,11 @@ class PlayerService : Service(), CoroutineScope {
 
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
+                if (session.tagIDs == null) {
+                    Log.w(TAG, "tagIDs is null")
+                    return@load
+                }
+
                 val tag = session.tagIDs!![curTag] ?: return@load
                 session.setTagToPlay(tag)
                 val url = session.startTrack()
@@ -245,8 +254,11 @@ class PlayerService : Service(), CoroutineScope {
         launch(Dispatchers.IO) {
             ThreadWaitForResult.load{
                 val session = Session.getInstance(0, this@PlayerService)
+
                 if (!disliked)
+                    // We already had a skipped track when disliked
                     session.nextTrack(finished, duration)
+
                 val url = session.startTrack()
                 launch(Dispatchers.Main) {
                     prepareTrack(url)

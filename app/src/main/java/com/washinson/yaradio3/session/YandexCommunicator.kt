@@ -49,6 +49,10 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
      */
     fun updateTracksIfNeed(track: Track?, nextTrack: Track?) {
         while(queue.isEmpty()) {
+            if (tag == null) {
+                Log.w(TAG, "tag is null")
+                return
+            }
             queue.addAll(manager.getTracks(tag!!, track, nextTrack))
         }
         if (this.nextTrack == null) {
@@ -108,7 +112,7 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
      * @param src JSON object of qualities
      */
     class QualityInfo(src: JSONObject) {
-        val qualities = HashMap<String, JSONObject>()
+        private val qualities = HashMap<String, JSONObject>()
 
         init {
             val jsonArray = src.getJSONArray("result")
@@ -120,7 +124,7 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
         }
 
         fun byQuality(quality: String): String {
-            if (qualities[quality] == null)
+            if (!qualities.containsKey(quality))
                 throw Exception("Unusual quality")
             return qualities[quality]!!.getString("downloadInfoUrl")
         }

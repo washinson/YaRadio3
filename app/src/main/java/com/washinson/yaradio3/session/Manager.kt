@@ -81,10 +81,12 @@ class Manager(context: Context) {
     }
 
     private fun setDefaulHistoryFeedbackBody(track: Track, postBody: JSONObject, auth: Auth, duration: Double, feedback: String) {
-        postBody.put("external-domain", "radio.yandex.ru")
-        postBody.put("overembed", "no")
-        postBody.put("sign", auth.sign)
-        postBody.put("timestamp", Date().time)
+        postBody.apply {
+            put("external-domain", "radio.yandex.ru")
+            put("overembed", "no")
+            put("sign", auth.sign)
+            put("timestamp", Date().time)
+        }
 
         val jsonTrack = JSONObject()
 
@@ -198,12 +200,14 @@ class Manager(context: Context) {
         val path = "https://radio.yandex.ru/api/v2.1/handlers/radio/${typeAndTag(tag)}/settings"
         val postData = PostConfig()
 
-        postData.put("language", language)
-        postData.put("moodEnergy", moodEnergy)
-        postData.put("diversity", diversity)
-        postData.put("sign", auth.sign)
-        postData.put("external-domain", "radio.yandex.ru")
-        postData.put("overembed", "no")
+        postData.apply {
+            put("language", language)
+            put("moodEnergy", moodEnergy)
+            put("diversity", diversity)
+            put("sign", auth.sign)
+            put("external-domain", "radio.yandex.ru")
+            put("overembed", "no")
+        }
 
         return post(path, postData.toString().toRequestBody("application/x-www-form-urlencoded".toMediaTypeOrNull()), null, "application/x-www-form-urlencoded", tag)
     }
@@ -240,14 +244,16 @@ class Manager(context: Context) {
     }
 
     private fun setDefaultPostDataTrack(postData: PostConfig, track: Track, auth: Auth) {
-        postData.put("timestamp", Date().time.toString())
-        postData.put("from", "radio-web-${track.tag.id}-${track.tag.tag}-direct")
-        postData.put("sign", auth.sign)
-        postData.put("external-domain", "radio.yandex.ru")
-        postData.put("overembed", "no")
-        postData.put("batchId", track.batchId)
-        postData.put("trackId", track.id.toString())
-        postData.put("albumId", track.albumId.toString())
+        postData.apply {
+            put("timestamp", Date().time.toString())
+            put("from", "radio-web-${track.tag.id}-${track.tag.tag}-direct")
+            put("sign", auth.sign)
+            put("external-domain", "radio.yandex.ru")
+            put("overembed", "no")
+            put("batchId", track.batchId)
+            put("trackId", track.id.toString())
+            put("albumId", track.albumId.toString())
+        }
     }
 
     /**
@@ -263,8 +269,11 @@ class Manager(context: Context) {
 
         setDefaultHeaders(builder)
 
-        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
-        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+        builder.apply {
+            addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
+            addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+        }
+
         val httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
         if (httpUrl != null)
             builder.addHeader("Cookie", getCookiesString(okHttpClient.cookieJar.loadForRequest(httpUrl)))
@@ -287,10 +296,13 @@ class Manager(context: Context) {
 
         setDefaultHeaders(builder)
 
-        builder.addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
-        builder.addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
-        builder.addHeader("Origin", "https://radio.yandex.ru")
-        builder.addHeader("Content-Type", contentType)
+        builder.apply {
+            addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
+            addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+            addHeader("Origin", "https://radio.yandex.ru")
+            addHeader("Content-Type", contentType)
+        }
+
         val httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
         if (httpUrl != null)
             builder.addHeader("Cookie", getCookiesString(okHttpClient.cookieJar.loadForRequest(httpUrl)))
@@ -340,16 +352,18 @@ class Manager(context: Context) {
     }
 
     fun setDefaultHeaders(request: Request.Builder) {
-        request.addHeader("Accept", "application/json; q=1.0, text/*; q=0.8, */*; q=0.1")
-        request.addHeader("Accept-Encoding", "gzip, deflate, sdch, br")
-        request.addHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
-        //connection.addHeader("Cache-Control", "max-age=0")
-        request.cacheControl(CacheControl.parse(
-            Headers.Builder().add("Cache-Control", "max-age=0").build()))
-        request.addHeader("Connection", "keep-alive")
-        request.addHeader("Host", "radio.yandex.ru")
-        request.addHeader("User-Agent", browser)
-        request.addHeader("X-Requested-With", "XMLHttpRequest")
+        request.apply {
+            addHeader("Accept", "application/json; q=1.0, text/*; q=0.8, */*; q=0.1")
+            addHeader("Accept-Encoding", "gzip, deflate, sdch, br")
+            addHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
+            //connection.addHeader("Cache-Control", "max-age=0")
+            cacheControl(CacheControl.parse(
+                Headers.Builder().add("Cache-Control", "max-age=0").build()))
+            addHeader("Connection", "keep-alive")
+            addHeader("Host", "radio.yandex.ru")
+            addHeader("User-Agent", browser)
+            addHeader("X-Requested-With", "XMLHttpRequest")
+        }
     }
 
     /**

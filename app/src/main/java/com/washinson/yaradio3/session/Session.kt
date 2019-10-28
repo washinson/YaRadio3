@@ -3,6 +3,7 @@ package com.washinson.yaradio3.session
 import android.accounts.NetworkErrorException
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import okhttp3.Cookie
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.json.JSONObject
@@ -58,6 +59,7 @@ class Session private constructor(context: Context) {
         get() = yandexCommunicator.trackHistory
 
     companion object {
+        private val TAG = "Session"
         private val sessions: HashMap<Int, Session> = hashMapOf()
 
         /**
@@ -346,6 +348,12 @@ class Session private constructor(context: Context) {
         yandexCommunicator.cleanup()
         this.tag = tag
         yandexCommunicator.next()
+
+        if (track == null) {
+            Log.w(TAG, "Track is null")
+            return
+        }
+
         manager.sayAboutTrack(track!!, 0.0, auth, manager.radioStarted)
     }
 
@@ -377,8 +385,10 @@ class Session private constructor(context: Context) {
      * @return track url or empty string if you incorrect used Session
      */
     fun startTrack(): String {
-        if(track == null)
+        if(track == null) {
+            Log.w(TAG, "Track is null")
             return ""
+        }
         return yandexCommunicator.startTrack(track!!, quality)
     }
 

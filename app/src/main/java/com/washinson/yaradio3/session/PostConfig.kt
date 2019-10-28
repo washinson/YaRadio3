@@ -4,7 +4,7 @@ class PostConfig {
     val cur = StringBuilder();
 
     fun put(f: String, s: String) {
-        if (cur.length != 0)
+        if (cur.isNotEmpty())
             cur.append("&")
         cur.append(f).append("=").append(s)
     }
