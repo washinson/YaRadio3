@@ -20,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.media.session.MediaButtonReceiver
+import com.washinson.yaradio3.common.DisableBatterySaverDialog
 import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.player.MediaSessionCallback
 import com.washinson.yaradio3.player.PlayerActivity
@@ -65,6 +66,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         navView.setNavigationItemSelectedListener(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val sharedPreferences = getSharedPreferences("DisableBatteryDialog", Context.MODE_PRIVATE)
+            if (!sharedPreferences.getBoolean("showed", false)) {
+                DisableBatterySaverDialog.create(this).show()
+                sharedPreferences.edit().putBoolean("showed", true).apply()
+            }
+        }
 
         loadSession()
     }
