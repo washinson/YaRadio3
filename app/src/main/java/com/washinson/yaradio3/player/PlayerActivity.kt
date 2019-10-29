@@ -97,16 +97,21 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
                     if (state?.state == PlaybackStateCompat.STATE_STOPPED) {
                         finish()
                     }
+                    val playerInfoFragment = (viewPager.adapter as FragmentPagerAdapter).getItem(1) as PlayerInfoFragment
                     playerInfoFragment.updateOnPlaybackState(state ?: return)
                 }
 
                 override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                    val playerInfoFragment = (viewPager.adapter as FragmentPagerAdapter).getItem(1) as PlayerInfoFragment
+                    val playerHistoryFragment = (viewPager.adapter as FragmentPagerAdapter).getItem(0) as PlayerHistoryFragment
+                    val playerNextFragment = (viewPager.adapter as FragmentPagerAdapter).getItem(2) as PlayerNextFragment
                     playerInfoFragment.onMetadataUpdate(metadata ?: return)
-                    playerHistoryFragment.adapter.onMetadataUpdate()
-                    playerNextFragment.adapter.onMetadataUpdate()
+                    playerHistoryFragment.adapter?.onMetadataUpdate()
+                    playerNextFragment.adapter?.onMetadataUpdate()
                 }
             })
 
+            val playerInfoFragment = (viewPager.adapter as FragmentPagerAdapter).getItem(1) as PlayerInfoFragment
             playerInfoFragment.updateInterface(playerService ?: return)
 
             playerService!!.onTagChanged(intent.getStringExtra("tag"))

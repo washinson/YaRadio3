@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 class PlayerHistoryFragment : Fragment() {
     lateinit var listHistoryView: ListView
     lateinit var backButton: ImageView
-    lateinit var adapter: MyAdapter
+    var adapter: MyAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,7 +60,7 @@ class PlayerHistoryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        adapter.onMetadataUpdate()
+        adapter?.onMetadataUpdate()
     }
 
     fun onLoadTrackClicked(track: Track) {

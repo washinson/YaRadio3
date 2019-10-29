@@ -28,7 +28,7 @@ import com.washinson.yaradio3.session.Track
 class PlayerNextFragment : Fragment() {
     lateinit var listHistoryView: ListView
     lateinit var backButton: ImageView
-    lateinit var adapter: MyAdapter
+    var adapter: MyAdapter? = null
 
     var isPaused = false
 
@@ -62,7 +62,7 @@ class PlayerNextFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         isPaused = false
-        adapter.onMetadataUpdate()
+        adapter?.onMetadataUpdate()
     }
 
     fun onLoadTrackClicked(track: Track) {
