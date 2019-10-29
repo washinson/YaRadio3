@@ -354,7 +354,7 @@ class Manager(context: Context) {
     fun setDefaultHeaders(request: Request.Builder) {
         request.apply {
             addHeader("Accept", "application/json; q=1.0, text/*; q=0.8, */*; q=0.1")
-            addHeader("Accept-Encoding", "gzip, deflate, sdch, br")
+            addHeader("Accept-Encoding", "gzip")
             addHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4")
             //connection.addHeader("Cache-Control", "max-age=0")
             cacheControl(CacheControl.parse(
