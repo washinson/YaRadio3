@@ -18,6 +18,11 @@ import java.io.IOException
 import java.lang.Exception
 import java.net.UnknownHostException
 import okhttp3.OkHttpClient
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLConnection
 
 
 /**
@@ -270,8 +275,8 @@ class Manager(context: Context) {
         setDefaultHeaders(builder)
 
         builder.apply {
-            addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
-            addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+            addHeader("Referer", "https://radio.yandex.ru/" + typeAndTag(tag))
+            addHeader("X-Retpath-Y", "https://radio.yandex.ru/" + typeAndTag(tag))
         }
 
         val httpUrl = "https://radio.yandex.ru".toHttpUrlOrNull()
@@ -297,8 +302,8 @@ class Manager(context: Context) {
         setDefaultHeaders(builder)
 
         builder.apply {
-            addHeader("Referer", "https://radio.yandex.ru" + typeAndTag(tag))
-            addHeader("X-Retpath-Y", "https://radio.yandex.ru" + typeAndTag(tag))
+            addHeader("Referer", "https://radio.yandex.ru/" + typeAndTag(tag))
+            addHeader("X-Retpath-Y", "https://radio.yandex.ru/" + typeAndTag(tag))
             addHeader("Origin", "https://radio.yandex.ru")
             addHeader("Content-Type", contentType)
         }
@@ -323,6 +328,29 @@ class Manager(context: Context) {
     fun get(url: String, request1: Request?, tag: Tag?): String? {
         val request = request1 ?: getGetRequest(url, tag)
         return doRequest(request)
+    }
+
+    /**
+     * Do get request to [url]
+     * Created only for single situation. Do not use it
+     *
+     * @param url
+     * @return
+     */
+    fun get1(url: String): String? {
+        val url1 = URL(url)
+        val yc = url1.openConnection() as HttpURLConnection
+        yc.requestMethod = "GET"
+        val in1 = BufferedReader(InputStreamReader(yc.inputStream))
+        var inputLine: String? = in1.readLine()
+        val sb = StringBuilder()
+
+        while (inputLine != null) {
+            sb.append(inputLine)
+            inputLine = in1.readLine()
+        }
+
+        return sb.toString()
     }
 
     /**

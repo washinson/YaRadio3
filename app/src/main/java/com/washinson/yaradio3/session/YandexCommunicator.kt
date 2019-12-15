@@ -90,11 +90,13 @@ class YandexCommunicator(val manager: Manager, val auth: Auth) {
 
         val src = qualityInfo.byQuality(quality) + "&format=json"
 
+        /* Not stable in latest time
         val builder = okhttp3.Request.Builder().get().url(src)
         builder.addHeader("Host", "storage.mds.yandex.net")
         manager.setDefaultHeaders(builder)
 
-        val result = manager.get(src, builder.build(), track.tag) ?: throw NetworkErrorException()
+        val result = manager.get(src, builder.build(), track.tag) ?: throw NetworkErrorException() */
+        val result = manager.get1(src) ?: throw NetworkErrorException()
         val downloadInformation = JSONObject(result)
         val info = DownloadInfo(downloadInformation)
         val downloadPath = info.getSrc()
