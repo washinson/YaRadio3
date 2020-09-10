@@ -4,7 +4,7 @@ package com.washinson.yaradio3.player
 import android.Manifest
 import android.accounts.NetworkErrorException
 import android.annotation.SuppressLint
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -26,11 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-
-/**
- * A simple [Fragment] subclass.
- *
- */
 class PlayerHistoryFragment : Fragment() {
     lateinit var listHistoryView: ListView
     lateinit var backButton: ImageView
@@ -64,7 +59,7 @@ class PlayerHistoryFragment : Fragment() {
     }
 
     fun onLoadTrackClicked(track: Track) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context!!)
 
         builder.setMessage(getString(R.string.download_track))
             .setTitle(getString(R.string.download_title))
@@ -80,7 +75,7 @@ class PlayerHistoryFragment : Fragment() {
                 try {
                     loadTrack(track)
                 } catch (e: Exception) {
-                    val alertBuilder1 = AlertDialog.Builder(activity)
+                    val alertBuilder1 = AlertDialog.Builder(activity!!)
                     alertBuilder1.setMessage(getString(R.string.error))
                         .setTitle(e.message)
                         .create().show()
@@ -115,7 +110,7 @@ class PlayerHistoryFragment : Fragment() {
                 }
             }
         } catch (e: Exception) {
-            val alertBuilder1 = AlertDialog.Builder(activity)
+            val alertBuilder1 = AlertDialog.Builder(activity!!)
             alertBuilder1.setMessage(getString(R.string.error))
                 .setTitle(e.message)
                 .create().show()
