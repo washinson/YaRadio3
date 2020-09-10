@@ -24,8 +24,8 @@ import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, CoroutineScope,
         RecommendedFragment.OnFragmentInteractionListener, TagsFragment.OnFragmentInteractionListener, SettingsFragment.OnFragmentInteractionListener {
-    protected val job = SupervisorJob() // экземпляр Job для данной активности
-    override val coroutineContext = Dispatchers.Main.immediate+job
+    protected val job = SupervisorJob()
+    override val coroutineContext = Dispatchers.IO+job
 
     val settingsFragmentTag: String = "settingsFragmentTag"
     val tagsFragmentTag: String = "tagsFragmentTag"
@@ -40,17 +40,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //val toolbar: Toolbar = findViewById(R.id.toolbar)
-        //setSupportActionBar(toolbar)
-
         loginButton = findViewById(R.id.user_login_button)
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
-        //val toggle = ActionBarDrawerToggle(
-        //    this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        //)
-        //drawerLayout.addDrawerListener(toggle)
-        //toggle.syncState()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -117,7 +109,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (requestCode == 0 && resultCode == RESULT_OK) {
             val cookies = data?.getStringExtra("cookies")
 
-            launch(Dispatchers.IO) {
+            launch {
                 stopPlayback()
                 session?.login(cookies)
                 launch(Dispatchers.Main) {
@@ -139,7 +131,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         while(supportFragmentManager.popBackStackImmediate()){}
 
         supportFragmentManager.beginTransaction().replace(R.id.tags_frame, LoadingFragment()).commitAllowingStateLoss()
-        launch(Dispatchers.IO) {
+        launch {
             var result = false
             while(!result) {
                 try {
@@ -181,7 +173,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun logout() {
-        launch(Dispatchers.IO) {
+        launch {
             stopPlayback()
             session?.logout()
             launch(Dispatchers.Main) {

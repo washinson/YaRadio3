@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.R
 import com.washinson.yaradio3.session.Session
@@ -15,8 +16,8 @@ import com.washinson.yaradio3.station.Settings
 import kotlinx.coroutines.*
 
 class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
-    protected val job = SupervisorJob() // экземпляр Job для данной активности
-    override val coroutineContext = Dispatchers.Main.immediate+job
+    private val job = SupervisorJob()
+    override val coroutineContext = Dispatchers.IO+job
 
     lateinit var moodGroup: CustomRadioGroup
     lateinit var languageGroup: CustomRadioGroup
@@ -28,18 +29,16 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player_tag_settings)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = ContextCompat.getColor(this , R.color.colorHeader)
         }
-
         moodGroup = CustomRadioGroup(findViewById(R.id.mood_energy))
         languageGroup = CustomRadioGroup(findViewById(R.id.language))
         diversityGroup =  CustomRadioGroup(findViewById(R.id.diversity))
 
-        launch(Dispatchers.IO) {
+        launch {
             ThreadWaitForResult.load{
                 session = Session.getInstance(0, this@PlayerTagSettingsActivity)
                 settings = session!!.tag?.getSettings()
@@ -107,20 +106,23 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
             checkedRadioButtonId = id
             for (i in 0 until layout.childCount) {
                 val cur = layout.getChildAt(i) as? Button ?: continue
-
                 if (cur.id != checkedRadioButtonId) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        cur.background =
-                            this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_passive)
-                    else
-                        cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_passive))
+                    ViewCompat.setBackground(
+                        cur,
+                        ContextCompat.getDrawable(
+                            baseContext,
+                            R.drawable.settings_radio_item_passive
+                        )
+                    )
                     cur.setTextColor(Color.parseColor("#DEDEDE"))
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        cur.background =
-                            this@PlayerTagSettingsActivity.getDrawable(R.drawable.settings_radio_item_active)
-                    else
-                        cur.setBackgroundDrawable(resources.getDrawable(R.drawable.settings_radio_item_active))
+                    ViewCompat.setBackground(
+                        cur,
+                        ContextCompat.getDrawable(
+                            baseContext,
+                            R.drawable.settings_radio_item_active
+                        )
+                    )
                     cur.setTextColor(Color.parseColor("#3F3F3F"))
                 }
             }

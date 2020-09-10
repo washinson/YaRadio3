@@ -57,14 +57,9 @@ class PlayerActivity : AppCompatActivity(), PlayerInfoFragment.OnFragmentInterac
         connectService()
     }
 
-    fun connectService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            bindService(Intent(this, PlayerService::class.java),
-                mConnection, Context.BIND_AUTO_CREATE)
-        } else {
-            bindService(Intent(this, PlayerService::class.java),
-                mConnection, Context.BIND_AUTO_CREATE)
-        }
+    private fun connectService() {
+        bindService(Intent(this, PlayerService::class.java),
+            mConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onDestroy() {
