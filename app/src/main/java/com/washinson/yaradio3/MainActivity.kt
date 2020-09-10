@@ -1,30 +1,22 @@
 package com.washinson.yaradio3
 
 import android.accounts.NetworkErrorException
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.*
-import android.media.AudioManager
-import android.media.session.MediaSession
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.view.*
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import androidx.appcompat.app.AppCompatActivity
-import android.view.inputmethod.BaseInputConnection
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.media.session.MediaButtonReceiver
 import com.washinson.yaradio3.common.DisableBatterySaverDialog
-import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.player.MediaSessionCallback
 import com.washinson.yaradio3.player.PlayerActivity
-import com.washinson.yaradio3.player.PlayerService
 import com.washinson.yaradio3.session.Session
 import com.washinson.yaradio3.station.Tag
 import com.washinson.yaradio3.station.Type
@@ -122,7 +114,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 0 && resultCode == RESULT_OK) {
             val cookies = data?.getStringExtra("cookies")
 
             launch(Dispatchers.IO) {

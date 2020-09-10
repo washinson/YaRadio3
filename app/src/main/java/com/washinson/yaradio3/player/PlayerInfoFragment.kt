@@ -15,10 +15,10 @@ import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.exoplayer2.Player
 import com.washinson.yaradio3.common.Mp3Downloader
 import com.washinson.yaradio3.session.Session
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.accounts.NetworkErrorException
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import androidx.core.content.ContextCompat
 import android.content.pm.PackageManager
@@ -26,20 +26,11 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.washinson.yaradio3.R
-import com.washinson.yaradio3.TagsFragment
-import kotlinx.android.synthetic.main.fragment_player_info.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 
-
-/**
- * A simple [Fragment] subclass.
- *
- */
 class PlayerInfoFragment : Fragment(), CoroutineScope {
     protected val job = SupervisorJob() // экземпляр Job для данной активности
     override val coroutineContext = Dispatchers.Main.immediate+job
@@ -164,7 +155,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == 0 && resultCode == AppCompatActivity.RESULT_OK && data != null) {
             val curMoodEnergy =
                 data.getStringExtra("moodEnergy") ?: return
             val curDiversity =
@@ -190,7 +181,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
     }
 
     fun onLoadTrackClicked() {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context!!)
 
         builder.setMessage(getString(R.string.download_track))
             .setTitle(getString(R.string.download_title))
@@ -206,7 +197,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
                 try {
                     loadTrack()
                 } catch (e: Exception) {
-                    val alertBuilder1 = AlertDialog.Builder(activity)
+                    val alertBuilder1 = AlertDialog.Builder(activity!!)
                     alertBuilder1.setMessage(getString(R.string.error))
                         .setTitle(e.message)
                         .create().show()
@@ -242,7 +233,7 @@ class PlayerInfoFragment : Fragment(), CoroutineScope {
                 }
             }
         } catch (e: Exception) {
-            val alertBuilder1 = AlertDialog.Builder(activity)
+            val alertBuilder1 = AlertDialog.Builder(activity!!)
             alertBuilder1.setMessage(getString(R.string.error))
                 .setTitle(e.message)
                 .create().show()

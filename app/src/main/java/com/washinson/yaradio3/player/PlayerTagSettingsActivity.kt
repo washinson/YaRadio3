@@ -1,19 +1,12 @@
 package com.washinson.yaradio3.player
 
-import android.accounts.NetworkErrorException
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import com.washinson.yaradio3.common.ThreadWaitForResult
 import com.washinson.yaradio3.R
@@ -91,7 +84,7 @@ class PlayerTagSettingsActivity : AppCompatActivity(), CoroutineScope {
                 intent.putExtra("language", curLanguage)
             }
         }
-        setResult(Activity.RESULT_OK, intent)
+        setResult(RESULT_OK, intent)
     }
 
     inner class CustomRadioGroup(val layout: LinearLayout) {
